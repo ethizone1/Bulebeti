@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
 });
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/bulebet')
+mongoose.connect(process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/bulebet')
 .then(() => {
   console.log('Connected to MongoDB');
   app.listen(PORT, () => {
