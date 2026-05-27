@@ -74,7 +74,7 @@ const QRCodeModal = ({ isOpen, onClose, restaurantName, restaurantId }) => {
 
   if (!isOpen) return null;
 
-  const baseUrl = `http://localhost:5173/bulebet/${restaurantName}`;
+  const baseUrl = `${window.location.origin}/bulebet/${restaurantName}`;
 
   return (
     <div style={{

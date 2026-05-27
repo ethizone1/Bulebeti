@@ -177,7 +177,7 @@ const AdminSettings = () => {
                 <label className="form-label fw-bold small mb-1">{t('admin_set_prof_url')}</label>
                 <input 
                   type="url" 
-                  value={restaurant ? `http://localhost:5173/bulebet/${restaurant.slug}` : ''} 
+                  value={restaurant ? `${window.location.origin}/bulebet/${restaurant.slug}` : ''} 
                   readOnly 
                   className="form-control bg-light text-muted"
                   style={{ cursor: 'not-allowed' }}
