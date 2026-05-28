@@ -44,7 +44,12 @@ const CateringManagement = () => {
       const catRes = await fetch(`${config.API_URL}/api/catering/restaurant/${restaurant._id}`);
       if (!catRes.ok) throw new Error('Failed to fetch catering requests');
       const data = await catRes.json();
-      setRequests(data);
+      const sortedData = data.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+        return dateB - dateA;
+      });
+      setRequests(sortedData);
     } catch (err) {
       console.error('Error fetching catering:', err);
     } finally {

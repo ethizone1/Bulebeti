@@ -42,7 +42,12 @@ const ReservationManagement = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        setReservations(data);
+        const sortedData = data.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+          const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+          return dateB - dateA;
+        });
+        setReservations(sortedData);
       }
     } catch (err) {
       console.error(err);
