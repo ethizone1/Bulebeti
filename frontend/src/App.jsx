@@ -42,6 +42,7 @@ import AddLocation from './pages/admin/AddLocation';
 import AdminSettings from './pages/admin/AdminSettings';
 import TestimonialsManager from './pages/admin/TestimonialsManager';
 import TeamManagement from './pages/admin/TeamManagement';
+import SupportForm from './pages/admin/SupportForm';
 
 // Super Admin Pages
 import SuperAdminDashboard from './pages/super-admin/SuperAdminDashboard';
@@ -308,6 +309,7 @@ function App() {
                     <Route path="events/create" element={<AdminPage element={CreateEvent} minTier="Premium" />} />
                     <Route path="events/edit/:eventId" element={<AdminPage element={EditEvent} minTier="Premium" />} />
                     <Route path="team" element={<AdminPage element={TeamManagement} minTier="Gold" />} />
+                    <Route path="support" element={<AdminPage element={SupportForm} minTier="Silver" />} />
                     <Route path="settings" element={<AdminPage element={AdminSettings} minTier="Silver" />} />
                   </Routes>
                 </AdminLayout>

@@ -94,6 +94,7 @@ const AdminSidebar = ({ currentTier = 'Platinum', onTierChange }) => {
     {name: t('admin_testimonials'),  path: `/bulebet/${restaurantName}/admin/testimonials`, icon: '⭐', minTier: 'Premium', requiredPermission: 'manage_feedback'},
     {name: 'Gallery',                path: `/bulebet/${restaurantName}/admin/gallery`,      icon: '🖼️', minTier: 'Gold', requiredPermission: 'manage_menu'},
     {name: 'Team Management',        path: `/bulebet/${restaurantName}/admin/team`,         icon: '👥', minTier: 'Gold', requiredPermission: 'manage_team'},
+    {name: 'Help & Support',         path: `/bulebet/${restaurantName}/admin/support`,      icon: '❓', minTier: 'Silver', requiredPermission: 'none'},
     {name: t('admin_settings'),      path: `/bulebet/${restaurantName}/admin/settings`,     icon: '⚙️', minTier: 'Silver', requiredPermission: 'all'},
   ];
 

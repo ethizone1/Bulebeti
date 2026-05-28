@@ -1,16 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import config from '../../config';
 
 const PlatformInquiries = () => {
-  const [inquiries, setInquiries] = useState([
-    { id: 1, name: 'Robert C.', email: 'robert@grandhotel.com', subject: 'Partnership Proposal', message: 'Interested in onboarding our 5 luxury locations to BuleBet.', status: 'New', date: '2026-05-14' },
-    { id: 2, name: 'Sonia L.', email: 'sonia@bistro-east.com', subject: 'Technical Support', message: 'Unable to upload high-resolution menu images.', status: 'Pending', date: '2026-05-13' },
-    { id: 3, name: 'Michael K.', email: 'mike@foodie.com', subject: 'Platform Inquiry', message: 'Do you offer custom branding for Platinum tier?', status: 'Resolved', date: '2026-05-12' },
-  ]);
+  const [inquiries, setInquiries] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleResolve = (id) => {
-    setInquiries(prev => prev.map(i => i.id === id ? { ...i, status: 'Resolved' } : i));
-    alert('Inquiry marked as Resolved. A confirmation has been sent to the user.');
+  const fetchInquiries = async () => {
+    try {
+      const res = await fetch(`${config.API_URL}/api/inquiries`);
+      if (res.ok) {
+        const data = await res.json();
+        setInquiries(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch inquiries', err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchInquiries();
+  }, []);
+
+  const handleResolve = async (id) => {
+    try {
+      const res = await fetch(`${config.API_URL}/api/inquiries/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Resolved' })
+      });
+      
+      if (res.ok) {
+        setInquiries(prev => prev.map(i => i._id === id ? { ...i, status: 'Resolved' } : i));
+        alert('Inquiry marked as Resolved. A confirmation has been sent to the user.');
+      }
+    } catch (err) {
+      alert('Failed to update inquiry status');
+    }
+  };
+
+  if (loading) return <div style={{ padding: '40px' }}>Loading inquiries...</div>;
 
   return (
     <div>
@@ -26,7 +56,7 @@ const PlatformInquiries = () => {
 
       <div style={{ display: 'grid', gap: '20px' }}>
         {inquiries.map((inquiry) => (
-          <div key={inquiry.id} style={{
+          <div key={inquiry._id} style={{
             backgroundColor: 'white',
             padding: '24px',
             borderRadius: '12px',
@@ -46,29 +76,41 @@ const PlatformInquiries = () => {
                 }}>
                   {inquiry.status.toUpperCase()}
                 </span>
-                <span style={{ fontSize: '12px', color: '#6b7280' }}>{inquiry.date}</span>
+                <span style={{ fontSize: '12px', color: '#6b7280' }}>{new Date(inquiry.createdAt).toLocaleDateString()}</span>
               </div>
               <div style={{ fontSize: '14px', fontWeight: '700', color: 'var(--gold)' }}>{inquiry.subject}</div>
             </div>
 
             <div style={{ marginBottom: '20px' }}>
               <div style={{ fontWeight: '700', fontSize: '16px', marginBottom: '4px' }}>{inquiry.name}</div>
-              <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>{inquiry.email}</div>
+              <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>
+                {inquiry.email} {inquiry.phone ? `• ${inquiry.phone}` : ''}
+              </div>
               <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.6', color: '#374151' }}>"{inquiry.message}"</p>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid #f3f4f6', paddingTop: '16px' }}>
               {inquiry.status !== 'Resolved' ? (
                 <>
-                  <button className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '12px' }}>Reply via Concierge</button>
-                  <button onClick={() => handleResolve(inquiry.id)} className="btn btn-outline" style={{ padding: '8px 20px', fontSize: '12px' }}>Mark as Resolved</button>
+                  <a href={`mailto:${inquiry.email}`} className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '12px', textDecoration: 'none' }}>Reply via Email</a>
+                  {inquiry.phone && (
+                    <a href={`https://wa.me/${inquiry.phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noreferrer" className="btn btn-outline-success" style={{ padding: '8px 20px', fontSize: '12px', textDecoration: 'none' }}>WhatsApp</a>
+                  )}
+                  <button onClick={() => handleResolve(inquiry._id)} className="btn btn-outline" style={{ padding: '8px 20px', fontSize: '12px' }}>Mark as Resolved</button>
                 </>
               ) : (
-                <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '700' }}>✓ RESOLVED & ARCHIVED</div>
+                <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '700' }}>✅ RESOLVED & ARCHIVED</div>
               )}
             </div>
           </div>
         ))}
+
+        {inquiries.length === 0 && !loading && (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280', backgroundColor: 'white', borderRadius: '12px' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+            <p>No platform inquiries found. Inbox zero!</p>
+          </div>
+        )}
       </div>
     </div>
   );
