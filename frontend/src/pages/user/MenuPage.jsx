@@ -114,44 +114,65 @@ const MenuPage = () => {
                 {t('menu_sig_desc')}
               </p>
             </div>
-            <div style={{ flex: '1', minWidth: '300px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-              <div style={{ 
-                gridRow: 'span 2',
-                height: '300px', 
-                borderRadius: 'var(--radius-lg)', 
-                overflow: 'hidden',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-                border: '1px solid rgba(255,255,255,0.2)'
-              }}>
-                <img src="/signature_dish_premium_1778815712770.png" alt="Signature Dish" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-              <div style={{ 
-                height: '142px', 
-                backgroundColor: 'rgba(255,255,255,0.1)', 
-                borderRadius: 'var(--radius-md)', 
-                border: '1px solid rgba(255,255,255,0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '24px',
-                color: 'var(--gold)'
-              }}>
-                🍷
-              </div>
-              <div style={{ 
-                height: '142px', 
-                backgroundColor: 'rgba(255,255,255,0.1)', 
-                borderRadius: 'var(--radius-md)', 
-                border: '1px solid rgba(255,255,255,0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '24px',
-                color: 'var(--gold)'
-              }}>
-                🕯️
-              </div>
-            </div>
+            {(() => {
+              const allItems = menuCategories.flatMap(c => c.items).filter(i => i.visible);
+              const customImgs = allItems.filter(i => i.img && !i.img.includes('unsplash.com')).map(i => i.img);
+              const fallbackImgs = allItems.filter(i => i.img && i.img.includes('unsplash.com')).map(i => i.img);
+              const images = [...customImgs, ...fallbackImgs];
+              
+              return (
+                <div style={{ flex: '1', minWidth: '300px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                  <div style={{ 
+                    gridRow: 'span 2',
+                    height: '300px', 
+                    borderRadius: 'var(--radius-lg)', 
+                    overflow: 'hidden',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {images[0] ? (
+                      <img src={images[0]} alt="Signature Dish" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : <span style={{ fontSize: '64px' }}>🍽️</span>}
+                  </div>
+                  <div style={{ 
+                    height: '142px', 
+                    backgroundColor: 'rgba(255,255,255,0.1)', 
+                    borderRadius: 'var(--radius-md)', 
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '24px',
+                    color: 'var(--gold)',
+                    overflow: 'hidden'
+                  }}>
+                    {images[1] ? (
+                      <img src={images[1]} alt="Featured Dish" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : '🍷'}
+                  </div>
+                  <div style={{ 
+                    height: '142px', 
+                    backgroundColor: 'rgba(255,255,255,0.1)', 
+                    borderRadius: 'var(--radius-md)', 
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '24px',
+                    color: 'var(--gold)',
+                    overflow: 'hidden'
+                  }}>
+                    {images[2] ? (
+                      <img src={images[2]} alt="Featured Drink" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : '🕯️'}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </section>
