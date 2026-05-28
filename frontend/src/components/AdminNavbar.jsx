@@ -173,18 +173,16 @@ const AdminNavbar = ({ currentTier = 'Platinum' }) => {
   };
 
   return (
-    <header style={{
+    <header className="admin-navbar-header" style={{
       height: '70px',
       backgroundColor: 'white',
       borderBottom: '1px solid var(--platinum)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0 var(--spacing-xl)',
       position: 'sticky',
       top: 0,
       zIndex: 200,
-      gap: '24px'
     }}>
       {/* ── Brand logo → customer main page ──────────────────── */}
       <Link
@@ -247,13 +245,13 @@ const AdminNavbar = ({ currentTier = 'Platinum' }) => {
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+      <div className="admin-navbar-actions" style={{ display: 'flex', alignItems: 'center' }}>
         {/* My Restaurant Button */}
         <a
           href={`/bulebet/${restaurantName}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn btn-outline"
+          className="btn btn-outline hide-on-mobile"
           style={{ padding: '6px 12px', fontSize: '13px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}
         >
           <span>👁️</span> {restaurantDisplayName}
@@ -262,7 +260,7 @@ const AdminNavbar = ({ currentTier = 'Platinum' }) => {
         {/* Get QR Code Button */}
         <button
           onClick={() => setQrModalOpen(true)}
-          className="btn btn-outline"
+          className="btn btn-outline hide-on-mobile"
           style={{ padding: '6px 12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid var(--gold)', color: 'var(--gold)' }}
         >
           <span>📱</span> Get QR Code

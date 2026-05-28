@@ -507,6 +507,24 @@ h4 { font-size: clamp(15px, 2vw, 20px); font-weight: 600; }
 }
 
 /* ── Admin Navbar ────────────────────────────────────────── */
+.admin-navbar-header {
+  padding: 0 var(--spacing-xl);
+  gap: 24px;
+}
+.admin-navbar-actions {
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .admin-navbar-header {
+    padding: 0 var(--spacing-md);
+    gap: 12px;
+  }
+  .admin-navbar-actions {
+    gap: 12px;
+  }
+}
+
 @media (max-width: 600px) {
   .admin-navbar-search { display: none !important; }
 }
