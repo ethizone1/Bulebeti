@@ -93,12 +93,12 @@ const LocationManagement = () => {
                     
                     <div className="border-top pt-3 d-flex justify-content-between align-items-end mt-auto">
                       <div>
-                        {loc.address && <div className="text-muted small mb-1">&#128205; {loc.address}</div>}
-                        {loc.phone && <div className="text-muted small">&#128222; {loc.phone}</div>}
+                        {loc.address && <div className="text-muted small mb-1">📍 {loc.address}</div>}
+                        {loc.phone && <div className="text-muted small">📞 {loc.phone}</div>}
                       </div>
                       <div>
                         {isCurrent ? (
-                          <span className="text-warning fw-bold small">&#9679; Active Hub</span>
+                          <span className="text-warning fw-bold small">● Active Hub</span>
                         ) : (
                           <button 
                             onClick={() => {

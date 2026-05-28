@@ -93,7 +93,7 @@ const AddLocation = ({ currentTier }) => {
         <div className="card-body p-4 p-md-5">
           {error && (
             <div className="alert alert-danger py-2 mb-4 fw-medium fs-6">
-              &#9888; {error}
+              ⚠ {error}
             </div>
           )}
 
@@ -214,7 +214,7 @@ const AddLocation = ({ currentTier }) => {
                   </div>
                 ) : (
                   <>
-                    <div className="display-6 mb-2">&#128248;</div>
+                    <div className="display-6 mb-2">📸</div>
                     <div className="small text-muted">Click to upload logo image</div>
                     <input 
                       type="file" 

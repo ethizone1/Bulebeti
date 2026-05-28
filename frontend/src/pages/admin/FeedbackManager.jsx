@@ -72,7 +72,7 @@ const FeedbackManager = () => {
         <h1 className="fs-3 fw-bold m-0">{t('admin_fb_title')}</h1>
         <div className="d-flex gap-3">
           <div className="text-end">
-            <div className="fs-5 fw-bold text-warning">4.8 &#9733;</div>
+            <div className="fs-5 fw-bold text-warning">4.8 ★</div>
             <div className="small text-muted">{t('admin_fb_avg')}</div>
           </div>
         </div>
@@ -90,7 +90,7 @@ const FeedbackManager = () => {
                 {fb.phone} {fb.email ? `• ${fb.email}` : ''}
               </div>
               <div className="text-warning mb-2">
-                {'&#9733;'.repeat(fb.rating)}{'&#9734;'.repeat(5-fb.rating)}
+                {'★'.repeat(fb.rating)}{'☆'.repeat(5-fb.rating)}
               </div>
               <p className="fst-italic text-primary mb-0">"{fb.comment}"</p>
             </div>
@@ -110,7 +110,7 @@ const FeedbackManager = () => {
         ))}
         {feedbacks.length === 0 && !loading && (
           <div className="py-5 text-center text-muted">
-             <div className="display-6 mb-3">&#128172;</div>
+             <div className="display-6 mb-3">💬</div>
              <p>No feedback available.</p>
           </div>
         )}

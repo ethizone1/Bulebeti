@@ -262,7 +262,7 @@ const AddMenuItem = () => {
                 </div>
               ) : (
                 <>
-                  <div className="display-6 mb-2">&#128444;</div>
+                  <div className="display-6 mb-2">🖼️</div>
                   <div className="fw-bold">{t('admin_item_upload')}</div>
                   <div className="small text-muted mt-1">{t('admin_item_upload_rec')}</div>
                   <input 

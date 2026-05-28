@@ -162,7 +162,7 @@ const EditMenuItem = () => {
       {/* Header */}
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-          <h1 className="fs-3 fw-bold m-0">&#9999;&#65039; Edit Menu Item</h1>
+          <h1 className="fs-3 fw-bold m-0">✏️ Edit Menu Item</h1>
           <p className="text-muted m-0 mt-1">Changes will be saved to the database and reflected immediately.</p>
         </div>
         <button onClick={() => navigate(`/bulebet/${restaurantName}/admin/menu`)} className="btn btn-outline-secondary fw-bold px-4">
@@ -356,7 +356,7 @@ const EditMenuItem = () => {
               </div>
               <div>
                 <div className="fw-bold mb-1">
-                  {formData.isAvailable ? '&#9989; Visible on menu' : '&#128584; Hidden from menu'}
+                  {formData.isAvailable ? '✅ Visible on menu' : '🙈 Hidden from menu'}
                 </div>
                 <div className="small text-muted">
                   Toggle to show or hide this item on the public menu
@@ -373,13 +373,13 @@ const EditMenuItem = () => {
               <div className="border rounded bg-light d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style={{ width: '110px', height: '110px' }}>
                 {imagePreview
                   ? <img src={imagePreview} alt="Preview" className="w-100 h-100 object-fit-cover" />
-                  : <span className="display-6">&#127869;&#65039;</span>
+                  : <span className="display-6">🍽️</span>
                 }
               </div>
               {/* Upload */}
               <label className="flex-grow-1 border border-dashed rounded p-4 text-center bg-light" style={{ cursor: 'pointer' }}>
                 <input type="file" accept="image/*" onChange={handleImageUpload} className="d-none" />
-                <div className="fs-3 mb-2">&#128247;</div>
+                <div className="fs-3 mb-2">📷</div>
                 <div className="fw-bold small mb-1">Click to upload new image</div>
                 <div className="small text-muted">PNG, JPG, WEBP &mdash; recommended 800&times;600px</div>
               </label>
@@ -400,7 +400,7 @@ const EditMenuItem = () => {
               disabled={saving}
               className="btn btn-primary px-4 py-2 fw-bold order-1 order-md-2 w-100"
             >
-              {saving ? '&#8987; Saving...' : '&#9989; Save Changes'}
+              {saving ? '⏳ Saving...' : '✅ Save Changes'}
             </button>
           </div>
         </div>

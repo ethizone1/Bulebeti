@@ -120,7 +120,7 @@ const CateringManagement = () => {
             {filtered.length} of {requests.length} catering requests
           </p>
         </div>
-        <button className="btn btn-outline-secondary fw-bold px-4" onClick={fetchCateringRequests}>&#8635; Refresh</button>
+        <button className="btn btn-outline-secondary fw-bold px-4" onClick={fetchCateringRequests}>↻ Refresh</button>
       </div>
 
       <div className="card border-0 shadow-sm rounded-4 p-4">
@@ -175,7 +175,7 @@ const CateringManagement = () => {
                 className="btn btn-outline-danger w-100 fw-bold"
                 onClick={() => { setSearchTerm(''); setStatusFilter('All'); setDateFilter(''); setTypeFilter('All'); }}
               >
-                &#10005; Clear
+                ✕ Clear
               </button>
             )}
           </div>
@@ -206,7 +206,7 @@ const CateringManagement = () => {
                 {filtered.length === 0 && (
                   <tr>
                     <td colSpan="7" className="text-center py-5 text-muted">
-                      <div className="display-6 mb-3">&#127869;&#65039;</div>
+                      <div className="display-6 mb-3">🍽️</div>
                       No catering requests match your filters.
                     </td>
                   </tr>
