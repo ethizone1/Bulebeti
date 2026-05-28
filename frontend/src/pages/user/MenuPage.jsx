@@ -36,6 +36,7 @@ const MenuPage = () => {
 
   const [menuCategories, setMenuCategories] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const [restaurantTier, setRestaurantTier] = React.useState('Platinum');
 
   React.useEffect(() => {
     let intervalId;
@@ -47,6 +48,7 @@ const MenuPage = () => {
         const restRes = await fetch(`${config.API_URL}/api/restaurants/${restaurantName}`);
         if (!restRes.ok) throw new Error('Restaurant not found');
         const restaurant = await restRes.json();
+        setRestaurantTier(restaurant.subscriptionTier === 'Basic' ? 'Silver' : (restaurant.subscriptionTier || 'Platinum'));
 
         // 2. Get menu
         const menuRes = await fetch(`${config.API_URL}/api/menu/restaurant/${restaurant._id}`);
@@ -97,7 +99,7 @@ const MenuPage = () => {
   return (
     <div className="menu-page" style={{ backgroundColor: 'var(--surface)' }}>
       {/* Signature Section - Featured at Top of User Page */}
-      {(activeFilter === 'all items' || activeFilter === 'our signature') && (
+      {(restaurantTier !== 'Silver') && (activeFilter === 'all items' || activeFilter === 'our signature') && (
         <section id="signature" style={{ 
         padding: 'var(--spacing-xl) 0', 
         backgroundColor: 'var(--primary)', 
@@ -191,6 +193,7 @@ const MenuPage = () => {
           </p>
           
           {/* Menu Category Dropdown Filter */}
+          {restaurantTier !== 'Silver' && (
           <div style={{ display: 'inline-block', position: 'relative' }}>
             <select 
               value={activeFilter}
@@ -227,6 +230,7 @@ const MenuPage = () => {
             </select>
             <span style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', fontSize: '12px', color: 'var(--gold)' }}>▼</span>
           </div>
+          )}
         </div>
 
         {menuCategories.map((category) => {

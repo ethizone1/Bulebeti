@@ -40,11 +40,11 @@ const Header = () => {
 
   const allNavLinks = [
     { name: t('nav_menu') || 'Menu', path: `/bulebet/${restaurantName}/menu`, originalName: 'Menu', minTier: 'Silver' },
-    { name: t('nav_reservations') || 'Reservations', path: `/bulebet/${restaurantName}/reservations`, originalName: 'Reservations', minTier: 'Silver' },
-    { name: t('nav_catering') || 'Catering', path: `/bulebet/${restaurantName}/catering`, originalName: 'Catering', minTier: 'Silver' },
-    { name: 'Gallery', path: `/bulebet/${restaurantName}/gallery`, originalName: 'Gallery', minTier: 'Silver' },
-    { name: 'Testimonials', path: `/bulebet/${restaurantName}/testimonials`, originalName: 'Testimonials', minTier: 'Silver' },
-    { name: 'Feedback', path: `/bulebet/${restaurantName}/feedback`, originalName: 'Feedback', minTier: 'Silver' },
+    { name: t('nav_reservations') || 'Reservations', path: `/bulebet/${restaurantName}/reservations`, originalName: 'Reservations', minTier: 'Gold' },
+    { name: t('nav_catering') || 'Catering', path: `/bulebet/${restaurantName}/catering`, originalName: 'Catering', minTier: 'Gold' },
+    { name: 'Gallery', path: `/bulebet/${restaurantName}/gallery`, originalName: 'Gallery', minTier: 'Gold' },
+    { name: 'Testimonials', path: `/bulebet/${restaurantName}/testimonials`, originalName: 'Testimonials', minTier: 'Gold' },
+    { name: 'Feedback', path: `/bulebet/${restaurantName}/feedback`, originalName: 'Feedback', minTier: 'Gold' },
   ];
 
   const navLinks = allNavLinks.filter(link => currentTierImp >= getTierImportance(link.minTier));
