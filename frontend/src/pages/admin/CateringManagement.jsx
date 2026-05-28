@@ -215,7 +215,7 @@ const CateringManagement = () => {
                     >
                       <td className="text-muted font-monospace small">
                         <span className="text-primary fw-bold me-2 d-inline-block" style={{ width: '16px' }}>
-                          {expandedRowId === req._id ? '&#9660;' : '&#9654;'}
+                          {expandedRowId === req._id ? '▼' : '▶'}
                         </span>
                         {req._id.slice(-6).toUpperCase()}
                       </td>

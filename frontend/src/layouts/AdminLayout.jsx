@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import AdminSidebar from '../components/AdminSidebar';
 import AdminNavbar from '../components/AdminNavbar';
 import AIChatWidget from '../components/AIChatWidget';
+import { setDynamicFavicon } from '../utils/favicon';
 import config from '../config';
 
 export const AdminContext = createContext();
@@ -25,6 +26,7 @@ const AdminLayout = ({ children }) => {
           const data = await res.json();
           setRestaurant(data);
           document.title = `BuleBet | ${data.name} Admin`;
+          setDynamicFavicon(data.name, data.logoUrl);
           if (data.subscriptionTier) {
             // Map backend 'Basic' to frontend 'Silver'
             const mappedTier = data.subscriptionTier === 'Basic' ? 'Silver' : data.subscriptionTier;

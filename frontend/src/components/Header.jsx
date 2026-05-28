@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { setDynamicFavicon } from '../utils/favicon';
 import config from '../config';
 
 const Header = () => {
@@ -22,6 +23,7 @@ const Header = () => {
           if (!data.msg) {
             setRestaurant(data);
             document.title = `BuleBet | ${data.name}`;
+            setDynamicFavicon(data.name, data.logoUrl);
           }
         })
         .catch(err => console.error("Header couldn't fetch restaurant", err));
