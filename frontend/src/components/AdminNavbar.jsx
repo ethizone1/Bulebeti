@@ -24,6 +24,7 @@ const AdminNavbar = ({ currentTier = 'Platinum' }) => {
   const { language, toggleLanguage } = useLanguage();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const [showQuickActions, setShowQuickActions] = useState(false);
   const [notifItems, setNotifItems] = useState([]);
   const [readIds, setReadIds] = useState(getReadIds);
   const [qrModalOpen, setQrModalOpen] = useState(false);
@@ -246,25 +247,51 @@ const AdminNavbar = ({ currentTier = 'Platinum' }) => {
       </div>
 
       <div className="admin-navbar-actions" style={{ display: 'flex', alignItems: 'center' }}>
-        {/* My Restaurant Button */}
-        <a
-          href={`/bulebet/${restaurantName}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-outline hide-on-mobile"
-          style={{ padding: '6px 12px', fontSize: '13px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}
-        >
-          <span>👁️</span> {restaurantDisplayName}
-        </a>
-
-        {/* Get QR Code Button */}
-        <button
-          onClick={() => setQrModalOpen(true)}
-          className="btn btn-outline hide-on-mobile"
-          style={{ padding: '6px 12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid var(--gold)', color: 'var(--gold)' }}
-        >
-          <span>📱</span> Get QR Code
-        </button>
+        {/* Quick Actions Dropdown */}
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => { setShowQuickActions(!showQuickActions); setShowNotifDropdown(false); setShowProfileMenu(false); }}
+            className="btn btn-outline"
+            style={{ padding: '6px 12px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <span>⚡</span> <span className="hide-on-mobile">Actions</span> <span style={{ fontSize: '10px' }}>▼</span>
+          </button>
+          
+          {showQuickActions && (
+            <div style={{
+              position: 'absolute',
+              top: '40px',
+              right: 0,
+              width: '180px',
+              backgroundColor: 'white',
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: 'var(--shadow-2)',
+              border: '1px solid var(--platinum)',
+              padding: '8px 0',
+              zIndex: 1000
+            }}>
+              <a
+                href={`/bulebet/${restaurantName}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setShowQuickActions(false)}
+                style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--primary)', fontSize: '13px', transition: 'background 0.2s' }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <span>👁️</span> View Restaurant
+              </a>
+              <div 
+                onClick={() => { setQrModalOpen(true); setShowQuickActions(false); }}
+                style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--gold)', fontWeight: '600', fontSize: '13px', cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <span>📱</span> Get QR Code
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Language Toggle */}
         <button
@@ -291,7 +318,7 @@ const AdminNavbar = ({ currentTier = 'Platinum' }) => {
         {/* Notifications Bell */}
         <div
           style={{ position: 'relative', cursor: 'pointer' }}
-          onClick={() => { setShowNotifDropdown(!showNotifDropdown); setShowProfileMenu(false); }}
+          onClick={() => { setShowNotifDropdown(!showNotifDropdown); setShowProfileMenu(false); setShowQuickActions(false); }}
         >
           <span style={{ fontSize: '20px' }}>🔔</span>
           {unreadCount > 0 && (
@@ -437,7 +464,7 @@ const AdminNavbar = ({ currentTier = 'Platinum' }) => {
         {/* Profile Dropdown */}
         <div style={{ position: 'relative' }}>
           <div
-            onClick={() => { setShowProfileMenu(!showProfileMenu); setShowNotifDropdown(false); }}
+            onClick={() => { setShowProfileMenu(!showProfileMenu); setShowNotifDropdown(false); setShowQuickActions(false); }}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', padding: '4px 8px', borderRadius: 'var(--radius-md)', transition: 'background 0.2s' }}
             onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
