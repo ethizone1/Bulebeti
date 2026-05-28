@@ -97,30 +97,38 @@ const Footer = () => {
               {t('footer_quick_links').toUpperCase()}
             </h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '12px' }}>
-              {[
-                ...(isRestaurantPage ? [
-                  { name: 'Our Menu', path: `/bulebet/${restaurantName}/menu` },
-                  { name: 'Reservations', path: `/bulebet/${restaurantName}/reservations` },
-                  { name: 'Catering', path: `/bulebet/${restaurantName}/catering` },
-                  { name: 'Gallery', path: `/bulebet/${restaurantName}/gallery` },
-                  { name: 'Contact Us', path: `/bulebet/${restaurantName}/contact` },
+              {(() => {
+                const currentTier = restaurant?.subscriptionTier === 'Basic' ? 'Silver' : (restaurant?.subscriptionTier || 'Platinum');
+                const tierImportance = { Silver: 0, Gold: 1, Platinum: 2, Premium: 3 };
+                const currentTierImp = tierImportance[currentTier] !== undefined ? tierImportance[currentTier] : 2;
+
+                const links = isRestaurantPage ? [
+                  { name: 'Our Menu', path: `/bulebet/${restaurantName}/menu`, minTier: 'Silver' },
+                  { name: 'Reservations', path: `/bulebet/${restaurantName}/reservations`, minTier: 'Gold' },
+                  { name: 'Catering', path: `/bulebet/${restaurantName}/catering`, minTier: 'Gold' },
+                  { name: 'Gallery', path: `/bulebet/${restaurantName}/gallery`, minTier: 'Gold' },
+                  { name: 'Contact Us', path: `/bulebet/${restaurantName}/contact`, minTier: 'Silver' },
                 ] : [
-                  { name: t('footer_features'), path: '/#features' },
-                  { name: t('footer_pricing'), path: '/#pricing' },
-                  { name: t('nav_gallery'), path: '/gallery' },
-                ])
-              ].map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}
-                    onMouseOver={e => e.target.style.color = 'var(--gold)'}
-                    onMouseOut={e => e.target.style.color = 'rgba(255,255,255,0.75)'}
-                  >
-                    › {link.name}
-                  </Link>
-                </li>
-              ))}
+                  { name: t('footer_features'), path: '/#features', minTier: 'Silver' },
+                  { name: t('footer_pricing'), path: '/#pricing', minTier: 'Silver' },
+                  { name: t('nav_gallery'), path: '/gallery', minTier: 'Silver' },
+                ];
+
+                return links
+                  .filter(link => currentTierImp >= (tierImportance[link.minTier] || 0))
+                  .map((link) => (
+                    <li key={link.name}>
+                      <Link
+                        to={link.path}
+                        style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}
+                        onMouseOver={e => e.target.style.color = 'var(--gold)'}
+                        onMouseOut={e => e.target.style.color = 'rgba(255,255,255,0.75)'}
+                      >
+                        › {link.name}
+                      </Link>
+                    </li>
+                  ));
+              })()}
             </ul>
           </div>
 
