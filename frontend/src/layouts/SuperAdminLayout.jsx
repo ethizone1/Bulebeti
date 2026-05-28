@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 
 const SuperAdminLayout = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/bulebet/login', { replace: true });
+    }
+  }, [navigate]);
   const { language, toggleLanguage } = useLanguage();
 
   const navItems = [
@@ -134,7 +142,21 @@ const SuperAdminLayout = ({ children }) => {
             <span style={{ color: language === 'am' ? 'var(--gold)' : 'rgba(255,255,255,0.5)' }}>አማ</span>
           </button>
 
-          <Link to="/" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '12px' }}>← Exit to Platform</Link>
+          <button 
+            onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              navigate('/bulebet/login', { replace: true });
+            }}
+            style={{ 
+              background: 'transparent', border: 'none', color: '#ef4444', 
+              fontSize: '12px', cursor: 'pointer', textAlign: 'left',
+              padding: '8px 0', marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.1)'
+            }}
+          >
+            ⎋ Sign Out
+          </button>
+          <Link to="/" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontSize: '12px', marginTop: '8px' }}>← Exit to Platform</Link>
         </div>
       </aside>
 

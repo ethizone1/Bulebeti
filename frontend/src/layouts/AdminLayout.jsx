@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/AdminSidebar';
 import AdminNavbar from '../components/AdminNavbar';
 import AIChatWidget from '../components/AIChatWidget';
@@ -14,8 +14,16 @@ const AdminLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { restaurantName } = useParams();
+  const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState(null);
   const currentYear = new Date().getFullYear();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/bulebet/login', { replace: true });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (!restaurantName) return;

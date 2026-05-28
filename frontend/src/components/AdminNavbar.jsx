@@ -547,7 +547,7 @@ const AdminNavbar = ({ currentTier = 'Platinum' }) => {
                   onClick={() => {
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
-                    navigate('/bulebet/login');
+                    navigate('/bulebet/login', { replace: true });
                   }}
                   style={{ padding: '10px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', color: '#dc2626', fontWeight: '600' }}
                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
