@@ -29,7 +29,7 @@ const MenuPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const displayName = restaurantName.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-  const globalImgPos = localStorage.getItem('menu_layout') || 'Left';
+  // Layout state will be set from DB
   
   // Dynamic filter based on URL hash (e.g., #beverages)
   const activeFilter = location.hash ? location.hash.replace('#', '').replace(/-/g, ' ').toLowerCase() : 'all items';
@@ -37,6 +37,7 @@ const MenuPage = () => {
   const [menuCategories, setMenuCategories] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [restaurantTier, setRestaurantTier] = React.useState('Platinum');
+  const [globalImgPos, setGlobalImgPos] = React.useState('Left');
 
   React.useEffect(() => {
     let intervalId;
@@ -49,6 +50,13 @@ const MenuPage = () => {
         if (!restRes.ok) throw new Error('Restaurant not found');
         const restaurant = await restRes.json();
         setRestaurantTier(restaurant.subscriptionTier === 'Basic' ? 'Silver' : (restaurant.subscriptionTier || 'Platinum'));
+        
+        let layoutMap = {
+          'image-left': 'Left',
+          'image-right': 'Right',
+          'text-centered': 'Center'
+        };
+        setGlobalImgPos(layoutMap[restaurant.menuLayout] || 'Left');
 
         // 2. Get menu
         const menuRes = await fetch(`${config.API_URL}/api/menu/restaurant/${restaurant._id}`);
@@ -221,12 +229,9 @@ const MenuPage = () => {
             >
               <option value="all items">{t('menu_all') || 'All Items'}</option>
               <option value="our signature">{t('menu_signature') || 'Our Signature'}</option>
-              <option value="breakfast">{t('menu_breakfast') || 'Breakfast'}</option>
-              <option value="lunch">{t('menu_lunch') || 'Lunch'}</option>
-              <option value="dinner">{t('menu_dinner') || 'Dinner'}</option>
-              <option value="beverages">{t('menu_beverages') || 'Beverages'}</option>
-              <option value="hot">{t('menu_hot') || 'Hot'}</option>
-              <option value="cold">{t('menu_cold') || 'Cold'}</option>
+              {menuCategories.map(cat => (
+                <option key={cat.name} value={cat.name.toLowerCase()}>{cat.name}</option>
+              ))}
             </select>
             <span style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', fontSize: '12px', color: 'var(--gold)' }}>▼</span>
           </div>
@@ -236,11 +241,16 @@ const MenuPage = () => {
         {menuCategories.map((category) => {
           let visibleItems = category.items.filter(item => item.visible);
           
-          if (activeFilter !== 'all items') {
-            visibleItems = visibleItems.filter(item => {
-              const timing = (item.timing || '').toLowerCase();
-              return timing === activeFilter;
-            });
+          if (activeFilter !== 'all items' && activeFilter !== 'our signature') {
+            if (category.name.toLowerCase() !== activeFilter) {
+              return null;
+            }
+          } else if (activeFilter === 'our signature') {
+             // In a real app we would filter by item.isSignature
+             // For now we just return null because the signature section handles it,
+             // or we could show all items. Let's hide the list if 'our signature' is selected
+             // and just let the top section shine.
+             return null;
           }
 
           if (visibleItems.length === 0) return null;

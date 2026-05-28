@@ -456,19 +456,33 @@ const AdminSettings = () => {
             
             <div className="row g-3 mb-5">
               {[
-                { id: 'Left', name: t('admin_set_lay_left'), desc: t('admin_set_lay_left_d'), icon: '📑' },
-                { id: 'Right', name: t('admin_set_lay_right'), desc: t('admin_set_lay_right_d'), icon: '📖' },
-                { id: 'Center', name: t('admin_set_lay_cent'), desc: t('admin_set_lay_cent_d'), icon: '🔝' },
+                { id: 'image-left', name: t('admin_set_lay_left'), desc: t('admin_set_lay_left_d'), icon: '📑' },
+                { id: 'image-right', name: t('admin_set_lay_right'), desc: t('admin_set_lay_right_d'), icon: '📖' },
+                { id: 'text-centered', name: t('admin_set_lay_cent'), desc: t('admin_set_lay_cent_d'), icon: '🔝' },
               ].map((layout) => {
-                const currentLayout = localStorage.getItem('menu_layout') || 'Left';
+                const currentLayout = restaurant?.menuLayout || 'image-left';
                 const isActive = currentLayout === layout.id;
                 return (
                   <div key={layout.id} className="col-12 col-md-4">
                     <div 
-                      onClick={() => {
-                        localStorage.setItem('menu_layout', layout.id);
-                        alert(`Platform-wide layout set to: ${layout.name}`);
-                        window.location.reload();
+                      onClick={async () => {
+                        try {
+                          const token = localStorage.getItem('token');
+                          const res = await fetch(`${config.API_URL}/api/restaurants/${restaurant.slug}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json', 'x-auth-token': token },
+                            body: JSON.stringify({ menuLayout: layout.id })
+                          });
+                          const data = await res.json();
+                          if (res.ok) {
+                            setRestaurant(data);
+                            alert(`Layout updated successfully!`);
+                          } else {
+                            alert(data.msg || 'Failed to update layout');
+                          }
+                        } catch (err) {
+                          alert('Error updating layout');
+                        }
                       }}
                       className={`card h-100 text-center p-4 border ${isActive ? 'border-warning bg-warning bg-opacity-10' : 'border-light shadow-sm'}`}
                       style={{ cursor: 'pointer', transition: 'all 0.2s' }}
