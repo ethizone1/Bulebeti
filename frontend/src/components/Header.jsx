@@ -118,7 +118,7 @@ const Header = () => {
                 >
                   {link.name}
                 </Link>
-                {link.originalName === 'Menu' && (
+                {link.originalName === 'Menu' && currentTier !== 'Silver' && (
                   <div className="menu-dropdown" style={{
                     position: 'absolute',
                     top: '100%',
