@@ -68,7 +68,8 @@ const EventsManager = () => {
         boxShadow: 'var(--shadow-1)',
         border: '1px solid var(--platinum)'
       }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="table-responsive">
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
           <thead>
             <tr style={{ textAlign: 'left', borderBottom: '2px solid var(--platinum)' }}>
               <th style={{ padding: '12px 8px', fontSize: '13px', fontWeight: '700' }}>{t('admin_event_col_title')}</th>
@@ -119,6 +120,7 @@ const EventsManager = () => {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

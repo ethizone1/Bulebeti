@@ -104,7 +104,7 @@ const AdminLayout = ({ children }) => {
         }
       `}</style>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }} className="main-content-wrapper">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }} className="main-content-wrapper">
         {/* Top navbar */}
         <div style={{ display: 'flex', alignItems: 'center', backgroundColor: 'white', borderBottom: '1px solid var(--platinum)', position: 'sticky', top: 0, zIndex: 100 }}>
           <button
@@ -118,7 +118,7 @@ const AdminLayout = ({ children }) => {
         </div>
 
         {/* Page content */}
-        <main style={{ flex: 1, padding: 'var(--spacing-md)', backgroundColor: '#f9fafb' }}>
+        <main style={{ flex: 1, padding: 'var(--spacing-md)', backgroundColor: '#f9fafb', minWidth: 0 }}>
           {React.Children.map(children, child =>
             React.isValidElement(child) ? React.cloneElement(child, { currentTier: tier }) : child
           )}
