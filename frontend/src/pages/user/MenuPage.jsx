@@ -229,7 +229,9 @@ const MenuPage = () => {
             >
               <option value="all items">{t('menu_all') || 'All Items'}</option>
               <option value="our signature">{t('menu_signature') || 'Our Signature'}</option>
-              {menuCategories.map(cat => (
+              {menuCategories
+                .filter(cat => cat.name.toLowerCase() !== 'all items' && cat.name.toLowerCase() !== 'our signature')
+                .map(cat => (
                 <option key={cat.name} value={cat.name.toLowerCase()}>{cat.name}</option>
               ))}
             </select>
