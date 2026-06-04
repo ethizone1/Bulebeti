@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
       const admin = await User.findById(restaurant.ownerId);
       if (admin) {
         adminEmail = admin.email;
-        adminPhone = 'N/A'; // Since User model might not have phone currently, default to N/A or fetch it
+        adminPhone = admin.phone || 'N/A';
       }
     }
 

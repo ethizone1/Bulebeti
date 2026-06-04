@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
         const admin = await User.findById(restaurant.ownerId);
         if (admin) {
           adminEmail = admin.email;
-          adminPhone = 'N/A';
+          adminPhone = admin.phone || 'N/A';
         }
       }
     }

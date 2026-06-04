@@ -48,7 +48,7 @@ const getTransporter = () => {
 };
 
 // ─── sendEmail ───────────────────────────────────────────────────────────────
-const sendEmail = async (toEmail, subject, htmlContent) => {
+const sendEmail = async (toEmail, subject, htmlContent, senderName = 'BuleBet') => {
   const transporter = getTransporter();
 
   if (!transporter) {
@@ -58,7 +58,7 @@ const sendEmail = async (toEmail, subject, htmlContent) => {
 
   try {
     await transporter.sendMail({
-      from: `"BuleBet Platform" <${process.env.EMAIL_USER}>`,
+      from: `"${senderName}" <${process.env.EMAIL_USER}>`,
       to: toEmail,
       subject,
       html: htmlContent
@@ -71,8 +71,7 @@ const sendEmail = async (toEmail, subject, htmlContent) => {
   }
 };
 
-// ─── sendSMS (via email-to-SMS gateway) ─────────────────────────────────────
-const sendSMS = async (toPhone, textMessage) => {
+const sendSMS = async (toPhone, textMessage, senderName = 'BuleBet') => {
   const transporter = getTransporter();
   const gateway = process.env.DEFAULT_SMS_GATEWAY;
 
@@ -86,33 +85,39 @@ const sendSMS = async (toPhone, textMessage) => {
     return false;
   }
 
-  const smsEmail = buildSmsEmail(toPhone, gateway);
-  if (!smsEmail) {
-    console.log(`📱 SMS [SKIPPED — could not build gateway address for ${toPhone}]`);
-    return false;
-  }
+  const gatewaysToUse = gateway.toLowerCase() === 'all' 
+    ? Object.values(CARRIER_GATEWAYS) 
+    : [gateway];
 
-  try {
-    await transporter.sendMail({
-      from: `"BuleBet" <${process.env.EMAIL_USER}>`,
-      to: smsEmail,
-      subject: '',          // Subject is ignored by SMS gateways
-      text: textMessage     // Plain text only for SMS
-    });
-    console.log(`✅ SMS sent via email gateway → ${smsEmail}`);
-    return true;
-  } catch (err) {
-    console.error(`❌ SMS gateway send failed → ${smsEmail}:`, err.message);
-    return false;
+  let sent = false;
+
+  for (const gw of gatewaysToUse) {
+    const smsEmail = buildSmsEmail(toPhone, gw);
+    if (!smsEmail) continue;
+
+    try {
+      await transporter.sendMail({
+        from: `"${senderName}" <${process.env.EMAIL_USER}>`,
+        to: smsEmail,
+        subject: '',          // Subject is ignored by SMS gateways
+        text: textMessage     // Plain text only for SMS
+      });
+      console.log(`✅ SMS sent via email gateway → ${smsEmail}`);
+      sent = true;
+    } catch (err) {
+      console.error(`❌ SMS gateway send failed → ${smsEmail}:`, err.message);
+    }
   }
+  
+  return sent;
 };
 
 const notifyAdminAndCustomer = async (adminEmail, adminPhone, customerEmail, customerPhone, type, details) => {
   let customerSubject, adminSubject, customerHtml, adminHtml, customerSms, adminSms;
 
   if (type === 'Reservation') {
-    customerSubject = `Reservation Received - ${details.restaurantName}`;
-    adminSubject = `New Reservation Request: ${details.guestName}`;
+    customerSubject = `[${details.restaurantName}] - Reservation Received`;
+    adminSubject = `[${details.restaurantName}] Admin - New Reservation Request: ${details.guestName}`;
     
     customerHtml = `
       <h2>Hi ${details.guestName},</h2>
@@ -138,12 +143,12 @@ const notifyAdminAndCustomer = async (adminEmail, adminPhone, customerEmail, cus
       <p>Please log in to your Admin Dashboard to confirm or reject this request.</p>
     `;
 
-    customerSms = `BuleBet: Your reservation request at ${details.restaurantName} for ${details.date} at ${details.time} has been received! The restaurant will confirm shortly.`;
-    adminSms = `BuleBet Admin Alert: New Reservation for ${details.guests} guests on ${details.date} at ${details.time}. Name: ${details.guestName}. Check Dashboard.`;
+    customerSms = `[${details.restaurantName}]: Your reservation request for ${details.date} at ${details.time} has been received! The restaurant will confirm shortly.`;
+    adminSms = `[${details.restaurantName}] Admin Alert: New Reservation for ${details.guests} guests on ${details.date} at ${details.time}. Name: ${details.guestName}. Check Dashboard.`;
   } 
   else if (type === 'Catering') {
-    customerSubject = `Catering Inquiry Received - ${details.restaurantName}`;
-    adminSubject = `New Catering Inquiry: ${details.eventType}`;
+    customerSubject = `[${details.restaurantName}] - Catering Inquiry Received`;
+    adminSubject = `[${details.restaurantName}] Admin - New Catering Inquiry: ${details.eventType}`;
 
     customerHtml = `
       <h2>Hi ${details.name},</h2>
@@ -169,19 +174,19 @@ const notifyAdminAndCustomer = async (adminEmail, adminPhone, customerEmail, cus
       <p>Please log in to your Admin Dashboard to follow up with this client.</p>
     `;
 
-    customerSms = `BuleBet: Your catering inquiry for your ${details.eventType} event has been received. Our team will contact you soon.`;
-    adminSms = `BuleBet Admin Alert: New Catering Inquiry for a ${details.eventType} (${details.guestCount} guests). Name: ${details.name}. Check Dashboard.`;
+    customerSms = `[${details.restaurantName}]: Your catering inquiry for your ${details.eventType} event has been received. Our team will contact you soon.`;
+    adminSms = `[${details.restaurantName}] Admin Alert: New Catering Inquiry for a ${details.eventType} (${details.guestCount} guests). Name: ${details.name}. Check Dashboard.`;
   }
 
   // 1. Notify Customer
-  await sendEmail(customerEmail, customerSubject, customerHtml);
+  await sendEmail(customerEmail, customerSubject, customerHtml, details.restaurantName);
   if (customerPhone && customerPhone !== 'N/A') {
-    await sendSMS(customerPhone, customerSms);
+    await sendSMS(customerPhone, customerSms, details.restaurantName);
   }
 
   // 2. Notify Admin
-  if (adminEmail) await sendEmail(adminEmail, adminSubject, adminHtml);
-  if (adminPhone && adminPhone !== 'N/A') await sendSMS(adminPhone, adminSms);
+  if (adminEmail) await sendEmail(adminEmail, adminSubject, adminHtml, details.restaurantName);
+  if (adminPhone && adminPhone !== 'N/A') await sendSMS(adminPhone, adminSms, details.restaurantName);
 };
 
 // ─── STATUS UPDATE NOTIFICATIONS ────────────────────────────────────────────
@@ -209,19 +214,19 @@ const notifyStatusUpdate = async (type, newStatus, customerEmail, customerPhone,
         headline: `Your table is confirmed! ${emoji}`,
         body: `Great news, <strong>${guestName}</strong>! Your reservation at <strong>${restaurantName}</strong> has been <strong>confirmed</strong>.`,
         note: 'We look forward to welcoming you. Please arrive on time. If you need to make changes, contact the restaurant directly.',
-        smsText: `BuleBet ✅ Your reservation at ${restaurantName} on ${date} at ${time} is CONFIRMED! See you there.`,
+        smsText: `[${restaurantName}] ✅ Your reservation on ${date} at ${time} is CONFIRMED! See you there.`,
       },
       Cancelled: {
         headline: `Reservation Cancelled ${emoji}`,
         body: `Hi <strong>${guestName}</strong>, we're sorry to let you know that your reservation at <strong>${restaurantName}</strong> has been <strong>cancelled</strong>.`,
         note: 'If you believe this is a mistake or would like to rebook, please contact the restaurant directly.',
-        smsText: `BuleBet ❌ Your reservation at ${restaurantName} on ${date} has been cancelled. Please contact the restaurant if you need help.`,
+        smsText: `[${restaurantName}] ❌ Your reservation on ${date} has been cancelled. Please contact the restaurant if you need help.`,
       },
       Completed: {
         headline: `Thank you for dining with us! ${emoji}`,
         body: `Hi <strong>${guestName}</strong>, your visit to <strong>${restaurantName}</strong> has been marked as <strong>completed</strong>.`,
         note: 'We hope you had a wonderful experience. We would love to have you back!',
-        smsText: `BuleBet 🎉 Thanks for dining at ${restaurantName}! We hope to see you again soon.`,
+        smsText: `[${restaurantName}] 🎉 Thanks for dining with us! We hope to see you again soon.`,
       },
     };
 
@@ -232,8 +237,8 @@ const notifyStatusUpdate = async (type, newStatus, customerEmail, customerPhone,
     html = `
       <div style="font-family: sans-serif; max-width: 560px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
         <div style="background: #1f2937; padding: 24px; text-align: center;">
-          <h2 style="color: #D4AF37; margin: 0;">BuleBet</h2>
-          <p style="color: #9ca3af; margin: 4px 0 0; font-size: 13px;">Restaurant Platform</p>
+          <h2 style="color: #D4AF37; margin: 0;">${restaurantName}</h2>
+          <p style="color: #9ca3af; margin: 4px 0 0; font-size: 13px;">Powered by BuleBet</p>
         </div>
         <div style="padding: 28px;">
           <h3 style="margin-top: 0;">${msg.headline}</h3>
@@ -263,25 +268,25 @@ const notifyStatusUpdate = async (type, newStatus, customerEmail, customerPhone,
         headline: `Catering Request Confirmed! ${emoji}`,
         body: `Great news, <strong>${name}</strong>! Your catering request for a <strong>${eventType}</strong> event with <strong>${restaurantName}</strong> has been <strong>confirmed</strong>.`,
         note: 'Our events team will be in touch with the final details and arrangements.',
-        smsText: `BuleBet ✅ Your catering for a ${eventType} event on ${date} is CONFIRMED by ${restaurantName}!`,
+        smsText: `[${restaurantName}] ✅ Your catering for a ${eventType} event on ${date} is CONFIRMED!`,
       },
       'Quote Sent': {
         headline: `Your Quote is Ready! ${emoji}`,
         body: `Hi <strong>${name}</strong>, <strong>${restaurantName}</strong> has sent a quote for your upcoming <strong>${eventType}</strong> event.`,
         note: 'Please check your email or contact the restaurant directly to review and approve the quote.',
-        smsText: `BuleBet 📄 ${restaurantName} has sent a quote for your ${eventType} event. Please check your email.`,
+        smsText: `[${restaurantName}] 📄 We have sent a quote for your ${eventType} event. Please check your email.`,
       },
       Booked: {
         headline: `Your Event is Booked! ${emoji}`,
         body: `Congratulations, <strong>${name}</strong>! Your <strong>${eventType}</strong> catering event with <strong>${restaurantName}</strong> is now officially <strong>booked</strong>.`,
         note: 'Our team will reach out soon to finalize menu selections and logistics.',
-        smsText: `BuleBet 📅 Your ${eventType} catering event on ${date} is officially BOOKED with ${restaurantName}!`,
+        smsText: `[${restaurantName}] 📅 Your ${eventType} catering event on ${date} is officially BOOKED!`,
       },
       Cancelled: {
         headline: `Catering Request Cancelled ${emoji}`,
         body: `Hi <strong>${name}</strong>, we're sorry to inform you that your catering inquiry for a <strong>${eventType}</strong> event has been <strong>cancelled</strong>.`,
         note: 'If this was a mistake or you wish to rebook, please contact the restaurant directly.',
-        smsText: `BuleBet ❌ Your catering request for a ${eventType} event on ${date} has been cancelled by ${restaurantName}.`,
+        smsText: `[${restaurantName}] ❌ Your catering request for a ${eventType} event on ${date} has been cancelled.`,
       },
     };
 
@@ -292,8 +297,8 @@ const notifyStatusUpdate = async (type, newStatus, customerEmail, customerPhone,
     html = `
       <div style="font-family: sans-serif; max-width: 560px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
         <div style="background: #1f2937; padding: 24px; text-align: center;">
-          <h2 style="color: #D4AF37; margin: 0;">BuleBet</h2>
-          <p style="color: #9ca3af; margin: 4px 0 0; font-size: 13px;">Restaurant Platform</p>
+          <h2 style="color: #D4AF37; margin: 0;">${restaurantName}</h2>
+          <p style="color: #9ca3af; margin: 4px 0 0; font-size: 13px;">Powered by BuleBet</p>
         </div>
         <div style="padding: 28px;">
           <h3 style="margin-top: 0;">${msg.headline}</h3>
@@ -316,10 +321,10 @@ const notifyStatusUpdate = async (type, newStatus, customerEmail, customerPhone,
 
   // Send to customer
   if (subject && customerEmail) {
-    await sendEmail(customerEmail, subject, html);
+    await sendEmail(customerEmail, subject, html, details.restaurantName);
   }
   if (sms && customerPhone && customerPhone !== 'N/A') {
-    await sendSMS(customerPhone, sms);
+    await sendSMS(customerPhone, sms, details.restaurantName);
   }
 
   // Look up owner (admin) details
@@ -332,7 +337,7 @@ const notifyStatusUpdate = async (type, newStatus, customerEmail, customerPhone,
         const admin = await User.findById(restaurant.ownerId);
         if (admin) {
           adminEmail = admin.email;
-          adminPhone = 'N/A';
+          adminPhone = admin.phone || 'N/A';
         }
       }
     } catch (err) {
@@ -349,12 +354,12 @@ const notifyStatusUpdate = async (type, newStatus, customerEmail, customerPhone,
       </div>
       ${html}
     `;
-    await sendEmail(adminEmail, adminSubject, adminHtml);
+    await sendEmail(adminEmail, adminSubject, adminHtml, details.restaurantName);
   }
   
   if (sms && adminPhone && adminPhone !== 'N/A') {
-    const adminSms = `BuleBet Admin Alert: Request for ${details.guestName || details.name} updated to ${newStatus}.`;
-    await sendSMS(adminPhone, adminSms);
+    const adminSms = `[${details.restaurantName}] Admin Alert: Request for ${details.guestName || details.name} updated to ${newStatus}.`;
+    await sendSMS(adminPhone, adminSms, details.restaurantName);
   }
 };
 
