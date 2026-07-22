@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import config from '../../config';
@@ -21,13 +21,73 @@ const RegistrationPage = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleToken, setGoogleToken] = useState(null);
+  const [googleUserEmail, setGoogleUserEmail] = useState('');
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleGoogleSignupResponse = async (googleResponse) => {
+    try {
+      const token = googleResponse.credential;
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      
+      const payload = JSON.parse(jsonPayload);
+      
+      setGoogleToken(token);
+      setGoogleUserEmail(payload.email);
+      setFormData(prev => ({
+        ...prev,
+        email: payload.email,
+        ownerName: payload.name || prev.ownerName
+      }));
+    } catch (err) {
+      console.error('Failed to parse Google signup payload:', err);
+    }
+  };
+
+  useEffect(() => {
+    const initializeGoogleSignup = () => {
+      if (window.google && window.google.accounts) {
+        window.google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '1014167389146-YOUR_CLIENT_ID.apps.googleusercontent.com',
+          callback: handleGoogleSignupResponse,
+        });
+        window.google.accounts.id.renderButton(
+          document.getElementById('googleSignupButton'),
+          { theme: 'outline', size: 'large', width: '100%' }
+        );
+      }
+    };
+
+    if (window.google && window.google.accounts) {
+      initializeGoogleSignup();
+    } else {
+      const script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (script) {
+        script.addEventListener('load', initializeGoogleSignup);
+      } else {
+        const newScript = document.createElement('script');
+        newScript.src = "https://accounts.google.com/gsi/client";
+        newScript.async = true;
+        newScript.defer = true;
+        newScript.onload = initializeGoogleSignup;
+        document.head.appendChild(newScript);
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    if (formData.password !== formData.confirmPassword) {
+    if (!googleToken && formData.password !== formData.confirmPassword) {
       setError('Passwords do not match. Please try again.');
       setLoading(false);
       return;
@@ -43,7 +103,8 @@ const RegistrationPage = () => {
         body: JSON.stringify({
           name: formData.ownerName,
           email: formData.email,
-          password: formData.password,
+          password: googleToken ? undefined : formData.password,
+          googleToken: googleToken || undefined,
           role: 'admin'
         }),
       });
@@ -91,18 +152,14 @@ const RegistrationPage = () => {
     }
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
   return (
     <div className="py-5">
       <div className="container" style={{ maxWidth: '800px' }}>
         <div className="card shadow-sm border-0" style={{ borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--surface)' }}>
           <div className="card-body p-4 p-md-5">
-            <h2 className="text-center mb-3">{t('reg_title')}</h2>
+            <h2 className="text-center mb-3">{t('reg_title') || 'Register Your Restaurant'}</h2>
             <p className="text-center text-muted mb-4">
-              {t('reg_subtitle')}
+              {t('reg_subtitle') || 'Enter details to get started'}
             </p>
 
             {error && (
@@ -111,30 +168,46 @@ const RegistrationPage = () => {
               </div>
             )}
 
+            <div className="mb-4 text-center">
+              <div id="googleSignupButton" className="mx-auto" style={{ maxWidth: '400px', minHeight: '44px' }}></div>
+              {googleToken && (
+                <div className="alert alert-success mt-2 d-inline-block p-2" role="alert" style={{ fontSize: '13px' }}>
+                  Linked Google Account: <strong>{googleUserEmail}</strong>. Name and email prefilled. Password is now optional!
+                </div>
+              )}
+            </div>
+
+            <div className="text-center my-3 text-muted position-relative">
+              <hr style={{ borderColor: 'var(--platinum)' }} />
+              <span className="position-absolute top-50 start-50 translate-middle px-3" style={{ backgroundColor: 'var(--surface)', fontSize: '13px' }}>
+                {t('login_or') || 'OR'} COMPLETE WITH PROFILE DETAILS
+              </span>
+            </div>
+
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
                 <div className="col-md-6">
-                  <label className="form-label fw-bold">{t('reg_rest_name')}</label>
+                  <label className="form-label fw-bold">{t('reg_rest_name') || 'Restaurant Name'}</label>
                   <input
                     type="text"
                     name="restaurantName"
                     value={formData.restaurantName}
                     onChange={handleChange}
                     required
-                    placeholder={t('reg_rest_name_ph')}
+                    placeholder={t('reg_rest_name_ph') || 'e.g. Gourmet Hub'}
                     className="form-control p-3"
                   />
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label fw-bold">{t('reg_owner_name')}</label>
+                  <label className="form-label fw-bold">{t('reg_owner_name') || 'Owner Name'}</label>
                   <input
                     type="text"
                     name="ownerName"
                     value={formData.ownerName}
                     onChange={handleChange}
                     required
-                    placeholder={t('reg_owner_name_ph')}
+                    placeholder={t('reg_owner_name_ph') || 'e.g. John Doe'}
                     className="form-control p-3"
                   />
                 </div>
@@ -214,14 +287,14 @@ const RegistrationPage = () => {
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label fw-bold">{t('reg_email')}</label>
+                  <label className="form-label fw-bold">{t('reg_email') || 'Email Address'}</label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    placeholder={t('reg_email_ph')}
+                    placeholder={t('reg_email_ph') || 'owner@example.com'}
                     className="form-control p-3"
                   />
                 </div>
@@ -246,8 +319,9 @@ const RegistrationPage = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    required
-                    placeholder="Choose a strong password"
+                    required={!googleToken}
+                    disabled={!!googleToken}
+                    placeholder={googleToken ? "Password not required (Signed in via Google)" : "Choose a strong password"}
                     className="form-control p-3"
                   />
                 </div>
@@ -259,24 +333,25 @@ const RegistrationPage = () => {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    required
-                    placeholder="Re-enter your password"
+                    required={!googleToken}
+                    disabled={!!googleToken}
+                    placeholder={googleToken ? "Password not required (Signed in via Google)" : "Re-enter your password"}
                     className="form-control p-3"
                   />
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label fw-bold">{t('reg_cuisine')}</label>
+                  <label className="form-label fw-bold">{t('reg_cuisine') || 'Cuisine Type'}</label>
                   <select
                     name="cuisineType"
                     value={formData.cuisineType}
                     onChange={handleChange}
                     className="form-select p-3"
                   >
-                    <option value="fine-dining">{t('reg_cuisine_fine')}</option>
-                    <option value="casual">{t('reg_cuisine_casual')}</option>
-                    <option value="bistro">{t('reg_cuisine_bistro')}</option>
-                    <option value="luxury">{t('reg_cuisine_luxury')}</option>
+                    <option value="fine-dining">{t('reg_cuisine_fine') || 'Fine Dining'}</option>
+                    <option value="casual">{t('reg_cuisine_casual') || 'Casual Dining'}</option>
+                    <option value="bistro">{t('reg_cuisine_bistro') || 'Bistro'}</option>
+                    <option value="luxury">{t('reg_cuisine_luxury') || 'Luxury'}</option>
                   </select>
                 </div>
 
@@ -302,14 +377,14 @@ const RegistrationPage = () => {
                     <div className="bg-white p-3 rounded shadow-sm d-flex" style={{
                       flexDirection: formData.menuLayout === 'image-top' ? 'column' : formData.menuLayout === 'image-bottom' ? 'column-reverse' : formData.menuLayout === 'image-right' ? 'row-reverse' : 'row',
                       gap: '16px',
-                      alignItems: formData.menuLayout.includes('image') && !formData.menuLayout.includes('top') && !formData.menuLayout.includes('bottom') ? 'center' : 'stretch',
+                      alignItems: formData.menuLayout && formData.menuLayout.includes('image') && !formData.menuLayout.includes('top') && !formData.menuLayout.includes('bottom') ? 'center' : 'stretch',
                       textAlign: formData.menuLayout === 'text-centered' ? 'center' : 'left',
                       display: formData.menuLayout === 'text-centered' ? 'block' : 'flex'
                     }}>
                       {formData.menuLayout !== 'text-centered' && (
                         <div className="bg-secondary bg-opacity-25 rounded d-flex align-items-center justify-content-center flex-shrink-0" style={{
-                          width: formData.menuLayout.includes('top') || formData.menuLayout.includes('bottom') ? '100%' : '80px',
-                          height: formData.menuLayout.includes('top') || formData.menuLayout.includes('bottom') ? '120px' : '80px',
+                          width: formData.menuLayout && (formData.menuLayout.includes('top') || formData.menuLayout.includes('bottom')) ? '100%' : '80px',
+                          height: formData.menuLayout && (formData.menuLayout.includes('top') || formData.menuLayout.includes('bottom')) ? '120px' : '80px',
                         }}>
                           <span className="fs-4">🖼️</span>
                         </div>
@@ -324,7 +399,7 @@ const RegistrationPage = () => {
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label fw-bold">{t('reg_location')}</label>
+                  <label className="form-label fw-bold">{t('reg_location') || 'Location'}</label>
                   <div className="position-relative">
                     <input
                       type="text"
@@ -332,7 +407,7 @@ const RegistrationPage = () => {
                       value={formData.location}
                       onChange={handleChange}
                       required
-                      placeholder={t('reg_location_ph')}
+                      placeholder={t('reg_location_ph') || 'e.g. 123 Main St'}
                       className="form-control p-3 pe-5"
                     />
                     <div className="position-absolute text-primary" style={{ right: '16px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }} title={t('reg_google_verify')}>
@@ -342,21 +417,21 @@ const RegistrationPage = () => {
                   <div className="d-flex align-items-center gap-2 mt-2 p-2 rounded" style={{ backgroundColor: '#e8f0fe', border: '1px solid #c2d7fa' }}>
                     <div className="text-primary"><i className="fa-solid fa-map-location-dot"></i></div>
                     <div className="small fw-medium" style={{ color: '#1967d2' }}>
-                      {t('reg_google_connected')}
+                      {t('reg_google_connected') || 'Google Maps verified location'}
                     </div>
                   </div>
                 </div>
 
                 <div className="col-12 mt-4">
                   <button type="submit" disabled={loading} className="btn btn-primary w-100 p-3 fw-bold" style={{ opacity: loading ? 0.7 : 1 }}>
-                    {loading ? 'Creating Account...' : t('reg_submit')}
+                    {loading ? 'Creating Account...' : (t('reg_submit') || 'Create Account')}
                   </button>
                 </div>
               </div>
             </form>
 
             <p className="text-center mt-4 small text-muted">
-              {t('reg_already')} <Link to="/bulebet/login" style={{ color: 'var(--gold)', fontWeight: '600', textDecoration: 'none' }}>{t('reg_login')}</Link>
+              {t('reg_already') || 'Already have an account?'} <Link to="/bulebet/login" style={{ color: 'var(--gold)', fontWeight: '600', textDecoration: 'none' }}>{t('reg_login') || 'Login'}</Link>
             </p>
           </div>
         </div>

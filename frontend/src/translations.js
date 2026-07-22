@@ -111,6 +111,11 @@ export const translations = {
     landing_hero_desc: "BuleBet empowers restaurant owners with high-efficiency management tools while providing diners with an aspirational luxury experience.",
     landing_get_started: "Get Started",
     landing_explore: "Explore Menu",
+    landing_registered_restaurants: "Registered Restaurants",
+    landing_registered_restaurants_desc: "Explore elite dining experiences powered by BuleBet. Click on a restaurant to view their custom landing page, menu, and reservation system.",
+    landing_visit_restaurant: "Visit Restaurant",
+    landing_no_restaurants: "No registered restaurants found yet.",
+    landing_loading_restaurants: "Loading premier venues...",
     
     landing_feat1_title: "Precision Management",
     landing_feat1_desc: "Comprehensive dashboard for reservations, catering, and location management.",
@@ -488,6 +493,11 @@ export const translations = {
     landing_hero_desc: "BuleBet የምግብ ቤት ባለቤቶችን በከፍተኛ ብቃት የማስተዳደር መሳሪያዎች ያበረታታል፣ ለተመጋቢዎች ደግሞ የቅንጦት ልምድ ይሰጣል።",
     landing_get_started: "አሁኑኑ ይጀምሩ",
     landing_explore: "ምናሌውን ያስሱ",
+    landing_registered_restaurants: "የተመዘገቡ ሬስቶራንቶች",
+    landing_registered_restaurants_desc: "በBuleBet የሚደገፉ ከፍተኛ ደረጃ ያላቸውን የምግብ ቤቶች ልምድ ያስሱ። ምናሌያቸውን እና ቦታ ማስያዣዎቻቸውን ለማየት ሬስቶራንት ላይ ይጫኑ።",
+    landing_visit_restaurant: "ሬስቶራንቱን ይጎብኙ",
+    landing_no_restaurants: "እስካሁን የተመዘገቡ ሬስቶራንቶች አልተገኙም።",
+    landing_loading_restaurants: "ሬስቶራንቶችን በመጫን ላይ...",
     
     landing_feat1_title: "ትክክለኛ አስተዳደር",
     landing_feat1_desc: "ለቦታ ማስያዝ፣ ዝግጅት አቅርቦት እና የቅርንጫፍ አስተዳደር የተሟላ ዳሽቦርድ።",

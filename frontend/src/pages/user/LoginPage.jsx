@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import config from '../../config';
@@ -6,7 +6,7 @@ import config from '../../config';
 const LoginPage = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,13 +20,20 @@ const LoginPage = () => {
     setLoading(true);
     setError('');
     
+    const payload = { password };
+    if (identifier.includes('@')) {
+      payload.email = identifier.trim();
+    } else {
+      payload.phone = identifier.trim();
+    }
+
     try {
       const response = await fetch(`${config.API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -45,11 +52,11 @@ const LoginPage = () => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      // Navigate based on role or just default
+      // Navigate based on role or default
       if (data.user.role === 'super-admin') {
         navigate('/super-admin');
       } else {
-        navigate(`/bulebet/${data.restaurantSlug}/admin`);
+        navigate(`/bulebet/${data.restaurantSlug || 'default'}/admin`);
       }
     } catch (err) {
       setError(err.message);
@@ -63,13 +70,20 @@ const LoginPage = () => {
     setLoading(true);
     setError('');
     
+    const changePayload = { oldPassword: password, newPassword };
+    if (identifier.includes('@')) {
+      changePayload.email = identifier.trim();
+    } else {
+      changePayload.phone = identifier.trim();
+    }
+
     try {
-      const response = await fetch(`${config.API_URL}/api/auth/change-password`, {
+      const response = await fetch(`${config.API_URL}/api/auth/change-password-preauth`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, oldPassword: password, newPassword }),
+        body: JSON.stringify(changePayload),
       });
 
       const data = await response.json();
@@ -85,7 +99,7 @@ const LoginPage = () => {
       if (userData.user.role === 'super-admin') {
         navigate('/super-admin');
       } else {
-        navigate(`/bulebet/${userData.restaurantSlug}/admin`);
+        navigate(`/bulebet/${userData.restaurantSlug || 'default'}/admin`);
       }
     } catch (err) {
       setError(err.message);
@@ -93,6 +107,72 @@ const LoginPage = () => {
       setLoading(false);
     }
   };
+
+  const handleGoogleLoginResponse = async (googleResponse) => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch(`${config.API_URL}/api/auth/google`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: googleResponse.credential }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.msg || 'Google Sign-In failed');
+      }
+
+      // Store token
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Navigate based on role or default
+      if (data.user.role === 'super-admin') {
+        navigate('/super-admin');
+      } else {
+        navigate(`/bulebet/${data.restaurantSlug || 'default'}/admin`);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const initializeGoogleSignIn = () => {
+      if (window.google && window.google.accounts) {
+        window.google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '1014167389146-YOUR_CLIENT_ID.apps.googleusercontent.com',
+          callback: handleGoogleLoginResponse,
+        });
+        window.google.accounts.id.renderButton(
+          document.getElementById('googleSignInButton'),
+          { theme: 'outline', size: 'large', width: '100%' }
+        );
+      }
+    };
+
+    if (window.google && window.google.accounts) {
+      initializeGoogleSignIn();
+    } else {
+      const script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (script) {
+        script.addEventListener('load', initializeGoogleSignIn);
+      } else {
+        const newScript = document.createElement('script');
+        newScript.src = "https://accounts.google.com/gsi/client";
+        newScript.async = true;
+        newScript.defer = true;
+        newScript.onload = initializeGoogleSignIn;
+        document.head.appendChild(newScript);
+      }
+    }
+  }, []);
 
   return (
     <div className="py-5 min-vh-100 d-flex align-items-center">
@@ -135,13 +215,13 @@ const LoginPage = () => {
             ) : (
               <form onSubmit={handleLogin} className="text-start">
                 <div className="mb-3">
-                  <label className="form-label fw-bold" style={{ fontSize: '14px' }}>{t('login_email_label') || 'Email Address'}</label>
+                  <label className="form-label fw-bold" style={{ fontSize: '14px' }}>{t('login_email_label') || 'Email Address or Phone Number'}</label>
                   <input 
-                    type="email" 
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={t('login_email_placeholder') || 'admin@example.com'}
+                    type="text" 
+                    name="identifier"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    placeholder={t('login_email_placeholder') || 'email@example.com or phone number'}
                     required 
                     className="form-control p-3"
                   />
@@ -160,9 +240,18 @@ const LoginPage = () => {
                   />
                 </div>
 
-                <button type="submit" disabled={loading} className="btn btn-primary w-100 p-3 fw-bold mb-4" style={{ opacity: loading ? 0.7 : 1 }}>
+                <button type="submit" disabled={loading} className="btn btn-primary w-100 p-3 fw-bold mb-3" style={{ opacity: loading ? 0.7 : 1 }}>
                   {loading ? 'Signing in...' : (t('login_signin') || 'Sign In')}
                 </button>
+
+                <div className="text-center my-3 text-muted position-relative">
+                  <hr style={{ borderColor: 'var(--platinum)' }} />
+                  <span className="position-absolute top-50 start-50 translate-middle px-3" style={{ backgroundColor: 'var(--surface)', fontSize: '13px' }}>
+                    {t('login_or') || 'OR'}
+                  </span>
+                </div>
+
+                <div id="googleSignInButton" className="w-100 mb-4" style={{ minHeight: '44px' }}></div>
 
                 <div className="text-center text-muted">
                   {t('login_new') || 'New to BuleBet?'} <Link to="/register" style={{ color: 'var(--gold)', fontWeight: '600', textDecoration: 'none' }}>{t('login_partner') || 'Become a Partner'}</Link>
