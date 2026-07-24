@@ -1,15 +1,27 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const auth = require('../middleware/auth');
-const Reservation = require('../models/Reservation');
-const Restaurant = require('../models/Restaurant');
-const User = require('../models/User');
-const { notifyAdminAndCustomer, notifyStatusUpdate } = require('../services/notifications');
+const auth = require("../middleware/auth");
+const Reservation = require("../models/Reservation");
+const Restaurant = require("../models/Restaurant");
+const User = require("../models/User");
+const {
+  notifyAdminAndCustomer,
+  notifyStatusUpdate,
+} = require("../services/notifications");
 
 // POST a new reservation (Public)
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   try {
-    const { restaurantId, guestName, email, phone, date, time, guests, specialRequests } = req.body;
+    const {
+      restaurantId,
+      guestName,
+      email,
+      phone,
+      date,
+      time,
+      guests,
+      specialRequests,
+    } = req.body;
 
     const newReservation = new Reservation({
       restaurantId,
@@ -19,73 +31,76 @@ router.post('/', async (req, res) => {
       date,
       time,
       guests,
-      specialRequests
+      specialRequests,
     });
 
     const reservation = await newReservation.save();
-    
+
     // Find restaurant and admin for notifications
     const restaurant = await Restaurant.findById(restaurantId);
-    let adminEmail = 'admin@bulebet.com'; // Default fallback
-    let adminPhone = 'N/A';
+    let adminEmail = "admin@bulebeti.com"; // Default fallback
+    let adminPhone = "N/A";
     if (restaurant) {
       const admin = await User.findById(restaurant.ownerId);
       if (admin) {
         adminEmail = admin.email;
-        adminPhone = admin.phone || 'N/A';
+        adminPhone = admin.phone || "N/A";
       }
     }
 
     // Trigger Notification
     notifyAdminAndCustomer(
-      adminEmail, 
-      adminPhone, 
-      email, 
-      phone, 
-      'Reservation', 
+      adminEmail,
+      adminPhone,
+      email,
+      phone,
+      "Reservation",
       {
-        restaurantName: restaurant ? restaurant.name : 'BuleBet Partner',
+        restaurantName: restaurant ? restaurant.name : "bulebeti Partner",
         guestName,
         date,
         time,
         guests,
-        specialRequests
-      }
+        specialRequests,
+      },
     );
 
     res.json(reservation);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
   }
 });
 
-
 // GET all reservations for a specific restaurant by slug (For Admin Dashboard)
-router.get('/restaurant/:restaurantSlug', async (req, res) => {
+router.get("/restaurant/:restaurantSlug", async (req, res) => {
   try {
     // First find the restaurant ID
-    const restaurant = await Restaurant.findOne({ slug: req.params.restaurantSlug });
+    const restaurant = await Restaurant.findOne({
+      slug: req.params.restaurantSlug,
+    });
     if (!restaurant) {
-      return res.status(404).json({ msg: 'Restaurant not found' });
+      return res.status(404).json({ msg: "Restaurant not found" });
     }
 
-    const reservations = await Reservation.find({ restaurantId: restaurant._id }).sort({ date: 1, time: 1 });
+    const reservations = await Reservation.find({
+      restaurantId: restaurant._id,
+    }).sort({ date: 1, time: 1 });
     res.json(reservations);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
   }
 });
 
 // PUT to update reservation status (Requires Auth)
-router.put('/:id', auth, async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   try {
     const { status } = req.body;
 
     let reservation = await Reservation.findById(req.params.id);
     if (!reservation) {
-      return res.status(404).json({ msg: 'Reservation not found' });
+      return res.status(404).json({ msg: "Reservation not found" });
     }
 
     const previousStatus = reservation.status;
@@ -96,26 +111,26 @@ router.put('/:id', auth, async (req, res) => {
     if (status !== previousStatus) {
       const restaurant = await Restaurant.findById(reservation.restaurantId);
       notifyStatusUpdate(
-        'Reservation',
+        "Reservation",
         status,
         reservation.email,
         reservation.phone,
         {
-          restaurantId:   reservation.restaurantId,
-          restaurantName: restaurant ? restaurant.name : 'BuleBet Partner',
-          guestName:      reservation.guestName,
-          date:           reservation.date,
-          time:           reservation.time,
-          guests:         reservation.guests,
-          specialRequests: reservation.specialRequests
-        }
+          restaurantId: reservation.restaurantId,
+          restaurantName: restaurant ? restaurant.name : "bulebeti Partner",
+          guestName: reservation.guestName,
+          date: reservation.date,
+          time: reservation.time,
+          guests: reservation.guests,
+          specialRequests: reservation.specialRequests,
+        },
       );
     }
 
     res.json(reservation);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).send("Server Error");
   }
 });
 

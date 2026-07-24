@@ -1,20 +1,33 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const CateringRequest = require('../models/CateringRequest');
-const Restaurant = require('../models/Restaurant');
-const User = require('../models/User');
-const { notifyAdminAndCustomer, notifyStatusUpdate } = require('../services/notifications');
+const CateringRequest = require("../models/CateringRequest");
+const Restaurant = require("../models/Restaurant");
+const User = require("../models/User");
+const {
+  notifyAdminAndCustomer,
+  notifyStatusUpdate,
+} = require("../services/notifications");
 
 // Create a catering request
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   try {
-    const { eventType, guestCount, date, location, name, email, phone, details, restaurantSlug } = req.body;
-    
+    const {
+      eventType,
+      guestCount,
+      date,
+      location,
+      name,
+      email,
+      phone,
+      details,
+      restaurantSlug,
+    } = req.body;
+
     let restaurantId = null;
-    let adminEmail = 'admin@bulebet.com'; // Default fallback
-    let adminPhone = 'N/A';
-    let restaurantName = 'BuleBet Partners';
-    
+    let adminEmail = "admin@bulebeti.com"; // Default fallback
+    let adminPhone = "N/A";
+    let restaurantName = "bulebeti Partners";
+
     if (restaurantSlug) {
       const restaurant = await Restaurant.findOne({ slug: restaurantSlug });
       if (restaurant) {
@@ -23,7 +36,7 @@ router.post('/', async (req, res) => {
         const admin = await User.findById(restaurant.ownerId);
         if (admin) {
           adminEmail = admin.email;
-          adminPhone = admin.phone || 'N/A';
+          adminPhone = admin.phone || "N/A";
         }
       }
     }
@@ -37,56 +50,53 @@ router.post('/', async (req, res) => {
       email,
       phone,
       details,
-      restaurantId
+      restaurantId,
     });
 
     const savedRequest = await newRequest.save();
-    console.log(`[BACKEND] 🍽️ New Catering Request: ${name} (${email}) for ${eventType} on ${date}`);
-    
-    // Trigger Notification
-    notifyAdminAndCustomer(
-      adminEmail, 
-      adminPhone, 
-      email, 
-      phone, 
-      'Catering', 
-      {
-        restaurantName,
-        eventType,
-        date,
-        location,
-        guestCount,
-        name,
-        details
-      }
+    console.log(
+      `[BACKEND] 🍽️ New Catering Request: ${name} (${email}) for ${eventType} on ${date}`,
     );
-    
+
+    // Trigger Notification
+    notifyAdminAndCustomer(adminEmail, adminPhone, email, phone, "Catering", {
+      restaurantName,
+      eventType,
+      date,
+      location,
+      guestCount,
+      name,
+      details,
+    });
+
     res.json(savedRequest);
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ msg: 'Server error', details: err.message });
+    res.status(500).json({ msg: "Server error", details: err.message });
   }
 });
 
 // Get catering requests for a specific restaurant
-router.get('/restaurant/:restaurantId', async (req, res) => {
+router.get("/restaurant/:restaurantId", async (req, res) => {
   try {
-    const requests = await CateringRequest.find({ restaurantId: req.params.restaurantId }).sort({ date: 1 });
+    const requests = await CateringRequest.find({
+      restaurantId: req.params.restaurantId,
+    }).sort({ date: 1 });
     res.json(requests);
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ msg: 'Server error', details: err.message });
+    res.status(500).json({ msg: "Server error", details: err.message });
   }
 });
 
 // PUT to update catering request status (Admin)
-router.put('/:id', async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const { status } = req.body;
 
     let cateringRequest = await CateringRequest.findById(req.params.id);
     if (!cateringRequest) {
-      return res.status(404).json({ msg: 'Catering request not found' });
+      return res.status(404).json({ msg: "Catering request not found" });
     }
 
     const previousStatus = cateringRequest.status;
@@ -95,33 +105,37 @@ router.put('/:id', async (req, res) => {
 
     // Fire notification only when status actually changed
     if (status !== previousStatus) {
-      let restaurantName = 'BuleBet Partners';
+      let restaurantName = "bulebeti Partners";
       if (cateringRequest.restaurantId) {
-        const restaurant = await Restaurant.findById(cateringRequest.restaurantId);
+        const restaurant = await Restaurant.findById(
+          cateringRequest.restaurantId,
+        );
         if (restaurant) restaurantName = restaurant.name;
       }
 
       notifyStatusUpdate(
-        'Catering',
+        "Catering",
         status,
         cateringRequest.email,
         cateringRequest.phone,
         {
-          restaurantId:  cateringRequest.restaurantId,
+          restaurantId: cateringRequest.restaurantId,
           restaurantName,
-          name:       cateringRequest.name,
-          eventType:  cateringRequest.eventType,
-          date:       cateringRequest.date ? new Date(cateringRequest.date).toLocaleDateString() : 'TBD',
-          location:   cateringRequest.location,
-          guestCount: cateringRequest.guestCount
-        }
+          name: cateringRequest.name,
+          eventType: cateringRequest.eventType,
+          date: cateringRequest.date
+            ? new Date(cateringRequest.date).toLocaleDateString()
+            : "TBD",
+          location: cateringRequest.location,
+          guestCount: cateringRequest.guestCount,
+        },
       );
     }
 
     res.json(cateringRequest);
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ msg: 'Server error', details: err.message });
+    res.status(500).json({ msg: "Server error", details: err.message });
   }
 });
 

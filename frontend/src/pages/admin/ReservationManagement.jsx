@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { useLanguage } from '../../context/LanguageContext';
-import { useAdmin } from '../../layouts/AdminLayout';
-import config from '../../config';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
+import { useAdmin } from "../../layouts/AdminLayout";
+import config from "../../config";
 
 const ReservationManagement = () => {
   const { t } = useLanguage();
@@ -12,20 +12,35 @@ const ReservationManagement = () => {
   const [loading, setLoading] = useState(true);
 
   // Filter State
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [dateFilter, setDateFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [dateFilter, setDateFilter] = useState("");
 
-  const isGoldOrAbove = tier === 'Gold' || tier === 'Platinum' || tier === 'Premium';
+  const isGoldOrAbove =
+    tier === "Gold" || tier === "Platinum" || tier === "Premium";
 
   if (!isGoldOrAbove) {
     return (
-      <div style={{ padding: '40px', textAlign: 'center', backgroundColor: 'var(--surface)', borderRadius: '12px', marginTop: '40px' }}>
-        <h2 style={{ color: 'var(--on-surface)' }}>🔒 Feature Locked</h2>
-        <p style={{ color: 'var(--on-surface-variant)', marginBottom: '20px' }}>
-          Reservation Management requires the <strong>Gold</strong>, <strong>Platinum</strong>, or <strong>Premium</strong> plan.
+      <div
+        style={{
+          padding: "40px",
+          textAlign: "center",
+          backgroundColor: "var(--surface)",
+          borderRadius: "12px",
+          marginTop: "40px",
+        }}
+      >
+        <h2 style={{ color: "var(--on-surface)" }}>🔒 Feature Locked</h2>
+        <p style={{ color: "var(--on-surface-variant)", marginBottom: "20px" }}>
+          Reservation Management requires the <strong>Gold</strong>,{" "}
+          <strong>Platinum</strong>, or <strong>Premium</strong> plan.
         </p>
-        <Link to={`/bulebet/${restaurantName}/admin/settings`} className="btn btn-primary">Upgrade Plan</Link>
+        <Link
+          to={`/bulebeti/${restaurantName}/admin/settings`}
+          className="btn btn-primary"
+        >
+          Upgrade Plan
+        </Link>
       </div>
     );
   }
@@ -37,9 +52,12 @@ const ReservationManagement = () => {
   const fetchReservations = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${config.API_URL}/api/reservations/restaurant/${restaurantName}`, {
-        headers: { 'x-auth-token': localStorage.getItem('token') }
-      });
+      const res = await fetch(
+        `${config.API_URL}/api/reservations/restaurant/${restaurantName}`,
+        {
+          headers: { "x-auth-token": localStorage.getItem("token") },
+        },
+      );
       if (res.ok) {
         const data = await res.json();
         const sortedData = data.sort((a, b) => {
@@ -58,70 +76,87 @@ const ReservationManagement = () => {
 
   const updateStatus = async (id, newStatus) => {
     const previousReservations = [...reservations];
-    setReservations(prev => prev.map(r => r._id === id ? { ...r, status: newStatus } : r));
+    setReservations((prev) =>
+      prev.map((r) => (r._id === id ? { ...r, status: newStatus } : r)),
+    );
     try {
       const res = await fetch(`${config.API_URL}/api/reservations/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('token') },
-        body: JSON.stringify({ status: newStatus })
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-token": localStorage.getItem("token"),
+        },
+        body: JSON.stringify({ status: newStatus }),
       });
-      if (!res.ok) throw new Error('Failed to update status');
+      if (!res.ok) throw new Error("Failed to update status");
     } catch (err) {
       console.error(err);
-      alert('Failed to update status. Reverting...');
+      alert("Failed to update status. Reverting...");
       setReservations(previousReservations);
     }
   };
 
   const getStatusStyle = (status) => {
     switch (status) {
-      case 'Confirmed': return { backgroundColor: '#e6f4ea', color: '#1e7e34' };
-      case 'Pending': return { backgroundColor: '#fff7e6', color: '#d97706' };
-      case 'Cancelled': return { backgroundColor: '#fce8e6', color: '#d93025' };
-      case 'Completed': return { backgroundColor: '#e8f0fe', color: '#1a73e8' };
-      default: return { backgroundColor: '#f1f3f4', color: '#5f6368' };
+      case "Confirmed":
+        return { backgroundColor: "#e6f4ea", color: "#1e7e34" };
+      case "Pending":
+        return { backgroundColor: "#fff7e6", color: "#d97706" };
+      case "Cancelled":
+        return { backgroundColor: "#fce8e6", color: "#d93025" };
+      case "Completed":
+        return { backgroundColor: "#e8f0fe", color: "#1a73e8" };
+      default:
+        return { backgroundColor: "#f1f3f4", color: "#5f6368" };
     }
   };
 
   // Apply filters
-  const filtered = reservations.filter(r => {
+  const filtered = reservations.filter((r) => {
     const search = searchTerm.toLowerCase();
-    const globalSearch = searchQuery ? searchQuery.toLowerCase() : '';
-    
-    const matchLocalSearch = !search ||
-      (r.guestName || '').toLowerCase().includes(search) ||
-      (r.email || '').toLowerCase().includes(search) ||
-      (r.phone || '').toLowerCase().includes(search);
-      
-    const matchGlobalSearch = !globalSearch ||
-      (r.guestName || '').toLowerCase().includes(globalSearch) ||
-      (r.email || '').toLowerCase().includes(globalSearch) ||
-      (r.phone || '').toLowerCase().includes(globalSearch);
+    const globalSearch = searchQuery ? searchQuery.toLowerCase() : "";
 
-    const matchStatus = statusFilter === 'All' || r.status === statusFilter;
-    const matchDate = !dateFilter || (r.date || '').startsWith(dateFilter);
-    
+    const matchLocalSearch =
+      !search ||
+      (r.guestName || "").toLowerCase().includes(search) ||
+      (r.email || "").toLowerCase().includes(search) ||
+      (r.phone || "").toLowerCase().includes(search);
+
+    const matchGlobalSearch =
+      !globalSearch ||
+      (r.guestName || "").toLowerCase().includes(globalSearch) ||
+      (r.email || "").toLowerCase().includes(globalSearch) ||
+      (r.phone || "").toLowerCase().includes(globalSearch);
+
+    const matchStatus = statusFilter === "All" || r.status === statusFilter;
+    const matchDate = !dateFilter || (r.date || "").startsWith(dateFilter);
+
     return matchLocalSearch && matchGlobalSearch && matchStatus && matchDate;
   });
 
   const inputStyle = {
-    padding: '8px 12px',
-    borderRadius: 'var(--radius-md)',
-    border: '1px solid var(--platinum)',
-    fontSize: '14px',
-    outline: 'none'
+    padding: "8px 12px",
+    borderRadius: "var(--radius-md)",
+    border: "1px solid var(--platinum)",
+    fontSize: "14px",
+    outline: "none",
   };
 
   return (
     <div className="reservation-management py-3">
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-          <h1 className="fs-3 fw-bold m-0">{t('admin_res_title')}</h1>
+          <h1 className="fs-3 fw-bold m-0">{t("admin_res_title")}</h1>
           <p className="text-muted small m-0 mt-1">
             {filtered.length} of {reservations.length} reservations
           </p>
         </div>
-        <button className="btn btn-outline-secondary fw-bold px-4" onClick={fetchReservations}>↻ Refresh</button>
+        <button
+          className="btn btn-outline-secondary fw-bold px-4"
+          onClick={fetchReservations}
+        >
+          ↻ Refresh
+        </button>
       </div>
 
       <div className="card border-0 shadow-sm rounded-4 p-4">
@@ -133,14 +168,14 @@ const ReservationManagement = () => {
               placeholder="Search by name, email, phone..."
               className="form-control"
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="col-12 col-md-3">
             <select
               className="form-select"
               value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
+              onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="All">All Statuses</option>
               <option value="Pending">Pending</option>
@@ -154,14 +189,18 @@ const ReservationManagement = () => {
               type="date"
               className="form-control"
               value={dateFilter}
-              onChange={e => setDateFilter(e.target.value)}
+              onChange={(e) => setDateFilter(e.target.value)}
             />
           </div>
           <div className="col-12 col-md-2">
-            {(searchTerm || statusFilter !== 'All' || dateFilter) && (
+            {(searchTerm || statusFilter !== "All" || dateFilter) && (
               <button
                 className="btn btn-outline-danger w-100 fw-bold"
-                onClick={() => { setSearchTerm(''); setStatusFilter('All'); setDateFilter(''); }}
+                onClick={() => {
+                  setSearchTerm("");
+                  setStatusFilter("All");
+                  setDateFilter("");
+                }}
               >
                 ✕ Clear
               </button>
@@ -178,15 +217,30 @@ const ReservationManagement = () => {
           </div>
         ) : (
           <div className="table-responsive">
-            <table className="table table-hover align-middle mb-0" style={{ minWidth: '700px' }}>
+            <table
+              className="table table-hover align-middle mb-0"
+              style={{ minWidth: "700px" }}
+            >
               <thead className="table-light">
                 <tr>
-                  <th className="text-muted text-uppercase small fw-bold">ID</th>
-                  <th className="text-muted text-uppercase small fw-bold">Customer</th>
-                  <th className="text-muted text-uppercase small fw-bold">Date & Time</th>
-                  <th className="text-muted text-uppercase small fw-bold">Guests</th>
-                  <th className="text-muted text-uppercase small fw-bold">Special Req.</th>
-                  <th className="text-muted text-uppercase small fw-bold">Status</th>
+                  <th className="text-muted text-uppercase small fw-bold">
+                    ID
+                  </th>
+                  <th className="text-muted text-uppercase small fw-bold">
+                    Customer
+                  </th>
+                  <th className="text-muted text-uppercase small fw-bold">
+                    Date & Time
+                  </th>
+                  <th className="text-muted text-uppercase small fw-bold">
+                    Guests
+                  </th>
+                  <th className="text-muted text-uppercase small fw-bold">
+                    Special Req.
+                  </th>
+                  <th className="text-muted text-uppercase small fw-bold">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody className="border-top-0">
@@ -213,8 +267,11 @@ const ReservationManagement = () => {
                       <div className="small text-muted">{res.time}</div>
                     </td>
                     <td>{res.guests}</td>
-                    <td className="small text-muted" style={{ maxWidth: '180px' }}>
-                      {res.specialRequests || '—'}
+                    <td
+                      className="small text-muted"
+                      style={{ maxWidth: "180px" }}
+                    >
+                      {res.specialRequests || "—"}
                     </td>
                     <td>
                       <select
@@ -237,7 +294,9 @@ const ReservationManagement = () => {
         )}
 
         <div className="d-flex justify-content-between align-items-center mt-4 small text-muted">
-          <div>Showing {filtered.length} result{filtered.length !== 1 ? 's' : ''}</div>
+          <div>
+            Showing {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+          </div>
         </div>
       </div>
     </div>

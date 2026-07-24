@@ -13,7 +13,7 @@ export const translations = {
     nav_admin: "Admin Dashboard",
     nav_logout: "Logout",
     nav_testimonials: "Testimonials",
-    
+
     // Menu Dropdown
     menu_signature: "Our Signature",
     menu_breakfast: "Breakfast",
@@ -36,7 +36,8 @@ export const translations = {
     admin_settings: "Settings",
 
     // Footer
-    footer_tagline: "Elevating culinary experiences through seamless digital dining and management.",
+    footer_tagline:
+      "Elevating culinary experiences through seamless digital dining and management.",
     footer_quick_links: "Quick Links",
     footer_about_us: "About Us",
     footer_features: "Features",
@@ -52,7 +53,8 @@ export const translations = {
 
     // Login Page
     login_welcome: "Welcome Back",
-    login_enter_email: "Enter your email or phone to receive a secure access code.",
+    login_enter_email:
+      "Enter your email or phone to receive a secure access code.",
     login_email_label: "EMAIL OR PHONE",
     login_email_placeholder: "name@example.com or +1...",
     login_send_code: "Send Verification Code",
@@ -67,7 +69,8 @@ export const translations = {
 
     // Registration Page
     reg_title: "Register Your Restaurant",
-    reg_subtitle: "Join the BuleBet network and elevate your management experience.",
+    reg_subtitle:
+      "Join the BuleBet network and elevate your management experience.",
     reg_rest_name: "Restaurant Name",
     reg_rest_name_ph: "e.g. The Golden Truffle",
     reg_owner_name: "Owner Name",
@@ -82,7 +85,8 @@ export const translations = {
     reg_location: "Restaurant Location (Required)",
     reg_location_ph: "Street address, City, Country",
     reg_google_verify: "Verify on Google Maps",
-    reg_google_connected: "CONNECTED TO GOOGLE MAPS: Precise geocoding enabled for your public menu page.",
+    reg_google_connected:
+      "CONNECTED TO GOOGLE MAPS: Precise geocoding enabled for your public menu page.",
     reg_social: "Social Profiles (Optional)",
     reg_social_ph: "Your {platform} handle",
     reg_connect_hub: "Connect with BuleBet Hub",
@@ -93,14 +97,16 @@ export const translations = {
     // Menu Page
     menu_sig_label: "THE SIGNATURE EXPERIENCE",
     menu_sig_title: "Curated for Excellence",
-    menu_sig_desc: "Discover our meticulously selected signature offerings, representing the absolute pinnacle of our culinary artistry.",
+    menu_sig_desc:
+      "Discover our meticulously selected signature offerings, representing the absolute pinnacle of our culinary artistry.",
     menu_our_menu: "Our Menu",
     menu_all_desc: "A curated selection of the finest culinary creations.",
     menu_filter_desc: "Explore our exquisite selection of {filter} offerings.",
     menu_ingredients: "INGREDIENTS:",
     menu_contains: "CONTAINS:",
     menu_inquiries: "Inquiries & Feedback",
-    menu_inquiries_desc: "Have a question about our menu or want to share your experience? Our team at {restaurant} is ready to assist you.",
+    menu_inquiries_desc:
+      "Have a question about our menu or want to share your experience? Our team at {restaurant} is ready to assist you.",
     menu_name_ph: "Your Name",
     menu_email_ph: "Your Email",
     menu_message_ph: "Your Message",
@@ -108,22 +114,27 @@ export const translations = {
 
     // Landing Page
     landing_hero_title: "The Digital Concierge for Elite Dining",
-    landing_hero_desc: "BuleBet empowers restaurant owners with high-efficiency management tools while providing diners with an aspirational luxury experience.",
+    landing_hero_desc:
+      "BuleBet empowers restaurant owners with high-efficiency management tools while providing diners with an aspirational luxury experience.",
     landing_get_started: "Get Started",
     landing_explore: "Explore Menu",
     landing_registered_restaurants: "Registered Restaurants",
-    landing_registered_restaurants_desc: "Explore elite dining experiences powered by BuleBet. Click on a restaurant to view their custom landing page, menu, and reservation system.",
+    landing_registered_restaurants_desc:
+      "Explore elite dining experiences powered by BuleBet. Click on a restaurant to view their custom landing page, menu, and reservation system.",
     landing_visit_restaurant: "Visit Restaurant",
     landing_no_restaurants: "No registered restaurants found yet.",
     landing_loading_restaurants: "Loading premier venues...",
-    
+
     landing_feat1_title: "Precision Management",
-    landing_feat1_desc: "Comprehensive dashboard for reservations, catering, and location management.",
+    landing_feat1_desc:
+      "Comprehensive dashboard for reservations, catering, and location management.",
     landing_feat2_title: "Luxury Experience",
-    landing_feat2_desc: "Beautifully designed customer hubs that reflect the prestige of your brand.",
+    landing_feat2_desc:
+      "Beautifully designed customer hubs that reflect the prestige of your brand.",
     landing_feat3_title: "Seamless Integration",
-    landing_feat3_desc: "Easily manage multiple locations and staff from a single authoritative source.",
-    
+    landing_feat3_desc:
+      "Easily manage multiple locations and staff from a single authoritative source.",
+
     landing_pricing_title: "Select Your BuleBet Hub Tier",
     landing_tier_silver: "Silver",
     landing_free: "Free",
@@ -164,15 +175,19 @@ export const translations = {
     admin_dash_subtitle: "Overview of your BuleBet Restaurant operations.",
     admin_dash_plan: "PLAN",
     admin_dash_quick_tour: "Quick Tour",
-    
+
     admin_tour_1_title: "Welcome to BuleBet Hub",
-    admin_tour_1_desc: "This is your central command center. From here, you can manage your signature menu, oversee all guest interactions, and scale your restaurant operations.",
+    admin_tour_1_desc:
+      "This is your central command center. From here, you can manage your signature menu, oversee all guest interactions, and scale your restaurant operations.",
     admin_tour_2_title: "Menu Excellence",
-    admin_tour_2_desc: "Update your culinary offerings in real-time. Our editor allows you to maintain the prestigious presentation of your signature dishes.",
+    admin_tour_2_desc:
+      "Update your culinary offerings in real-time. Our editor allows you to maintain the prestigious presentation of your signature dishes.",
     admin_tour_3_title: "Guest Relations",
-    admin_tour_3_desc: "Seamlessly oversee all guest bookings and high-value catering inquiries. Filter by status to ensure no VIP request is missed.",
+    admin_tour_3_desc:
+      "Seamlessly oversee all guest bookings and high-value catering inquiries. Filter by status to ensure no VIP request is missed.",
     admin_tour_4_title: "Ready for Launch",
-    admin_tour_4_desc: "Your platform is fully configured for global operations. You can now manage multiple locations and monitor partner feedback in real-time.",
+    admin_tour_4_desc:
+      "Your platform is fully configured for global operations. You can now manage multiple locations and monitor partner feedback in real-time.",
     admin_tour_next: "Next Step",
     admin_tour_finish: "Finish Tour",
 
@@ -202,7 +217,8 @@ export const translations = {
     admin_cap_rescat: "Res & Catering SMS",
 
     admin_upgrade_title: "Upgrade Hub",
-    admin_upgrade_desc: "Unlock advanced catering management, unlimited locations, and automated SMS alerts.",
+    admin_upgrade_desc:
+      "Unlock advanced catering management, unlimited locations, and automated SMS alerts.",
     admin_view_plans: "View Plans",
 
     admin_guest_title: "Recent Guest Inquiries",
@@ -222,14 +238,17 @@ export const translations = {
     admin_menu_cat_all: "All",
 
     // Admin Add/Edit Menu Item
-    admin_item_add_success: "Culinary Masterpiece Submitted! It has been registered in the Super Admin portal for platform-wide review.",
+    admin_item_add_success:
+      "Culinary Masterpiece Submitted! It has been registered in the Super Admin portal for platform-wide review.",
     admin_item_add_title: "Add New Culinary Creation",
-    admin_item_add_desc: "Every addition is automatically registered in the Super Admin hub for platform oversight.",
-    admin_item_edit_success: "Culinary Masterpiece Updated! Changes have been synchronized across the platform.",
+    admin_item_add_desc:
+      "Every addition is automatically registered in the Super Admin hub for platform oversight.",
+    admin_item_edit_success:
+      "Culinary Masterpiece Updated! Changes have been synchronized across the platform.",
     admin_item_edit_title: "Edit Culinary Creation",
     admin_item_edit_desc: "Refine the details of your signature dish.",
     admin_item_reg_id: "PLATINUM REGISTRY ID: #TA-2026-001",
-    
+
     admin_item_lbl_name: "DISH NAME",
     admin_item_ph_name: "e.g., Saffron Infused Scallops",
     admin_item_lbl_cat: "CATEGORY",
@@ -322,7 +341,7 @@ export const translations = {
     admin_set_tab_not: "Notifications",
     admin_set_tab_bill: "Billing & Plans",
     admin_set_tab_back: "Backups & Data",
-    
+
     // Profile
     admin_set_prof_logo: "Restaurant Logo",
     admin_set_prof_img: "Change Image",
@@ -360,7 +379,8 @@ export const translations = {
 
     // Layout
     admin_set_lay_title: "Global Menu Presentation",
-    admin_set_lay_desc: "Define the visual alignment for all culinary images across your public menu. This setting ensures brand consistency.",
+    admin_set_lay_desc:
+      "Define the visual alignment for all culinary images across your public menu. This setting ensures brand consistency.",
     admin_set_lay_left: "Left Aligned",
     admin_set_lay_left_d: "Images on the left, text on the right.",
     admin_set_lay_right: "Right Aligned",
@@ -368,7 +388,8 @@ export const translations = {
     admin_set_lay_cent: "Center Stacked",
     admin_set_lay_cent_d: "Full-width images with centered content.",
     admin_set_lay_tip: "PRO TIP",
-    admin_set_lay_tip_d: "Center Stacked layout is recommended for high-fidelity food photography and single-item focus pages.",
+    admin_set_lay_tip_d:
+      "Center Stacked layout is recommended for high-fidelity food photography and single-item focus pages.",
 
     // Billing
     admin_set_bill_cur: "CURRENT PLAN: PLATINUM HUB",
@@ -378,8 +399,9 @@ export const translations = {
 
     // Backups
     admin_set_back_title: "Platform Backups",
-    admin_set_back_desc: "Your menu, location settings, and guest data are backed up daily. You can download or restore previous versions here.",
-    admin_set_back_dl: "Download"
+    admin_set_back_desc:
+      "Your menu, location settings, and guest data are backed up daily. You can download or restore previous versions here.",
+    admin_set_back_dl: "Download",
   },
   am: {
     // Header
@@ -464,7 +486,8 @@ export const translations = {
     reg_location: "የምግብ ቤቱ አድራሻ (ግዴታ)",
     reg_location_ph: "የመንገድ አድራሻ፣ ከተማ፣ ሀገር",
     reg_google_verify: "በGoogle ካርታዎች ላይ ያረጋግጡ",
-    reg_google_connected: "ከGoogle ካርታዎች ጋር ተገናኝቷል፡ ትክክለኛ ቦታ ለሕዝብ ምናሌዎ ገቢር ተደርጓል።",
+    reg_google_connected:
+      "ከGoogle ካርታዎች ጋር ተገናኝቷል፡ ትክክለኛ ቦታ ለሕዝብ ምናሌዎ ገቢር ተደርጓል።",
     reg_social: "ማህበራዊ ገጾች (አማራጭ)",
     reg_social_ph: "የ{platform} ስምዎ",
     reg_connect_hub: "ከ BuleBet Hub ጋር ይገናኙ",
@@ -482,7 +505,8 @@ export const translations = {
     menu_ingredients: "ግብዓቶች:",
     menu_contains: "አለርጂ / ይዘት:",
     menu_inquiries: "ጥያቄዎች እና አስተያየቶች",
-    menu_inquiries_desc: "ስለ ምናሌያችን ጥያቄ አለዎት ወይስ ተሞክሮዎን ማካፈል ይፈልጋሉ? በ {restaurant} ያለው ቡድናችን ሊረዳዎ ዝግጁ ነው።",
+    menu_inquiries_desc:
+      "ስለ ምናሌያችን ጥያቄ አለዎት ወይስ ተሞክሮዎን ማካፈል ይፈልጋሉ? በ {restaurant} ያለው ቡድናችን ሊረዳዎ ዝግጁ ነው።",
     menu_name_ph: "ስምዎ",
     menu_email_ph: "ኢሜይልዎ",
     menu_message_ph: "መልእክትዎ",
@@ -490,22 +514,24 @@ export const translations = {
 
     // Landing Page
     landing_hero_title: "ለከፍተኛ ደረጃ ምግብ ቤቶች ዲጂታል አስተዳደር",
-    landing_hero_desc: "BuleBet የምግብ ቤት ባለቤቶችን በከፍተኛ ብቃት የማስተዳደር መሳሪያዎች ያበረታታል፣ ለተመጋቢዎች ደግሞ የቅንጦት ልምድ ይሰጣል።",
+    landing_hero_desc:
+      "BuleBet የምግብ ቤት ባለቤቶችን በከፍተኛ ብቃት የማስተዳደር መሳሪያዎች ያበረታታል፣ ለተመጋቢዎች ደግሞ የቅንጦት ልምድ ይሰጣል።",
     landing_get_started: "አሁኑኑ ይጀምሩ",
     landing_explore: "ምናሌውን ያስሱ",
     landing_registered_restaurants: "የተመዘገቡ ሬስቶራንቶች",
-    landing_registered_restaurants_desc: "በBuleBet የሚደገፉ ከፍተኛ ደረጃ ያላቸውን የምግብ ቤቶች ልምድ ያስሱ። ምናሌያቸውን እና ቦታ ማስያዣዎቻቸውን ለማየት ሬስቶራንት ላይ ይጫኑ።",
+    landing_registered_restaurants_desc:
+      "በBuleBet የሚደገፉ ከፍተኛ ደረጃ ያላቸውን የምግብ ቤቶች ልምድ ያስሱ። ምናሌያቸውን እና ቦታ ማስያዣዎቻቸውን ለማየት ሬስቶራንት ላይ ይጫኑ።",
     landing_visit_restaurant: "ሬስቶራንቱን ይጎብኙ",
     landing_no_restaurants: "እስካሁን የተመዘገቡ ሬስቶራንቶች አልተገኙም።",
     landing_loading_restaurants: "ሬስቶራንቶችን በመጫን ላይ...",
-    
+
     landing_feat1_title: "ትክክለኛ አስተዳደር",
     landing_feat1_desc: "ለቦታ ማስያዝ፣ ዝግጅት አቅርቦት እና የቅርንጫፍ አስተዳደር የተሟላ ዳሽቦርድ።",
     landing_feat2_title: "የቅንጦት ልምድ",
     landing_feat2_desc: "የምርት ስምዎን ክብር የሚያንፀባርቁ በሚያምር ሁኔታ የተነደፉ የደንበኛ ገጾች።",
     landing_feat3_title: "እንከን የለሽ ውህደት",
     landing_feat3_desc: "በርካታ ቅርንጫፎችን እና ሰራተኞችን ከአንድ ማዕከላዊ ምንጭ በቀላሉ ያስተዳድሩ።",
-    
+
     landing_pricing_title: "የ BuleBet Hub ደረጃዎን ይምረጡ",
     landing_tier_silver: "ሲልቨር",
     landing_free: "ነፃ",
@@ -546,15 +572,18 @@ export const translations = {
     admin_dash_subtitle: "የ BuleBet ምግብ ቤትዎ አጠቃላይ እይታ።",
     admin_dash_plan: "ዕቅድ",
     admin_dash_quick_tour: "አጭር ጉብኝት",
-    
+
     admin_tour_1_title: "እንኳን ወደ BuleBet Hub በደህና መጡ",
-    admin_tour_1_desc: "ይህ የእርስዎ ማዕከላዊ የቁጥጥር ማዕከል ነው። ከዚህ ሆነው የእርስዎን ምናሌ ማስተዳደር፣ ሁሉንም የደንበኛ ግንኙነቶች መከታተል እና የምግብ ቤትዎን ስራዎች ማስፋፋት ይችላሉ።",
+    admin_tour_1_desc:
+      "ይህ የእርስዎ ማዕከላዊ የቁጥጥር ማዕከል ነው። ከዚህ ሆነው የእርስዎን ምናሌ ማስተዳደር፣ ሁሉንም የደንበኛ ግንኙነቶች መከታተል እና የምግብ ቤትዎን ስራዎች ማስፋፋት ይችላሉ።",
     admin_tour_2_title: "የምናሌ ጥራት",
-    admin_tour_2_desc: "የምግብ አቅርቦቶችዎን በቅጽበት ያዘምኑ። የእኛ አርታዒ የልዩ ምግቦችዎን ክብር ጠብቀው እንዲቆዩ ያስችልዎታል።",
+    admin_tour_2_desc:
+      "የምግብ አቅርቦቶችዎን በቅጽበት ያዘምኑ። የእኛ አርታዒ የልዩ ምግቦችዎን ክብር ጠብቀው እንዲቆዩ ያስችልዎታል።",
     admin_tour_3_title: "የእንግዳ ግንኙነት",
     admin_tour_3_desc: "ሁሉንም የደንበኛ ቦታ ማስያዣዎች እና ከፍተኛ ጥያቄዎችን በተቀላጠፈ ሁኔታ ይቆጣጠሩ።",
     admin_tour_4_title: "ለስራ ዝግጁ",
-    admin_tour_4_desc: "መድረክዎ ለዓለም አቀፍ ስራዎች ሙሉ በሙሉ ተዋቅሯል። አሁን በርካታ ቅርንጫፎችን ማስተዳደር ይችላሉ።",
+    admin_tour_4_desc:
+      "መድረክዎ ለዓለም አቀፍ ስራዎች ሙሉ በሙሉ ተዋቅሯል። አሁን በርካታ ቅርንጫፎችን ማስተዳደር ይችላሉ።",
     admin_tour_next: "ቀጣይ",
     admin_tour_finish: "ጉብኝቱን ጨርስ",
 
@@ -584,7 +613,8 @@ export const translations = {
     admin_cap_rescat: "ቦታ ማስያዣ እና ዝግጅት ኤስኤምኤስ",
 
     admin_upgrade_title: " Hubን ያሳድጉ",
-    admin_upgrade_desc: "የላቀ የዝግጅት አቅርቦት አስተዳደርን፣ ያልተገደቡ ቅርንጫፎችን እና አውቶማቲክ የኤስኤምኤስ ማሳወቂያዎችን ይክፈቱ።",
+    admin_upgrade_desc:
+      "የላቀ የዝግጅት አቅርቦት አስተዳደርን፣ ያልተገደቡ ቅርንጫፎችን እና አውቶማቲክ የኤስኤምኤስ ማሳወቂያዎችን ይክፈቱ።",
     admin_view_plans: "ዕቅዶችን ይመልከቱ",
 
     admin_guest_title: "የቅርብ ጊዜ የእንግዳ ጥያቄዎች",
@@ -611,7 +641,7 @@ export const translations = {
     admin_item_edit_title: "የምግብ ፈጠራን ያርትዑ",
     admin_item_edit_desc: "የልዩ ምግብዎን ዝርዝሮች ያሻሽሉ።",
     admin_item_reg_id: "የፕላቲነም ምዝገባ መታወቂያ: #TA-2026-001",
-    
+
     admin_item_lbl_name: "የምግቡ ስም",
     admin_item_ph_name: "ምሳሌ: በሳፍሮን የተዘጋጀ ስካሎፕ",
     admin_item_lbl_cat: "ምድብ",
@@ -704,7 +734,7 @@ export const translations = {
     admin_set_tab_not: "ማሳወቂያዎች",
     admin_set_tab_bill: "ክፍያ እና እቅዶች",
     admin_set_tab_back: "ምትኬዎች እና ውሂብ",
-    
+
     // Profile
     admin_set_prof_logo: "የምግብ ቤት አርማ",
     admin_set_prof_img: "ምስል ቀይር",
@@ -742,7 +772,8 @@ export const translations = {
 
     // Layout
     admin_set_lay_title: "ዓለም አቀፍ የምናሌ አቀራረብ",
-    admin_set_lay_desc: "በይፋዊ ምናሌዎ ላይ ለሁሉም የምግብ ምስሎች የእይታ አሰላለፍ ይወስኑ። ይህ ቅንብር የምርት ስም ወጥነትን ያረጋግጣል።",
+    admin_set_lay_desc:
+      "በይፋዊ ምናሌዎ ላይ ለሁሉም የምግብ ምስሎች የእይታ አሰላለፍ ይወስኑ። ይህ ቅንብር የምርት ስም ወጥነትን ያረጋግጣል።",
     admin_set_lay_left: "በስተግራ የተሰለፈ",
     admin_set_lay_left_d: "ምስሎች በስተግራ፣ ጽሑፍ በስተቀኝ።",
     admin_set_lay_right: "በስተቀኝ የተሰለፈ",
@@ -750,7 +781,8 @@ export const translations = {
     admin_set_lay_cent: "መሃል ላይ የተደረደረ",
     admin_set_lay_cent_d: "ከሙሉ ስፋት ምስሎች ጋር በመሃል የተቀመጠ ይዘት።",
     admin_set_lay_tip: "ጠቃሚ ምክር",
-    admin_set_lay_tip_d: "መሃል ላይ የተደረደረ አቀማመጥ ለከፍተኛ ጥራት የምግብ ፎቶግራፍ እና ነጠላ-እቃ ትኩረት ገጾች ይመከራል።",
+    admin_set_lay_tip_d:
+      "መሃል ላይ የተደረደረ አቀማመጥ ለከፍተኛ ጥራት የምግብ ፎቶግራፍ እና ነጠላ-እቃ ትኩረት ገጾች ይመከራል።",
 
     // Billing
     admin_set_bill_cur: "የአሁኑ እቅድ: PLATINUM HUB",
@@ -760,7 +792,8 @@ export const translations = {
 
     // Backups
     admin_set_back_title: "የመድረክ ምትኬዎች",
-    admin_set_back_desc: "የእርስዎ ምናሌ፣ የአካባቢ ቅንብሮች እና የእንግዳ ውሂብ በየቀኑ ምትኬ ይቀመጥላቸዋል። የቀድሞ ስሪቶችን እዚህ ማውረድ ወይም ወደነበረበት መመለስ ይችላሉ።",
-    admin_set_back_dl: "አውርድ"
-  }
+    admin_set_back_desc:
+      "የእርስዎ ምናሌ፣ የአካባቢ ቅንብሮች እና የእንግዳ ውሂብ በየቀኑ ምትኬ ይቀመጥላቸዋል። የቀድሞ ስሪቶችን እዚህ ማውረድ ወይም ወደነበረበት መመለስ ይችላሉ።",
+    admin_set_back_dl: "አውርድ",
+  },
 };

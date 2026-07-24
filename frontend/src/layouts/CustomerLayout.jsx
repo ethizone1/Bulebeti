@@ -1,22 +1,29 @@
-import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import AIChatWidget from '../components/AIChatWidget';
+import React from "react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import AIChatWidget from "../components/AIChatWidget";
 
-import { useParams } from 'react-router-dom';
+import { useParams } from "react-router-dom";
 
 const CustomerLayout = ({ children }) => {
   const { restaurantName } = useParams();
-  
-  // Format the name nicely for the UI (e.g., "bulebet-restaurant" -> "Bulebet Restaurant")
-  const formattedName = restaurantName ? restaurantName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'the restaurant';
+
+  // Format the name nicely for the UI (e.g., "bulebeti-restaurant" -> "bulebeti Restaurant")
+  const formattedName = restaurantName
+    ? restaurantName.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+    : "the restaurant";
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        position: "relative",
+      }}
+    >
       <Header />
-      <main style={{ flex: 1 }}>
-        {children}
-      </main>
+      <main style={{ flex: 1 }}>{children}</main>
       <Footer />
       <AIChatWidget role="customer" restaurantName={formattedName} />
     </div>

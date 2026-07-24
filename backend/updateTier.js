@@ -1,22 +1,26 @@
-const mongoose = require('mongoose');
-const Restaurant = require('./models/Restaurant');
+const mongoose = require("mongoose");
+const Restaurant = require("./models/Restaurant");
 
-mongoose.connect('mongodb://localhost:27017/bulebet')
+mongoose
+  .connect("mongodb://localhost:27017/bulebeti")
   .then(async () => {
-    console.log('Connected to MongoDB');
+    console.log("Connected to MongoDB");
     const result = await Restaurant.findOneAndUpdate(
-      { slug: 'the-golden-truffle' },
-      { subscriptionTier: 'Premium' },
-      { new: true }
+      { slug: "the-golden-truffle" },
+      { subscriptionTier: "Premium" },
+      { new: true },
     );
     if (result) {
-      console.log('Successfully updated restaurant tier to:', result.subscriptionTier);
+      console.log(
+        "Successfully updated restaurant tier to:",
+        result.subscriptionTier,
+      );
     } else {
-      console.log('Restaurant not found');
+      console.log("Restaurant not found");
     }
     process.exit(0);
   })
-  .catch(err => {
+  .catch((err) => {
     console.error(err);
     process.exit(1);
   });
