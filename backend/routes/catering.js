@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
+const { canManageRestaurant } = require("../middleware/ownership");
 const CateringRequest = require("../models/CateringRequest");
 const Restaurant = require("../models/Restaurant");
 const User = require("../models/User");
@@ -8,17 +9,6 @@ const {
   notifyAdminAndCustomer,
   notifyStatusUpdate,
 } = require("../services/notifications");
-
-// Helper to check restaurant ownership
-async function canManageRestaurant(userId, userRole, restaurantId) {
-  if (userRole === "super-admin") return true;
-  if (!restaurantId) return false;
-  const restaurant = await Restaurant.findById(restaurantId);
-  if (!restaurant) return false;
-  const isOwner = restaurant.ownerId && restaurant.ownerId.toString() === userId;
-  const isAdmin = restaurant.admins && restaurant.admins.some(a => a.user && a.user.toString() === userId);
-  return isOwner || isAdmin;
-}
 
 // Create a catering request (Public)
 router.post("/", async (req, res) => {

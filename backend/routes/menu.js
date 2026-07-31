@@ -1,22 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const { requireRestaurantOwnership } = require('../middleware/ownership');
+const { requireRestaurantOwnership, canManageRestaurant } = require('../middleware/ownership');
 const MenuItem = require('../models/MenuItem');
-const Restaurant = require('../models/Restaurant');
-
-// Helper to check ownership of a restaurant ID
-async function isAuthorizedForRestaurant(userId, userRole, restaurantId) {
-  if (userRole === 'super-admin') return true;
-  if (!restaurantId) return false;
-
-  const restaurant = await Restaurant.findById(restaurantId);
-  if (!restaurant) return false;
-
-  const isOwner = restaurant.ownerId && restaurant.ownerId.toString() === userId;
-  const isAdmin = restaurant.admins && restaurant.admins.some(a => a.user && a.user.toString() === userId);
-  return isOwner || isAdmin;
-}
 
 // Get all menu items across all restaurants
 router.get('/', async (req, res) => {
@@ -76,8 +62,7 @@ router.put('/:id', auth, async (req, res) => {
       return res.status(404).json({ msg: 'Menu item not found' });
     }
 
-    // Verify user owns or manages the target restaurant
-    const authorized = await isAuthorizedForRestaurant(req.user.id, req.user.role, menuItem.restaurantId);
+    const authorized = await canManageRestaurant(req.user.id, req.user.role, menuItem.restaurantId);
     if (!authorized) {
       return res.status(403).json({ msg: 'Forbidden: You do not have permission to modify this menu item' });
     }
@@ -114,8 +99,7 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(404).json({ msg: 'Menu item not found' });
     }
 
-    // Verify user owns or manages the target restaurant
-    const authorized = await isAuthorizedForRestaurant(req.user.id, req.user.role, menuItem.restaurantId);
+    const authorized = await canManageRestaurant(req.user.id, req.user.role, menuItem.restaurantId);
     if (!authorized) {
       return res.status(403).json({ msg: 'Forbidden: You do not have permission to delete this menu item' });
     }

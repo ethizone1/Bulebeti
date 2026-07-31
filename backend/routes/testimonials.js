@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const { canManageRestaurant } = require('../middleware/ownership');
 const Testimonial = require('../models/Testimonial');
 const Restaurant = require('../models/Restaurant');
 
@@ -12,17 +13,6 @@ const getRestaurantId = async (param) => {
   const restaurant = await Restaurant.findOne({ slug: { $regex: new RegExp(`^${param}$`, 'i') } });
   return restaurant ? restaurant._id : null;
 };
-
-// Helper to check ownership
-async function canManageRestaurant(userId, userRole, restaurantId) {
-  if (userRole === 'super-admin') return true;
-  if (!restaurantId) return false;
-  const restaurant = await Restaurant.findById(restaurantId);
-  if (!restaurant) return false;
-  const isOwner = restaurant.ownerId && restaurant.ownerId.toString() === userId;
-  const isAdmin = restaurant.admins && restaurant.admins.some(a => a.user && a.user.toString() === userId);
-  return isOwner || isAdmin;
-}
 
 // GET approved testimonials for a restaurant (Public)
 router.get('/restaurant/:identifier', async (req, res) => {
