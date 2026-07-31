@@ -12,9 +12,22 @@ const EditMenuItem = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
+  const [availableCategories, setAvailableCategories] = useState([
+    "Breakfast",
+    "Lunch",
+    "Dinner",
+    "Starters",
+    "Mains",
+    "Desserts",
+    "Beverages",
+    "Hot Drinks",
+    "Cold Drinks",
+    "Our Signature",
+  ]);
+  const [selectedCategories, setSelectedCategories] = useState(["Mains"]);
+
   const [formData, setFormData] = useState({
     name: "",
-    category: "Mains",
     price: "",
     description: "",
     isAvailable: true,
@@ -44,9 +57,20 @@ const EditMenuItem = () => {
 
         if (!item) throw new Error("Menu item not found");
 
+        const cats = Array.isArray(item.categories) && item.categories.length > 0
+          ? item.categories
+          : (item.category ? item.category.split(',').map(c => c.trim()) : ["Mains"]);
+
+        setSelectedCategories(cats);
+
+        // Ensure all loaded categories exist in availableCategories
+        setAvailableCategories((prev) => {
+          const combined = Array.from(new Set([...prev, ...cats]));
+          return combined;
+        });
+
         setFormData({
           name: item.name || "",
-          category: item.category || "Mains",
           price: item.price != null ? String(item.price) : "",
           description: item.description || "",
           isAvailable: item.isAvailable !== false,
@@ -80,6 +104,12 @@ const EditMenuItem = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (selectedCategories.length === 0) {
+      alert("Please select at least one category or meal timing.");
+      return;
+    }
+
     try {
       setSaving(true);
       const token = localStorage.getItem("token");
@@ -91,7 +121,8 @@ const EditMenuItem = () => {
         },
         body: JSON.stringify({
           name: formData.name,
-          category: formData.category,
+          categories: selectedCategories,
+          category: selectedCategories.join(", "),
           price: parseFloat(formData.price),
           description: formData.description,
           isAvailable: formData.isAvailable,
@@ -205,25 +236,80 @@ const EditMenuItem = () => {
             />
           </div>
 
-          {/* Category + Price row */}
-          <div className="col-12 col-md-6">
-            <label className="form-label fw-bold small mb-1">CATEGORY *</label>
-            <select
-              className="form-select"
-              value={formData.category}
-              onChange={(e) =>
-                setFormData({ ...formData, category: e.target.value })
-              }
-            >
-              <option>Starters</option>
-              <option>Mains</option>
-              <option>Desserts</option>
-              <option>Beverages</option>
-              <option>Breakfast</option>
-              <option>Lunch</option>
-              <option>Dinner</option>
-              <option>Our Signature</option>
-            </select>
+          {/* Categories & Meal Timings Checklist */}
+          <div className="col-12">
+            <label className="form-label fw-bold small mb-1">
+              CATEGORIES & MEAL TIMINGS * (Check all that apply)
+            </label>
+            <div className="bg-light border rounded p-3">
+              <div className="row g-2">
+                {availableCategories.map((cat) => {
+                  const isChecked = selectedCategories.includes(cat);
+                  return (
+                    <div key={cat} className="col-6 col-sm-4 col-md-3">
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          id={`edit-cat-${cat}`}
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedCategories([...selectedCategories, cat]);
+                            } else {
+                              setSelectedCategories(
+                                selectedCategories.filter((c) => c !== cat)
+                              );
+                            }
+                          }}
+                          style={{ cursor: "pointer" }}
+                        />
+                        <label
+                          className="form-check-label small fw-semibold"
+                          htmlFor={`edit-cat-${cat}`}
+                          style={{ cursor: "pointer" }}
+                        >
+                          {cat}
+                        </label>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="d-flex gap-2 mt-3 pt-2 border-top">
+                <input
+                  type="text"
+                  placeholder="Add custom category (e.g. Ethiopian Specialties)..."
+                  className="form-control form-control-sm"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const val = e.target.value.trim();
+                      if (val && !availableCategories.includes(val)) {
+                        setAvailableCategories([...availableCategories, val]);
+                        setSelectedCategories([...selectedCategories, val]);
+                        e.target.value = "";
+                      }
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    const input = e.target.previousSibling;
+                    const val = input.value.trim();
+                    if (val && !availableCategories.includes(val)) {
+                      setAvailableCategories([...availableCategories, val]);
+                      setSelectedCategories([...selectedCategories, val]);
+                      input.value = "";
+                    }
+                  }}
+                  className="btn btn-outline-secondary btn-sm px-3"
+                >
+                  {t("admin_item_btn_add")}
+                </button>
+              </div>
+            </div>
           </div>
           <div className="col-12 col-md-6">
             <label className="form-label fw-bold small mb-1">

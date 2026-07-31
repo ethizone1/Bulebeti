@@ -89,31 +89,41 @@ const MenuPage = () => {
         if (!menuRes.ok) throw new Error("Failed to fetch menu");
         const menuData = await menuRes.json();
 
-        // 3. Group by category
+        // 3. Group by categories (supporting multi-category menu items)
         const categoriesMap = {};
         menuData.forEach((item) => {
-          const catName = item.category || "Mains";
-          if (!categoriesMap[catName]) {
-            categoriesMap[catName] = { name: catName, items: [] };
-          }
-          categoriesMap[catName].items.push({
-            id: item._id,
-            name: item.name,
-            price: `$${item.price}`,
-            description: item.description,
-            ingredients:
-              item.ingredients && item.ingredients.length > 0
-                ? item.ingredients
-                : "See description",
-            contains:
-              item.contains && item.contains.length > 0
-                ? item.contains
-                : "Ask server",
-            visible: item.isAvailable,
-            img:
-              item.imageUrl ||
-              "https://images.unsplash.com/photo-1541529086526-db283c563270?w=400&q=80",
-            timing: item.category, // Using category as timing for now
+          const itemCats =
+            Array.isArray(item.categories) && item.categories.length > 0
+              ? item.categories
+              : item.category
+                ? item.category.split(",").map((c) => c.trim())
+                : ["Mains"];
+
+          itemCats.forEach((catName) => {
+            if (!categoriesMap[catName]) {
+              categoriesMap[catName] = { name: catName, items: [] };
+            }
+            if (!categoriesMap[catName].items.some((i) => i.id === item._id)) {
+              categoriesMap[catName].items.push({
+                id: item._id,
+                name: item.name,
+                price: `$${item.price}`,
+                description: item.description,
+                ingredients:
+                  item.ingredients && item.ingredients.length > 0
+                    ? item.ingredients
+                    : "See description",
+                contains:
+                  item.contains && item.contains.length > 0
+                    ? item.contains
+                    : "Ask server",
+                visible: item.isAvailable,
+                img:
+                  item.imageUrl ||
+                  "https://images.unsplash.com/photo-1541529086526-db283c563270?w=400&q=80",
+                timing: catName,
+              });
+            }
           });
         });
 
@@ -343,6 +353,8 @@ const MenuPage = () => {
                     const val = e.target.value;
                     if (val === "all items") {
                       navigate(`/bulebeti/${restaurantName}/menu#all-items`);
+                    } else if (val === "our signature") {
+                      navigate(`/bulebeti/${restaurantName}/menu#our-signature`);
                     } else {
                       navigate(
                         `/bulebeti/${restaurantName}/menu#${val.replace(/ /g, "-")}`,
@@ -363,9 +375,6 @@ const MenuPage = () => {
                     boxShadow: "var(--shadow-1)",
                   }}
                 >
-                  <option value="all items">
-                    {t("menu_all") || "All Items"}
-                  </option>
                   <option value="our signature">
                     {t("menu_signature") || "Our Signature"}
                   </option>
@@ -380,6 +389,9 @@ const MenuPage = () => {
                         {cat.name}
                       </option>
                     ))}
+                  <option value="all items">
+                    {t("menu_all") || "All Items"}
+                  </option>
                 </select>
                 <span
                   style={{

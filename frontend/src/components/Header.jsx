@@ -12,6 +12,7 @@ const Header = () => {
   const { restaurantName } = useParams(); // Removing default fallback to make it accurate
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [restaurant, setRestaurant] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   // Context-aware navigation links
   const isRestaurantPage =
@@ -19,6 +20,24 @@ const Header = () => {
     location.pathname !== "/bulebeti/login" &&
     location.pathname !== "/register" &&
     restaurantName;
+
+  const headerRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (headerRef.current && !headerRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   React.useEffect(() => {
     if (isRestaurantPage && restaurantName) {
@@ -29,6 +48,19 @@ const Header = () => {
             setRestaurant(data);
             document.title = `BuleBet | ${data.name}`;
             setDynamicFavicon(data.name, data.logoUrl);
+
+            // Fetch restaurant menu to extract unique DB categories
+            fetch(`${config.API_URL}/api/menu/restaurant/${data._id}`)
+              .then((res) => res.json())
+              .then((menuData) => {
+                if (Array.isArray(menuData)) {
+                  const uniqueCategories = Array.from(
+                    new Set(menuData.map((item) => item.category).filter(Boolean))
+                  );
+                  setCategories(uniqueCategories);
+                }
+              })
+              .catch((err) => console.error("Header menu fetch error", err));
           }
         })
         .catch((err) => console.error("Header couldn't fetch restaurant", err));
@@ -67,19 +99,19 @@ const Header = () => {
       minTier: "Gold",
     },
     {
-      name: "Gallery",
+      name: t("nav_gallery") || "Gallery",
       path: `/bulebeti/${restaurantName}/gallery`,
       originalName: "Gallery",
       minTier: "Gold",
     },
     {
-      name: "Testimonials",
+      name: t("nav_testimonials") || "Testimonials",
       path: `/bulebeti/${restaurantName}/testimonials`,
       originalName: "Testimonials",
       minTier: "Gold",
     },
     {
-      name: "Feedback",
+      name: t("nav_feedback") || "Feedback",
       path: `/bulebeti/${restaurantName}/feedback`,
       originalName: "Feedback",
       minTier: "Gold",
@@ -92,6 +124,7 @@ const Header = () => {
 
   return (
     <header
+      ref={headerRef}
       style={{
         backgroundColor: "white",
         borderBottom: "1px solid var(--platinum)",
@@ -302,18 +335,13 @@ const Header = () => {
                     }}
                   >
                     {[
-                      { id: "Our Signature", key: "menu_signature" },
-                      { id: "Breakfast", key: "menu_breakfast" },
-                      { id: "Lunch", key: "menu_lunch" },
-                      { id: "Dinner", key: "menu_dinner" },
-                      { id: "Beverages", key: "menu_beverages" },
-                      { id: "Hot", key: "menu_hot" },
-                      { id: "Cold", key: "menu_cold" },
-                      { id: "All Items", key: "menu_all" },
+                      { id: "Our Signature", name: t("menu_signature") || "Our Signature" },
+                      ...categories.map((c) => ({ id: c, name: c })),
+                      { id: "All Items", name: t("menu_all") || "All Items" },
                     ].map((cat) => (
                       <Link
                         key={cat.id}
-                        to={`/bulebeti/${restaurantName}/menu#${cat.id.toLowerCase().replace(" ", "-")}`}
+                        to={`/bulebeti/${restaurantName}/menu#${cat.id.toLowerCase().replace(/ /g, "-")}`}
                         style={{
                           padding: "8px 20px",
                           color: "var(--on-surface-variant)",
@@ -331,7 +359,7 @@ const Header = () => {
                           e.target.style.color = "var(--on-surface-variant)";
                         }}
                       >
-                        {t(cat.key)}
+                        {cat.name}
                       </Link>
                     ))}
                   </div>
@@ -371,7 +399,11 @@ const Header = () => {
               </Link>
             </div>
           )}
+        </nav>
 
+        {/* Right Actions (Language Toggle, Login, Hamburger - Always Visible) */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {/* Language Selector */}
           <button
             onClick={toggleLanguage}
             style={{
@@ -381,7 +413,7 @@ const Header = () => {
               borderRadius: "20px",
               cursor: "pointer",
               fontWeight: "bold",
-              fontSize: "12px",
+              fontSize: "11px",
               color: "var(--primary)",
               display: "flex",
               alignItems: "center",
@@ -401,44 +433,62 @@ const Header = () => {
             </span>
           </button>
 
+          {/* Login Button */}
           <button
             onClick={() => navigate("/bulebeti/login")}
             className="btn btn-primary"
-            style={{ padding: "8px 24px", fontSize: "14px" }}
+            style={{ padding: "6px 14px", fontSize: "12px", borderRadius: "20px" }}
           >
             {t("nav_login")}
           </button>
-        </nav>
 
-        {/* Right-side brand logo (desktop only) */}
-        {isRestaurantPage && (
-          <div
+          {/* Right-side brand logo (desktop only) */}
+          {isRestaurantPage && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginLeft: "8px",
+              }}
+              className="hide-on-mobile"
+            >
+              <BuleBetLogo size={36} />
+            </div>
+          )}
+
+          {/* Mobile Toggle Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
             style={{
-              display: "flex",
-              alignItems: "center",
-              marginLeft: "12px",
+              background: "none",
+              border: "none",
+              fontSize: "22px",
+              cursor: "pointer",
+              display: "none",
+              padding: "4px 6px",
             }}
-            className="hide-on-mobile"
+            className="mobile-toggle-btn"
           >
-            <bulebetiLogo size={36} />
-          </div>
-        )}
-
-        {/* Mobile Toggle */}
-        <button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          style={{
-            background: "none",
-            border: "none",
-            fontSize: "24px",
-            cursor: "pointer",
-            display: "none",
-          }}
-          className="mobile-toggle-btn"
-        >
-          {isMenuOpen ? "✕" : "☰"}
-        </button>
+            {isMenuOpen ? "✕" : "☰"}
+          </button>
+        </div>
       </div>
+
+      {/* Mobile Backdrop Overlay */}
+      {isMenuOpen && (
+        <div
+          onClick={() => setIsMenuOpen(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.4)",
+            zIndex: 998,
+          }}
+        />
+      )}
 
       {/* Mobile Menu Drawer */}
       {isMenuOpen && (

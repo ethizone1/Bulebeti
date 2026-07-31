@@ -43,11 +43,18 @@ router.post('/', auth, requireRestaurantOwnership, async (req, res) => {
       }
     }
 
+    const categoriesArray = Array.isArray(req.body.categories) && req.body.categories.length > 0
+      ? req.body.categories
+      : (typeof category === 'string' && category ? category.split(',').map(c => c.trim()) : ['Mains']);
+
+    const primaryCategory = categoriesArray.join(', ');
+
     const newMenuItem = new MenuItem({
       name,
       description,
       price,
-      category,
+      category: primaryCategory,
+      categories: categoriesArray,
       imageUrl,
       isAvailable,
       restaurantId,
@@ -65,7 +72,7 @@ router.post('/', auth, requireRestaurantOwnership, async (req, res) => {
 
 // Update menu item (requires auth & ownership check)
 router.put('/:id', auth, async (req, res) => {
-  const { name, description, price, category, imageUrl, isAvailable, ingredients, contains } = req.body;
+  const { name, description, price, category, categories, imageUrl, isAvailable, ingredients, contains } = req.body;
 
   try {
     let menuItem = await MenuItem.findById(req.params.id);
@@ -83,7 +90,13 @@ router.put('/:id', auth, async (req, res) => {
     if (name !== undefined) updateFields.name = name;
     if (description !== undefined) updateFields.description = description;
     if (price !== undefined) updateFields.price = price;
-    if (category !== undefined) updateFields.category = category;
+    if (categories !== undefined && Array.isArray(categories)) {
+      updateFields.categories = categories;
+      updateFields.category = categories.join(', ');
+    } else if (category !== undefined) {
+      updateFields.category = category;
+      updateFields.categories = typeof category === 'string' ? category.split(',').map(c => c.trim()) : [category];
+    }
     if (imageUrl !== undefined) updateFields.imageUrl = imageUrl;
     if (isAvailable !== undefined) updateFields.isAvailable = isAvailable;
     if (ingredients !== undefined) updateFields.ingredients = ingredients;

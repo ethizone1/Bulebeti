@@ -204,27 +204,27 @@ const Footer = () => {
                 const links = isRestaurantPage
                   ? [
                       {
-                        name: "Our Menu",
+                        name: t("nav_menu") || "Our Menu",
                         path: `/bulebeti/${restaurantName}/menu`,
                         minTier: "Silver",
                       },
                       {
-                        name: "Reservations",
+                        name: t("nav_reservations") || "Reservations",
                         path: `/bulebeti/${restaurantName}/reservations`,
                         minTier: "Gold",
                       },
                       {
-                        name: "Catering",
+                        name: t("nav_catering") || "Catering",
                         path: `/bulebeti/${restaurantName}/catering`,
                         minTier: "Gold",
                       },
                       {
-                        name: "Gallery",
+                        name: t("nav_gallery") || "Gallery",
                         path: `/bulebeti/${restaurantName}/gallery`,
                         minTier: "Gold",
                       },
                       {
-                        name: "Contact Us",
+                        name: t("nav_contact") || "Contact Us",
                         path: `/bulebeti/${restaurantName}/contact`,
                         minTier: "Silver",
                       },

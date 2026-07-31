@@ -13,6 +13,7 @@ export const translations = {
     nav_admin: "Admin Dashboard",
     nav_logout: "Logout",
     nav_testimonials: "Testimonials",
+    nav_feedback: "Feedback",
 
     // Menu Dropdown
     menu_signature: "Our Signature",
@@ -152,7 +153,7 @@ export const translations = {
     landing_year: "/year",
     landing_select_gold: "Select Gold",
     landing_gold_f1: "✓ Up to 3 Admins",
-    landing_gold_f2: "✓ Add New F&B Menus",
+    landing_gold_f2: "✓ Unlimited add new Food & Beverage Menus",
     landing_gold_f3: "✓ Reservation SMS Alerts",
 
     landing_popular: "MOST POPULAR",
@@ -414,7 +415,7 @@ export const translations = {
   am: {
     // Header
     nav_home: "ዋና ገጽ",
-    nav_menu: "ምናሌ",
+    nav_menu: "ምናለ",
     nav_reservations: "ቦታ ማስያዝ",
     nav_catering: "ኬተሪንግ",
     nav_gallery: "ማዕከለ-ስዕላት",
@@ -425,6 +426,7 @@ export const translations = {
     nav_admin: "የአስተዳዳሪ ዳሽቦርድ",
     nav_logout: "ውጣ",
     nav_testimonials: "ምስክርነቶች",
+    nav_feedback: "አስተያየት",
 
     // Menu Dropdown
     menu_signature: "የእኛ ልዩ",
@@ -440,7 +442,7 @@ export const translations = {
     admin_overview: "አጠቃላይ እይታ",
     admin_reservations: "ቦታ ማስያዣዎች",
     admin_catering: "ኬተሪንግ",
-    admin_menu: "የምናሌ አስተዳደር",
+    admin_menu: "የምናለ አስተዳደር",
     admin_locations: "እህት ምግብ ቤቶች",
     admin_events: "ክስተቶች",
     admin_feedback: "ግብረ መልስ",
@@ -495,7 +497,7 @@ export const translations = {
     reg_location_ph: "የመንገድ አድራሻ፣ ከተማ፣ ሀገር",
     reg_google_verify: "በGoogle ካርታዎች ላይ ያረጋግጡ",
     reg_google_connected:
-      "ከGoogle ካርታዎች ጋር ተገናኝቷል፡ ትክክለኛ ቦታ ለሕዝብ ምናሌዎ ገቢር ተደርጓል።",
+      "ከGoogle ካርታዎች ጋር ተገናኝቷል፡ ትክክለኛ ቦታ ለሕዝብ ምናለዎ ገቢር ተደርጓል።",
     reg_social: "ማህበራዊ ገጾች (አማራጭ)",
     reg_social_ph: "የ{platform} ስምዎ",
     reg_connect_hub: "ከ BuleBet Hub ጋር ይገናኙ",
@@ -507,14 +509,14 @@ export const translations = {
     menu_sig_label: "የእኛ ልዩ ዝግጅቶች",
     menu_sig_title: "ለላቀ ደረጃ የተመረጠ",
     menu_sig_desc: "እጅግ ጥራት ያላቸውን እና የተመረጡ ልዩ የምግብ ዝግጅቶቻችንን ያግኙ።",
-    menu_our_menu: "የእኛ ምናሌ",
+    menu_our_menu: "የእኛ ምናለ",
     menu_all_desc: "የምርጥ የምግብ ፈጠራዎች ስብስብ።",
     menu_filter_desc: "የእኛን የተመረጡ የ{filter} ዝግጅቶች ይመልከቱ።",
     menu_ingredients: "ግብዓቶች:",
     menu_contains: "አለርጂ / ይዘት:",
     menu_inquiries: "ጥያቄዎች እና አስተያየቶች",
     menu_inquiries_desc:
-      "ስለ ምናሌያችን ጥያቄ አለዎት ወይስ ተሞክሮዎን ማካፈል ይፈልጋሉ? በ {restaurant} ያለው ቡድናችን ሊረዳዎ ዝግጁ ነው።",
+      "ስለ ምናለያችን ጥያቄ አለዎት ወይስ ተሞክሮዎን ማካፈል ይፈልጋሉ? በ {restaurant} ያለው ቡድናችን ሊረዳዎ ዝግጁ ነው።",
     menu_name_ph: "ስምዎ",
     menu_email_ph: "ኢሜይልዎ",
     menu_message_ph: "መልእክትዎ",
@@ -525,10 +527,10 @@ export const translations = {
     landing_hero_desc:
       "BuleBet የምግብ ቤት ባለቤቶችን በከፍተኛ ብቃት የማስተዳደር መሳሪያዎች ያበረታታል፣ ለተመጋቢዎች ደግሞ የቅንጦት ልምድ ይሰጣል።",
     landing_get_started: "አሁኑኑ ይጀምሩ",
-    landing_explore: "ምናሌውን ያስሱ",
+    landing_explore: "ምናለውን ያስሱ",
     landing_registered_restaurants: "የተመዘገቡ ሬስቶራንቶች",
     landing_registered_restaurants_desc:
-      "በBuleBet የሚደገፉ ከፍተኛ ደረጃ ያላቸውን የምግብ ቤቶች ልምድ ያስሱ። ምናሌያቸውን እና ቦታ ማስያዣዎቻቸውን ለማየት ሬስቶራንት ላይ ይጫኑ።",
+      "በBuleBet የሚደገፉ ከፍተኛ ደረጃ ያላቸውን የምግብ ቤቶች ልምድ ያስሱ። ምናለያቸውን እና ቦታ ማስያዣዎቻቸውን ለማየት ሬስቶራንት ላይ ይጫኑ።",
     landing_visit_restaurant: "ሬስቶራንቱን ይጎብኙ",
     landing_no_restaurants: "እስካሁን የተመዘገቡ ሬስቶራንቶች አልተገኙም።",
     landing_loading_restaurants: "ሬስቶራንቶችን በመጫን ላይ...",
@@ -547,8 +549,8 @@ export const translations = {
     landing_basic_reg: "መደበኛ $299/አመት ($299 ቅናሽ)",
     landing_select_silver: "ቤዚክን ይምረጡ",
     landing_silver_f1: "✓ 1 አስተዳዳሪ",
-    landing_silver_f2: "✓ እስከ 20 የምናሌ ምግቦች",
-    landing_silver_f3: "✗ አዲስ የምናሌ ምድቦች ማከል",
+    landing_silver_f2: "✓ እስከ 20 የምናለ ምግቦች",
+    landing_silver_f3: "✗ አዲስ የምናለ ምድቦች ማከል",
     landing_silver_f4: "✗ የኤስኤምኤስ ማሳወቂያዎች",
 
     landing_tier_gold: "ጎልድ (Gold)",
@@ -557,7 +559,7 @@ export const translations = {
     landing_year: "/በአመት",
     landing_select_gold: "ጎልድን ይምረጡ",
     landing_gold_f1: "✓ እስከ 3 አስተዳዳሪዎች",
-    landing_gold_f2: "✓ አዲስ ምናሌ ማከል",
+    landing_gold_f2: "✓ ገደብ የሌለው አዲስ የအစားአስበል እና መጠጥ ምናለ ማከል",
     landing_gold_f3: "✓ የቦታ ማስያዝ ኤስኤምኤስ",
 
     landing_popular: "በጣም ታዋቂ",
@@ -591,8 +593,8 @@ export const translations = {
 
     admin_tour_1_title: "እንኳን ወደ BuleBet Hub በደህና መጡ",
     admin_tour_1_desc:
-      "ይህ የእርስዎ ማዕከላዊ የቁጥጥር ማዕከል ነው። ከዚህ ሆነው የእርስዎን ምናሌ ማስተዳደር፣ ሁሉንም የደንበኛ ግንኙነቶች መከታተል እና የምግብ ቤትዎን ስራዎች ማስፋፋት ይችላሉ።",
-    admin_tour_2_title: "የምናሌ ጥራት",
+      "ይህ የእርስዎ ማዕከላዊ የቁጥጥር ማዕከል ነው። ከዚህ ሆነው የእርስዎን ምናለ ማስተዳደር፣ ሁሉንም የደንበኛ ግንኙነቶች መከታተል እና የምግብ ቤትዎን ስራዎች ማስፋፋት ይችላሉ።",
+    admin_tour_2_title: "የምናለ ጥራት",
     admin_tour_2_desc:
       "የምግብ አቅርቦቶችዎን በቅጽበት ያዘምኑ። የእኛ አርታዒ የልዩ ምግቦችዎን ክብር ጠብቀው እንዲቆዩ ያስችልዎታል።",
     admin_tour_3_title: "የእንግዳ ግንኙነት",
@@ -613,7 +615,7 @@ export const translations = {
     admin_sys_cap: "የስርዓት ችሎታዎች",
     admin_sys_active: "ንቁ ሁኔታ",
     admin_sys_acc: "የአስተዳዳሪ መለያዎች",
-    admin_sys_menu: "የምናሌ አስተዳደር",
+    admin_sys_menu: "የምናለ አስተዳደር",
     admin_sys_scale: "የቅርንጫፍ መጠን",
     admin_sys_comm: "ግንኙነት",
 
@@ -637,7 +639,7 @@ export const translations = {
     admin_guest_viewall: "ሁሉንም መልእክቶች ይመልከቱ →",
 
     // Admin Menu Management
-    admin_menu_mgt_title: "የምናሌ ዕቃዎች አስተዳደር",
+    admin_menu_mgt_title: "የምናለ ዕቃዎች አስተዳደር",
     admin_menu_add_new: "➕ አዲስ ዕቃ ያክሉ",
     admin_menu_silver_warning: "የሲልቨር ደረጃ፡ ማስተካከል ብቻ",
     admin_menu_col_item: "ዕቃ",
@@ -661,23 +663,23 @@ export const translations = {
     admin_item_lbl_name: "የምግቡ ስም",
     admin_item_ph_name: "ምሳሌ: በሳፍሮን የተዘጋጀ ስካሎፕ",
     admin_item_lbl_cat: "ምድብ",
-    admin_item_lbl_timing: "የምናሌ ክፍል / ጊዜ",
+    admin_item_lbl_timing: "የምናለ ክፍል / ጊዜ",
     admin_item_lbl_price: "ዋጋ",
     admin_item_ph_price: "ምሳሌ: $42",
     admin_item_lbl_desc: "መግለጫ",
     admin_item_ph_desc: "የምግብ ተሞክሮውን ይግለጹ...",
-    admin_item_lbl_ing: "ግብዓቶች (በምናሌው ላይ ለማሳየት ምልክት ያድርጉ)",
+    admin_item_lbl_ing: "ግብዓቶች (በምናለው ላይ ለማሳየት ምልክት ያድርጉ)",
     admin_item_no_ing: "እስካሁን ምንም ግብዓት አልታከለም።",
     admin_item_ph_ing: "አዲስ ግብዓት ያክሉ...",
     admin_item_btn_add: "ያክሉ",
-    admin_item_lbl_con: "አለርጂ / ይዘት (በምናሌው ላይ ለማሳየት ምልክት ያድርጉ)",
+    admin_item_lbl_con: "አለርጂ / ይዘት (በምናለው ላይ ለማሳየት ምልክት ያድርጉ)",
     admin_item_no_con: "እስካሁን ምንም አለርጂ አልታከለም።",
     admin_item_ph_con: "አዲስ አለርጂ ያክሉ...",
     admin_item_upload: "የምስል ምስል ለመስቀል ጠቅ ያድርጉ",
     admin_item_upload_rec: "የሚመከር: 800x600px",
     admin_item_replace: "የምግቡን ምስል ይለውጡ",
     admin_item_replace_rec: "JPG, PNG እስከ 5MB",
-    admin_item_btn_reg: "የምናሌ ዕቃ ይመዝገቡ",
+    admin_item_btn_reg: "የምናለ ዕቃ ይመዝገቡ",
     admin_item_btn_update: "ያዘምኑ እና ለውጦችን ያስቀምጡ",
     admin_item_btn_cancel: "ይቅር",
 
@@ -745,7 +747,7 @@ export const translations = {
     // Admin Settings
     admin_set_title: "ቅንብሮች",
     admin_set_tab_prof: "የግል መረጃ",
-    admin_set_tab_lay: "የምናሌ አቀማመጥ",
+    admin_set_tab_lay: "የምናለ አቀማመጥ",
     admin_set_tab_sec: "ደህንነት",
     admin_set_tab_not: "ማሳወቂያዎች",
     admin_set_tab_bill: "ክፍያ እና እቅዶች",
@@ -787,9 +789,9 @@ export const translations = {
     admin_set_not_mkt_d: "ስለ አዳዲስ የ BuleBet መድረክ ባህሪያት ዝመናዎች።",
 
     // Layout
-    admin_set_lay_title: "ዓለም አቀፍ የምናሌ አቀራረብ",
+    admin_set_lay_title: "ዓለም አቀፍ የምናለ አቀራረብ",
     admin_set_lay_desc:
-      "በይፋዊ ምናሌዎ ላይ ለሁሉም የምግብ ምስሎች የእይታ አሰላለፍ ይወስኑ። ይህ ቅንብር የምርት ስም ወጥነትን ያረጋግጣል።",
+      "በይፋዊ ምናለዎ ላይ ለሁሉም የምግብ ምስሎች የእይታ አሰላለፍ ይወስኑ። ይህ ቅንብር የምርት ስም ወጥነትን ያረጋግጣል።",
     admin_set_lay_left: "በስተግራ የተሰለፈ",
     admin_set_lay_left_d: "ምስሎች በስተግራ፣ ጽሑፍ በስተቀኝ።",
     admin_set_lay_right: "በስተቀኝ የተሰለፈ",
@@ -809,7 +811,7 @@ export const translations = {
     // Backups
     admin_set_back_title: "የመድረክ ምትኬዎች",
     admin_set_back_desc:
-      "የእርስዎ ምናሌ፣ የአካባቢ ቅንብሮች እና የእንግዳ ውሂብ በየቀኑ ምትኬ ይቀመጥላቸዋል። የቀድሞ ስሪቶችን እዚህ ማውረድ ወይም ወደነበረበት መመለስ ይችላሉ።",
+      "የእርስዎ ምናለ፣ የአካባቢ ቅንብሮች እና የእንግዳ ውሂብ በየቀኑ ምትኬ ይቀመጥላቸዋል። የቀድሞ ስሪቶችን እዚህ ማውረድ ወይም ወደነበረበት መመለስ ይችላሉ።",
     admin_set_back_dl: "አውርድ",
   },
 };
