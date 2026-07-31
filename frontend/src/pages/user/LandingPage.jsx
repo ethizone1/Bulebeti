@@ -152,35 +152,37 @@ const LandingPage = () => {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-              gap: "var(--spacing-lg)",
+              gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+              gap: "24px",
               margin: "0 auto",
+              alignItems: "stretch",
             }}
           >
             {/* Basic Plan */}
             <div
               style={{
-                padding: "var(--spacing-lg)",
-                borderRadius: "var(--radius-lg)",
+                padding: "28px 20px",
+                borderRadius: "16px",
                 backgroundColor: "var(--surface)",
                 border: "1px solid var(--platinum)",
                 textAlign: "center",
                 display: "flex",
                 flexDirection: "column",
+                height: "100%",
               }}
             >
-              <h3 style={{ color: "var(--primary)", marginBottom: "4px" }}>
+              <h3 style={{ color: "var(--primary)", marginBottom: "4px", fontSize: "22px" }}>
                 {t("landing_tier_silver")}
               </h3>
               <div
                 style={{
-                  fontSize: "26px",
+                  fontSize: "28px",
                   fontWeight: "800",
-                  marginTop: "12px",
+                  marginTop: "8px",
                 }}
               >
                 {t("landing_free")}
-                <span style={{ fontSize: "14px", opacity: 0.5 }}>
+                <span style={{ fontSize: "14px", opacity: 0.5, fontWeight: "400" }}>
                   {t("landing_year")}
                 </span>
               </div>
@@ -188,8 +190,9 @@ const LandingPage = () => {
                 style={{
                   fontSize: "12px",
                   textDecoration: "line-through",
-                  opacity: 0.5,
-                  marginBottom: "16px",
+                  opacity: 0.55,
+                  marginBottom: "20px",
+                  minHeight: "18px",
                 }}
               >
                 {t("landing_basic_reg")}
@@ -201,26 +204,27 @@ const LandingPage = () => {
                   marginBottom: "24px",
                   textAlign: "left",
                   flex: 1,
-                  fontSize: "14px",
+                  fontSize: "13px",
+                  lineHeight: "1.6",
                 }}
               >
-                <li style={{ marginBottom: "10px" }}>
+                <li style={{ marginBottom: "8px" }}>
                   {t("landing_silver_f1")}
                 </li>
-                <li style={{ marginBottom: "10px" }}>
+                <li style={{ marginBottom: "8px" }}>
                   {t("landing_silver_f2")}
                 </li>
-                <li style={{ marginBottom: "10px", color: "rgba(0,0,0,0.3)" }}>
+                <li style={{ marginBottom: "8px", color: "rgba(0,0,0,0.3)" }}>
                   {t("landing_silver_f3")}
                 </li>
-                <li style={{ marginBottom: "10px", color: "rgba(0,0,0,0.3)" }}>
+                <li style={{ marginBottom: "8px", color: "rgba(0,0,0,0.3)" }}>
                   {t("landing_silver_f4")}
                 </li>
               </ul>
               <Link
                 to="/register"
                 className="btn btn-outline"
-                style={{ width: "100%" }}
+                style={{ width: "100%", marginTop: "auto" }}
               >
                 {t("landing_select_silver")}
               </Link>
@@ -229,27 +233,28 @@ const LandingPage = () => {
             {/* Gold Plan */}
             <div
               style={{
-                padding: "var(--spacing-lg)",
-                borderRadius: "var(--radius-lg)",
+                padding: "28px 20px",
+                borderRadius: "16px",
                 backgroundColor: "var(--surface)",
                 border: "1px solid var(--platinum)",
                 textAlign: "center",
                 display: "flex",
                 flexDirection: "column",
+                height: "100%",
               }}
             >
-              <h3 style={{ color: "var(--gold)", marginBottom: "4px" }}>
+              <h3 style={{ color: "var(--gold)", marginBottom: "4px", fontSize: "22px" }}>
                 {t("landing_tier_gold")}
               </h3>
               <div
                 style={{
-                  fontSize: "26px",
+                  fontSize: "28px",
                   fontWeight: "800",
-                  marginTop: "12px",
+                  marginTop: "8px",
                 }}
               >
                 {t("landing_gold_price")}
-                <span style={{ fontSize: "14px", opacity: 0.5 }}>
+                <span style={{ fontSize: "14px", opacity: 0.5, fontWeight: "400" }}>
                   {t("landing_year")}
                 </span>
               </div>
@@ -257,8 +262,9 @@ const LandingPage = () => {
                 style={{
                   fontSize: "12px",
                   textDecoration: "line-through",
-                  opacity: 0.5,
-                  marginBottom: "16px",
+                  opacity: 0.55,
+                  marginBottom: "20px",
+                  minHeight: "18px",
                 }}
               >
                 {t("landing_gold_reg")}
@@ -270,17 +276,18 @@ const LandingPage = () => {
                   marginBottom: "24px",
                   textAlign: "left",
                   flex: 1,
-                  fontSize: "14px",
+                  fontSize: "13px",
+                  lineHeight: "1.6",
                 }}
               >
-                <li style={{ marginBottom: "10px" }}>{t("landing_gold_f1")}</li>
-                <li style={{ marginBottom: "10px" }}>{t("landing_gold_f2")}</li>
-                <li style={{ marginBottom: "10px" }}>{t("landing_gold_f3")}</li>
+                <li style={{ marginBottom: "8px" }}>{t("landing_gold_f1")}</li>
+                <li style={{ marginBottom: "8px" }}>{t("landing_gold_f2")}</li>
+                <li style={{ marginBottom: "8px" }}>{t("landing_gold_f3")}</li>
               </ul>
               <Link
                 to="/register"
                 className="btn btn-outline"
-                style={{ width: "100%" }}
+                style={{ width: "100%", marginTop: "auto" }}
               >
                 {t("landing_select_gold")}
               </Link>
@@ -289,8 +296,8 @@ const LandingPage = () => {
             {/* Platinum Plan */}
             <div
               style={{
-                padding: "var(--spacing-lg)",
-                borderRadius: "var(--radius-lg)",
+                padding: "28px 20px",
+                borderRadius: "16px",
                 backgroundColor: "var(--surface)",
                 border: "2px solid var(--gold)",
                 textAlign: "center",
@@ -298,6 +305,7 @@ const LandingPage = () => {
                 flexDirection: "column",
                 boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
                 position: "relative",
+                height: "100%",
               }}
             >
               <div
@@ -316,18 +324,18 @@ const LandingPage = () => {
               >
                 {t("landing_popular")}
               </div>
-              <h3 style={{ color: "var(--primary)", marginBottom: "4px" }}>
+              <h3 style={{ color: "var(--primary)", marginBottom: "4px", fontSize: "22px" }}>
                 {t("landing_tier_plat")}
               </h3>
               <div
                 style={{
-                  fontSize: "26px",
+                  fontSize: "28px",
                   fontWeight: "800",
-                  marginTop: "12px",
+                  marginTop: "8px",
                 }}
               >
                 {t("landing_plat_price")}
-                <span style={{ fontSize: "14px", opacity: 0.5 }}>
+                <span style={{ fontSize: "14px", opacity: 0.5, fontWeight: "400" }}>
                   {t("landing_year")}
                 </span>
               </div>
@@ -335,8 +343,9 @@ const LandingPage = () => {
                 style={{
                   fontSize: "12px",
                   textDecoration: "line-through",
-                  opacity: 0.5,
-                  marginBottom: "16px",
+                  opacity: 0.55,
+                  marginBottom: "20px",
+                  minHeight: "18px",
                 }}
               >
                 {t("landing_plat_reg")}
@@ -349,6 +358,7 @@ const LandingPage = () => {
                   textAlign: "left",
                   flex: 1,
                   fontSize: "13px",
+                  lineHeight: "1.6",
                 }}
               >
                 <li style={{ marginBottom: "8px" }}>{t("landing_plat_f1")}</li>
@@ -361,7 +371,7 @@ const LandingPage = () => {
               <Link
                 to="/register"
                 className="btn btn-primary"
-                style={{ width: "100%" }}
+                style={{ width: "100%", marginTop: "auto" }}
               >
                 {t("landing_select_plat")}
               </Link>
@@ -370,27 +380,28 @@ const LandingPage = () => {
             {/* Premium Plan */}
             <div
               style={{
-                padding: "var(--spacing-lg)",
-                borderRadius: "var(--radius-lg)",
+                padding: "28px 20px",
+                borderRadius: "16px",
                 backgroundColor: "var(--primary)",
                 color: "var(--on-primary)",
                 textAlign: "center",
                 display: "flex",
                 flexDirection: "column",
+                height: "100%",
               }}
             >
-              <h3 style={{ color: "var(--gold)", marginBottom: "4px" }}>
+              <h3 style={{ color: "var(--gold)", marginBottom: "4px", fontSize: "22px" }}>
                 {t("landing_tier_prem")}
               </h3>
               <div
                 style={{
-                  fontSize: "26px",
+                  fontSize: "28px",
                   fontWeight: "800",
-                  marginTop: "12px",
+                  marginTop: "8px",
                 }}
               >
                 {t("landing_prem_price")}
-                <span style={{ fontSize: "14px", opacity: 0.5 }}>
+                <span style={{ fontSize: "14px", opacity: 0.5, fontWeight: "400" }}>
                   {t("landing_year")}
                 </span>
               </div>
@@ -399,7 +410,8 @@ const LandingPage = () => {
                   fontSize: "12px",
                   textDecoration: "line-through",
                   opacity: 0.7,
-                  marginBottom: "16px",
+                  marginBottom: "20px",
+                  minHeight: "18px",
                 }}
               >
                 {t("landing_prem_reg")}
@@ -411,20 +423,21 @@ const LandingPage = () => {
                   marginBottom: "24px",
                   textAlign: "left",
                   flex: 1,
-                  fontSize: "12px",
+                  fontSize: "13px",
+                  lineHeight: "1.6",
                 }}
               >
-                <li style={{ marginBottom: "6px" }}>{t("landing_prem_f1")}</li>
-                <li style={{ marginBottom: "6px" }}>{t("landing_prem_f2")}</li>
-                <li style={{ marginBottom: "6px" }}>{t("landing_prem_f3")}</li>
-                <li style={{ marginBottom: "6px" }}>{t("landing_prem_f4")}</li>
-                <li style={{ marginBottom: "6px" }}>{t("landing_prem_f5")}</li>
-                <li style={{ marginBottom: "6px" }}>{t("landing_prem_f6")}</li>
+                <li style={{ marginBottom: "8px" }}>{t("landing_prem_f1")}</li>
+                <li style={{ marginBottom: "8px" }}>{t("landing_prem_f2")}</li>
+                <li style={{ marginBottom: "8px" }}>{t("landing_prem_f3")}</li>
+                <li style={{ marginBottom: "8px" }}>{t("landing_prem_f4")}</li>
+                <li style={{ marginBottom: "8px" }}>{t("landing_prem_f5")}</li>
+                <li style={{ marginBottom: "8px" }}>{t("landing_prem_f6")}</li>
               </ul>
               <Link
                 to="/register"
                 className="btn btn-gold"
-                style={{ width: "100%" }}
+                style={{ width: "100%", marginTop: "auto" }}
               >
                 {t("landing_select_prem")}
               </Link>
