@@ -157,7 +157,7 @@ const LandingPage = () => {
               margin: "0 auto",
             }}
           >
-            {/* Silver Plan */}
+            {/* Basic Plan */}
             <div
               style={{
                 padding: "var(--spacing-lg)",
@@ -174,12 +174,25 @@ const LandingPage = () => {
               </h3>
               <div
                 style={{
-                  fontSize: "28px",
+                  fontSize: "26px",
                   fontWeight: "800",
-                  margin: "16px 0",
+                  marginTop: "12px",
                 }}
               >
                 {t("landing_free")}
+                <span style={{ fontSize: "14px", opacity: 0.5 }}>
+                  {t("landing_year")}
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  textDecoration: "line-through",
+                  opacity: 0.5,
+                  marginBottom: "16px",
+                }}
+              >
+                {t("landing_basic_reg")}
               </div>
               <ul
                 style={{
@@ -230,15 +243,25 @@ const LandingPage = () => {
               </h3>
               <div
                 style={{
-                  fontSize: "28px",
+                  fontSize: "26px",
                   fontWeight: "800",
-                  margin: "16px 0",
+                  marginTop: "12px",
                 }}
               >
-                $250
+                {t("landing_gold_price")}
                 <span style={{ fontSize: "14px", opacity: 0.5 }}>
                   {t("landing_year")}
                 </span>
+              </div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  textDecoration: "line-through",
+                  opacity: 0.5,
+                  marginBottom: "16px",
+                }}
+              >
+                {t("landing_gold_reg")}
               </div>
               <ul
                 style={{
@@ -253,9 +276,6 @@ const LandingPage = () => {
                 <li style={{ marginBottom: "10px" }}>{t("landing_gold_f1")}</li>
                 <li style={{ marginBottom: "10px" }}>{t("landing_gold_f2")}</li>
                 <li style={{ marginBottom: "10px" }}>{t("landing_gold_f3")}</li>
-                <li style={{ marginBottom: "10px" }}>
-                  ✓ Reservation SMS Alerts
-                </li>
               </ul>
               <Link
                 to="/register"
@@ -301,15 +321,25 @@ const LandingPage = () => {
               </h3>
               <div
                 style={{
-                  fontSize: "28px",
+                  fontSize: "26px",
                   fontWeight: "800",
-                  margin: "16px 0",
+                  marginTop: "12px",
                 }}
               >
-                $500
+                {t("landing_plat_price")}
                 <span style={{ fontSize: "14px", opacity: 0.5 }}>
                   {t("landing_year")}
                 </span>
+              </div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  textDecoration: "line-through",
+                  opacity: 0.5,
+                  marginBottom: "16px",
+                }}
+              >
+                {t("landing_plat_reg")}
               </div>
               <ul
                 style={{
@@ -354,15 +384,25 @@ const LandingPage = () => {
               </h3>
               <div
                 style={{
-                  fontSize: "28px",
+                  fontSize: "26px",
                   fontWeight: "800",
-                  margin: "16px 0",
+                  marginTop: "12px",
                 }}
               >
-                $1,000
+                {t("landing_prem_price")}
                 <span style={{ fontSize: "14px", opacity: 0.5 }}>
                   {t("landing_year")}
                 </span>
+              </div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  textDecoration: "line-through",
+                  opacity: 0.7,
+                  marginBottom: "16px",
+                }}
+              >
+                {t("landing_prem_reg")}
               </div>
               <ul
                 style={{
