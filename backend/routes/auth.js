@@ -135,7 +135,7 @@ router.post("/register", async (req, res) => {
 
         return jwt.sign(
           payload,
-          process.env.JWT_SECRET || "bulebeti_super_secret_jwt_key_2024",
+          process.env.JWT_SECRET,
           { expiresIn: "24h" },
           (err, token) => {
             if (err) throw err;
@@ -187,7 +187,7 @@ router.post("/register", async (req, res) => {
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET || "bulebeti_super_secret_jwt_key_2024",
+      process.env.JWT_SECRET,
       { expiresIn: "24h" },
       (err, token) => {
         if (err) throw err;
@@ -203,8 +203,8 @@ router.post("/register", async (req, res) => {
       },
     );
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: "Server error", details: err.message });
+    console.error("[AUTH REGISTER ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
@@ -257,7 +257,7 @@ router.post("/login", async (req, res) => {
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET || "bulebeti_super_secret_jwt_key_2024",
+      process.env.JWT_SECRET,
       { expiresIn: "24h" },
       (err, token) => {
         if (err) throw err;
@@ -275,8 +275,8 @@ router.post("/login", async (req, res) => {
       },
     );
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: "Server error", details: err.message });
+    console.error("[AUTH LOGIN ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
@@ -351,7 +351,7 @@ router.post("/google", async (req, res) => {
 
     jwt.sign(
       jwtPayload,
-      process.env.JWT_SECRET || "bulebeti_super_secret_jwt_key_2024",
+      process.env.JWT_SECRET,
       { expiresIn: "24h" },
       (err, jwtToken) => {
         if (err) throw err;
@@ -370,7 +370,7 @@ router.post("/google", async (req, res) => {
     );
   } catch (err) {
     console.error("Google auth server error:", err.message);
-    res.status(500).json({ msg: "Server error", details: err.message });
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
@@ -399,8 +399,8 @@ router.post("/change-password", auth, async (req, res) => {
     );
     res.json({ msg: "Password updated successfully" });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: "Server error", details: err.message });
+    console.error("[CHANGE PASSWORD ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 

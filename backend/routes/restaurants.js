@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
+const { requireRole } = require("../middleware/ownership");
 const Restaurant = require("../models/Restaurant");
 
 // Get all restaurants
@@ -11,8 +12,8 @@ router.get("/", async (req, res) => {
       .sort({ createdAt: -1 });
     res.json(restaurants);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: "Server error", details: err.message });
+    console.error("[GET RESTAURANTS ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
@@ -24,8 +25,8 @@ router.get("/owner/my", auth, async (req, res) => {
     });
     res.json(restaurants);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: "Server error", details: err.message });
+    console.error("[GET MY RESTAURANTS ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
@@ -40,11 +41,11 @@ router.get("/:slug", async (req, res) => {
     }
     res.json(restaurant);
   } catch (err) {
-    console.error(err.message);
+    console.error("[GET RESTAURANT SLUG ERROR]", err.message);
     if (err.kind === "ObjectId") {
       return res.status(404).json({ msg: "Restaurant not found" });
     }
-    res.status(500).send("Server Error");
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
@@ -125,8 +126,8 @@ router.post("/", auth, async (req, res) => {
     );
     res.json(restaurant);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error("[CREATE RESTAURANT ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
@@ -140,7 +141,7 @@ router.put("/:slug/request-upgrade", auth, async (req, res) => {
 
     // Verify owner
     if (restaurant.ownerId.toString() !== req.user.id) {
-      return res.status(401).json({ msg: "User not authorized" });
+      return res.status(403).json({ msg: "Forbidden: You are not authorized for this restaurant" });
     }
 
     const { tier } = req.body;
@@ -157,13 +158,13 @@ router.put("/:slug/request-upgrade", auth, async (req, res) => {
     );
     res.json(restaurant);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error("[REQUEST UPGRADE ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
-// Admin endpoint to approve or reject/update any restaurant's tier directly (no owner check)
-router.put("/admin/upgrade/:id", async (req, res) => {
+// Admin endpoint to approve or reject/update any restaurant's tier directly (requires admin auth)
+router.put("/admin/upgrade/:id", auth, requireRole("admin", "super-admin"), async (req, res) => {
   try {
     const restaurant = await Restaurant.findById(req.params.id);
     if (!restaurant) {
@@ -180,13 +181,13 @@ router.put("/admin/upgrade/:id", async (req, res) => {
     );
     res.json(restaurant);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error("[ADMIN UPGRADE ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
-// Admin endpoint to edit restaurant details
-router.put("/admin/edit/:id", async (req, res) => {
+// Admin endpoint to edit restaurant details (requires admin auth)
+router.put("/admin/edit/:id", auth, requireRole("admin", "super-admin"), async (req, res) => {
   try {
     const restaurant = await Restaurant.findById(req.params.id);
     if (!restaurant) {
@@ -218,12 +219,12 @@ router.put("/admin/edit/:id", async (req, res) => {
     console.log(`[BACKEND] 👑 Admin edited restaurant ${restaurant.name}`);
     res.json(restaurant);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error("[ADMIN EDIT ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
-// Update restaurant (requires auth)
+// Update restaurant (requires auth and owner check)
 router.put("/:slug", auth, async (req, res) => {
   try {
     let restaurant = await Restaurant.findOne({ slug: req.params.slug });
@@ -231,9 +232,13 @@ router.put("/:slug", auth, async (req, res) => {
       return res.status(404).json({ msg: "Restaurant not found" });
     }
 
-    // Verify owner
-    if (restaurant.ownerId.toString() !== req.user.id) {
-      return res.status(401).json({ msg: "User not authorized" });
+    // Verify owner or admin
+    const isOwner = restaurant.ownerId.toString() === req.user.id;
+    const isAdmin = restaurant.admins && restaurant.admins.some(a => a.user && a.user.toString() === req.user.id);
+    const isSuperAdmin = req.user.role === "super-admin";
+
+    if (!isOwner && !isAdmin && !isSuperAdmin) {
+      return res.status(403).json({ msg: "Forbidden: You are not authorized to update this restaurant" });
     }
 
     // Update fields
@@ -255,7 +260,7 @@ router.put("/:slug", auth, async (req, res) => {
     if (email !== undefined) restaurant.email = email;
     if (menuLayout) restaurant.menuLayout = menuLayout;
     if (logoUrl) restaurant.logoUrl = logoUrl;
-    if (subscriptionTier) restaurant.subscriptionTier = subscriptionTier;
+    if (subscriptionTier && isSuperAdmin) restaurant.subscriptionTier = subscriptionTier;
 
     await restaurant.save();
     console.log(
@@ -263,8 +268,8 @@ router.put("/:slug", auth, async (req, res) => {
     );
     res.json(restaurant);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error("[UPDATE RESTAURANT ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 

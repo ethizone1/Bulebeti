@@ -13,7 +13,18 @@ const getRestaurantId = async (param) => {
   return restaurant ? restaurant._id : null;
 };
 
-// GET approved testimonials for a restaurant
+// Helper to check ownership
+async function canManageRestaurant(userId, userRole, restaurantId) {
+  if (userRole === 'super-admin') return true;
+  if (!restaurantId) return false;
+  const restaurant = await Restaurant.findById(restaurantId);
+  if (!restaurant) return false;
+  const isOwner = restaurant.ownerId && restaurant.ownerId.toString() === userId;
+  const isAdmin = restaurant.admins && restaurant.admins.some(a => a.user && a.user.toString() === userId);
+  return isOwner || isAdmin;
+}
+
+// GET approved testimonials for a restaurant (Public)
 router.get('/restaurant/:identifier', async (req, res) => {
   try {
     const restaurantId = await getRestaurantId(req.params.identifier);
@@ -21,30 +32,35 @@ router.get('/restaurant/:identifier', async (req, res) => {
       return res.status(404).json({ msg: 'Restaurant not found' });
     }
     const testimonials = await Testimonial.find({ restaurantId, status: 'Approved' }).sort({ createdAt: -1 });
-    console.log(`[DEBUG] GET /testimonials/restaurant/${req.params.identifier} found ${testimonials.length} testimonials for ${restaurantId}`);
     res.json(testimonials);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: 'Server error', details: err.message });
+    console.error('[GET TESTIMONIALS ERROR]', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
 
-// GET all testimonials for a restaurant (admin review)
-router.get('/restaurant/:identifier/admin', async (req, res) => {
+// GET all testimonials for a restaurant (Requires Auth & Ownership)
+router.get('/restaurant/:identifier/admin', auth, async (req, res) => {
   try {
     const restaurantId = await getRestaurantId(req.params.identifier);
     if (!restaurantId) {
       return res.status(404).json({ msg: 'Restaurant not found' });
     }
+
+    const authorized = await canManageRestaurant(req.user.id, req.user.role, restaurantId);
+    if (!authorized) {
+      return res.status(403).json({ msg: 'Forbidden: Access denied' });
+    }
+
     const testimonials = await Testimonial.find({ restaurantId }).sort({ createdAt: -1 });
     res.json(testimonials);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: 'Server error', details: err.message });
+    console.error('[GET ADMIN TESTIMONIALS ERROR]', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
 
-// POST submit a testimonial (public)
+// POST submit a testimonial (Public)
 router.post('/restaurant/:identifier', async (req, res) => {
   const { name, role, text, rating, mediaUrl, mediaType } = req.body;
   try {
@@ -57,11 +73,6 @@ router.post('/restaurant/:identifier', async (req, res) => {
     if (!restaurant) {
       return res.status(404).json({ msg: 'Restaurant not found' });
     }
-    
-    // Check if restaurant is Premium (bypassed for local development)
-    // if (restaurant.subscriptionTier !== 'Premium') {
-    //   return res.status(403).json({ msg: 'Testimonials feature is only available for Premium tier restaurants' });
-    // }
 
     const newTestimonial = new Testimonial({
       restaurantId,
@@ -77,18 +88,23 @@ router.post('/restaurant/:identifier', async (req, res) => {
     const testimonial = await newTestimonial.save();
     res.json(testimonial);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: 'Server error', details: err.message });
+    console.error('[POST TESTIMONIAL ERROR]', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
 
-// PUT update testimonial status
-router.put('/:id', async (req, res) => {
+// PUT update testimonial status (Requires Auth & Ownership)
+router.put('/:id', auth, async (req, res) => {
   const { status, rating, text, name, role, mediaUrl, mediaType } = req.body;
   try {
     let testimonial = await Testimonial.findById(req.params.id);
     if (!testimonial) {
       return res.status(404).json({ msg: 'Testimonial not found' });
+    }
+
+    const authorized = await canManageRestaurant(req.user.id, req.user.role, testimonial.restaurantId);
+    if (!authorized) {
+      return res.status(403).json({ msg: 'Forbidden: Access denied' });
     }
 
     const updateFields = {};
@@ -108,23 +124,29 @@ router.put('/:id', async (req, res) => {
 
     res.json(testimonial);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: 'Server error', details: err.message });
+    console.error('[PUT TESTIMONIAL ERROR]', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
 
-// DELETE a testimonial
-router.delete('/:id', async (req, res) => {
+// DELETE a testimonial (Requires Auth & Ownership)
+router.delete('/:id', auth, async (req, res) => {
   try {
     const testimonial = await Testimonial.findById(req.params.id);
     if (!testimonial) {
       return res.status(404).json({ msg: 'Testimonial not found' });
     }
+
+    const authorized = await canManageRestaurant(req.user.id, req.user.role, testimonial.restaurantId);
+    if (!authorized) {
+      return res.status(403).json({ msg: 'Forbidden: Access denied' });
+    }
+
     await Testimonial.findByIdAndDelete(req.params.id);
     res.json({ msg: 'Testimonial removed' });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: 'Server error', details: err.message });
+    console.error('[DELETE TESTIMONIAL ERROR]', err.message);
+    res.status(500).json({ msg: 'Server error' });
   }
 });
 

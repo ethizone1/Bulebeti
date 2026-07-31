@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const auth = require("../middleware/auth");
 const CateringRequest = require("../models/CateringRequest");
 const Restaurant = require("../models/Restaurant");
 const User = require("../models/User");
@@ -8,7 +9,18 @@ const {
   notifyStatusUpdate,
 } = require("../services/notifications");
 
-// Create a catering request
+// Helper to check restaurant ownership
+async function canManageRestaurant(userId, userRole, restaurantId) {
+  if (userRole === "super-admin") return true;
+  if (!restaurantId) return false;
+  const restaurant = await Restaurant.findById(restaurantId);
+  if (!restaurant) return false;
+  const isOwner = restaurant.ownerId && restaurant.ownerId.toString() === userId;
+  const isAdmin = restaurant.admins && restaurant.admins.some(a => a.user && a.user.toString() === userId);
+  return isOwner || isAdmin;
+}
+
+// Create a catering request (Public)
 router.post("/", async (req, res) => {
   try {
     const {
@@ -24,7 +36,7 @@ router.post("/", async (req, res) => {
     } = req.body;
 
     let restaurantId = null;
-    let adminEmail = "admin@bulebeti.com"; // Default fallback
+    let adminEmail = "admin@bulebeti.com";
     let adminPhone = "N/A";
     let restaurantName = "bulebeti Partners";
 
@@ -71,32 +83,42 @@ router.post("/", async (req, res) => {
 
     res.json(savedRequest);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: "Server error", details: err.message });
+    console.error("[CATERING POST ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
-// Get catering requests for a specific restaurant
-router.get("/restaurant/:restaurantId", async (req, res) => {
+// Get catering requests for a specific restaurant (Requires auth & management access)
+router.get("/restaurant/:restaurantId", auth, async (req, res) => {
   try {
+    const authorized = await canManageRestaurant(req.user.id, req.user.role, req.params.restaurantId);
+    if (!authorized) {
+      return res.status(403).json({ msg: "Forbidden: Access denied to restaurant catering requests" });
+    }
+
     const requests = await CateringRequest.find({
       restaurantId: req.params.restaurantId,
     }).sort({ date: 1 });
     res.json(requests);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: "Server error", details: err.message });
+    console.error("[CATERING GET ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
-// PUT to update catering request status (Admin)
-router.put("/:id", async (req, res) => {
+// PUT to update catering request status (Requires auth & management access)
+router.put("/:id", auth, async (req, res) => {
   try {
     const { status } = req.body;
 
     let cateringRequest = await CateringRequest.findById(req.params.id);
     if (!cateringRequest) {
       return res.status(404).json({ msg: "Catering request not found" });
+    }
+
+    const authorized = await canManageRestaurant(req.user.id, req.user.role, cateringRequest.restaurantId);
+    if (!authorized) {
+      return res.status(403).json({ msg: "Forbidden: Access denied" });
     }
 
     const previousStatus = cateringRequest.status;
@@ -134,8 +156,8 @@ router.put("/:id", async (req, res) => {
 
     res.json(cateringRequest);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: "Server error", details: err.message });
+    console.error("[CATERING PUT ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 

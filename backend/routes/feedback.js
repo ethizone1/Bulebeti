@@ -1,20 +1,39 @@
 const express = require("express");
 const router = express.Router();
+const auth = require("../middleware/auth");
 const Feedback = require("../models/Feedback");
+const Restaurant = require("../models/Restaurant");
 
-// Get feedback for a specific restaurant
-router.get("/restaurant/:restaurantId", async (req, res) => {
+// Helper to check restaurant ownership
+async function canManageRestaurant(userId, userRole, restaurantId) {
+  if (userRole === "super-admin") return true;
+  if (!restaurantId) return false;
+  const restaurant = await Restaurant.findById(restaurantId);
+  if (!restaurant) return false;
+  const isOwner = restaurant.ownerId && restaurant.ownerId.toString() === userId;
+  const isAdmin = restaurant.admins && restaurant.admins.some(a => a.user && a.user.toString() === userId);
+  return isOwner || isAdmin;
+}
+
+// Get feedback for a specific restaurant (Requires Auth & Ownership)
+router.get("/restaurant/:restaurantId", auth, async (req, res) => {
   try {
+    const authorized = await canManageRestaurant(req.user.id, req.user.role, req.params.restaurantId);
+    if (!authorized) {
+      return res.status(403).json({ msg: "Forbidden: Access denied" });
+    }
+
     const feedbacks = await Feedback.find({
       restaurantId: req.params.restaurantId,
     }).sort({ createdAt: -1 });
     res.json(feedbacks);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error("[GET FEEDBACK ERROR]", err.message);
+    res.status(500).json({ msg: "Server Error" });
   }
 });
-// Add new feedback
+
+// Add new feedback (Public)
 router.post("/", async (req, res) => {
   try {
     const newFeedback = new Feedback(req.body);
@@ -22,7 +41,6 @@ router.post("/", async (req, res) => {
 
     // Trigger direct SMS to admin
     try {
-      const Restaurant = require("../models/Restaurant");
       const restaurant = await Restaurant.findById(req.body.restaurantId);
 
       if (restaurant && restaurant.phone) {
@@ -45,7 +63,6 @@ router.post("/", async (req, res) => {
             `[TWILIO] Successfully sent SMS to Admin: ${restaurant.phone}`,
           );
         } else {
-          // Fallback if credentials aren't configured yet
           console.log("\n----------------------------------------");
           console.log(
             `[SMS PROVIDER MOCK] Missing Twilio credentials. Skipping real SMS.`,
@@ -63,25 +80,30 @@ router.post("/", async (req, res) => {
 
     res.json(feedback);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error("[POST FEEDBACK ERROR]", err.message);
+    res.status(500).json({ msg: "Server Error" });
   }
 });
 
-// Update feedback status
-router.put("/:id/status", async (req, res) => {
+// Update feedback status (Requires Auth & Ownership)
+router.put("/:id/status", auth, async (req, res) => {
   try {
     const { status } = req.body;
     let feedback = await Feedback.findById(req.params.id);
     if (!feedback) return res.status(404).json({ msg: "Feedback not found" });
+
+    const authorized = await canManageRestaurant(req.user.id, req.user.role, feedback.restaurantId);
+    if (!authorized) {
+      return res.status(403).json({ msg: "Forbidden: Access denied" });
+    }
 
     feedback.status = status;
     await feedback.save();
 
     res.json(feedback);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error("[PUT FEEDBACK ERROR]", err.message);
+    res.status(500).json({ msg: "Server Error" });
   }
 });
 

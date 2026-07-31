@@ -1,7 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const { requireRestaurantOwnership } = require('../middleware/ownership');
 const MenuItem = require('../models/MenuItem');
+const Restaurant = require('../models/Restaurant');
+
+// Helper to check ownership of a restaurant ID
+async function isAuthorizedForRestaurant(userId, userRole, restaurantId) {
+  if (userRole === 'super-admin') return true;
+  if (!restaurantId) return false;
+
+  const restaurant = await Restaurant.findById(restaurantId);
+  if (!restaurant) return false;
+
+  const isOwner = restaurant.ownerId && restaurant.ownerId.toString() === userId;
+  const isAdmin = restaurant.admins && restaurant.admins.some(a => a.user && a.user.toString() === userId);
+  return isOwner || isAdmin;
+}
 
 // Get all menu items across all restaurants
 router.get('/', async (req, res) => {
@@ -9,8 +24,8 @@ router.get('/', async (req, res) => {
     const menuItems = await MenuItem.find().populate('restaurantId', 'name');
     res.json(menuItems);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: 'Server Error', details: err.message });
+    console.error('[GET MENU ERROR]', err.message);
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
@@ -20,13 +35,13 @@ router.get('/restaurant/:restaurantId', async (req, res) => {
     const menuItems = await MenuItem.find({ restaurantId: req.params.restaurantId });
     res.json(menuItems);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: 'Server Error', details: err.message });
+    console.error('[GET RESTAURANT MENU ERROR]', err.message);
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
-// Add menu item (requires auth)
-router.post('/', auth, async (req, res) => {
+// Add menu item (requires auth & restaurant ownership)
+router.post('/', auth, requireRestaurantOwnership, async (req, res) => {
   const { name, description, price, category, imageUrl, isAvailable, restaurantId, ingredients, contains } = req.body;
 
   try {
@@ -45,12 +60,12 @@ router.post('/', auth, async (req, res) => {
     const menuItem = await newMenuItem.save();
     res.json(menuItem);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('[ADD MENU ITEM ERROR]', err.message);
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
-// Update menu item
+// Update menu item (requires auth & ownership check)
 router.put('/:id', auth, async (req, res) => {
   const { name, description, price, category, imageUrl, isAvailable, ingredients, contains } = req.body;
 
@@ -61,7 +76,11 @@ router.put('/:id', auth, async (req, res) => {
       return res.status(404).json({ msg: 'Menu item not found' });
     }
 
-    // You would normally check if the user has permission to update this restaurant's menu here
+    // Verify user owns or manages the target restaurant
+    const authorized = await isAuthorizedForRestaurant(req.user.id, req.user.role, menuItem.restaurantId);
+    if (!authorized) {
+      return res.status(403).json({ msg: 'Forbidden: You do not have permission to modify this menu item' });
+    }
 
     const updateFields = {};
     if (name !== undefined) updateFields.name = name;
@@ -81,13 +100,12 @@ router.put('/:id', auth, async (req, res) => {
 
     res.json(menuItem);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    console.error('[UPDATE MENU ITEM ERROR]', err.message);
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 
-// Delete a menu item from THIS restaurant only
-// (Each item is a separate document tied to restaurantId — deleting it never affects global menu or other restaurants)
+// Delete a menu item (requires auth & ownership check)
 router.delete('/:id', auth, async (req, res) => {
   try {
     const menuItem = await MenuItem.findById(req.params.id);
@@ -96,12 +114,18 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(404).json({ msg: 'Menu item not found' });
     }
 
+    // Verify user owns or manages the target restaurant
+    const authorized = await isAuthorizedForRestaurant(req.user.id, req.user.role, menuItem.restaurantId);
+    if (!authorized) {
+      return res.status(403).json({ msg: 'Forbidden: You do not have permission to delete this menu item' });
+    }
+
     await MenuItem.findByIdAndDelete(req.params.id);
 
-    res.json({ msg: 'Menu item removed from your restaurant', id: req.params.id });
+    res.json({ msg: 'Menu item removed', id: req.params.id });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: 'Server Error', details: err.message });
+    console.error('[DELETE MENU ITEM ERROR]', err.message);
+    res.status(500).json({ msg: 'Server Error' });
   }
 });
 

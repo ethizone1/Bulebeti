@@ -9,6 +9,17 @@ const {
   notifyStatusUpdate,
 } = require("../services/notifications");
 
+// Helper to check restaurant ownership
+async function canManageRestaurant(userId, userRole, restaurantId) {
+  if (userRole === "super-admin") return true;
+  if (!restaurantId) return false;
+  const restaurant = await Restaurant.findById(restaurantId);
+  if (!restaurant) return false;
+  const isOwner = restaurant.ownerId && restaurant.ownerId.toString() === userId;
+  const isAdmin = restaurant.admins && restaurant.admins.some(a => a.user && a.user.toString() === userId);
+  return isOwner || isAdmin;
+}
+
 // POST a new reservation (Public)
 router.post("/", async (req, res) => {
   try {
@@ -38,7 +49,7 @@ router.post("/", async (req, res) => {
 
     // Find restaurant and admin for notifications
     const restaurant = await Restaurant.findById(restaurantId);
-    let adminEmail = "admin@bulebeti.com"; // Default fallback
+    let adminEmail = "admin@bulebeti.com";
     let adminPhone = "N/A";
     if (restaurant) {
       const admin = await User.findById(restaurant.ownerId);
@@ -67,15 +78,14 @@ router.post("/", async (req, res) => {
 
     res.json(reservation);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error("[RESERVATION POST ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
-// GET all reservations for a specific restaurant by slug (For Admin Dashboard)
-router.get("/restaurant/:restaurantSlug", async (req, res) => {
+// GET all reservations for a specific restaurant by slug (Requires Auth & Ownership)
+router.get("/restaurant/:restaurantSlug", auth, async (req, res) => {
   try {
-    // First find the restaurant ID
     const restaurant = await Restaurant.findOne({
       slug: req.params.restaurantSlug,
     });
@@ -83,17 +93,22 @@ router.get("/restaurant/:restaurantSlug", async (req, res) => {
       return res.status(404).json({ msg: "Restaurant not found" });
     }
 
+    const authorized = await canManageRestaurant(req.user.id, req.user.role, restaurant._id);
+    if (!authorized) {
+      return res.status(403).json({ msg: "Forbidden: You are not authorized for this restaurant's reservations" });
+    }
+
     const reservations = await Reservation.find({
       restaurantId: restaurant._id,
     }).sort({ date: 1, time: 1 });
     res.json(reservations);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error("[RESERVATION GET ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 
-// PUT to update reservation status (Requires Auth)
+// PUT to update reservation status (Requires Auth & Ownership)
 router.put("/:id", auth, async (req, res) => {
   try {
     const { status } = req.body;
@@ -101,6 +116,11 @@ router.put("/:id", auth, async (req, res) => {
     let reservation = await Reservation.findById(req.params.id);
     if (!reservation) {
       return res.status(404).json({ msg: "Reservation not found" });
+    }
+
+    const authorized = await canManageRestaurant(req.user.id, req.user.role, reservation.restaurantId);
+    if (!authorized) {
+      return res.status(403).json({ msg: "Forbidden: Access denied" });
     }
 
     const previousStatus = reservation.status;
@@ -129,8 +149,8 @@ router.put("/:id", auth, async (req, res) => {
 
     res.json(reservation);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    console.error("[RESERVATION PUT ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 

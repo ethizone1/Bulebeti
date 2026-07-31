@@ -2,22 +2,80 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
 dotenv.config();
+
+// Startup Environment Validation
+const isProduction = process.env.NODE_ENV === "production";
+const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!jwtSecret) {
+  console.error("❌ [FATAL SECURITY ERROR] JWT_SECRET is not set in environment variables!");
+  if (isProduction) process.exit(1);
+}
+
+if (!mongoUri && isProduction) {
+  console.error("❌ [FATAL ERROR] MONGODB_URI is required in production mode!");
+  process.exit(1);
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+// Security Headers (Helmet)
+app.use(helmet());
 
-// Global Activity Logger
+// CORS Configuration
+const allowedOrigins = [
+  process.env.CLIENT_ORIGIN,
+  process.env.FRONTEND_URL,
+  "http://localhost:3000",
+  "http://localhost:5173",
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server) or matched origins
+      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes("*") || !isProduction) {
+        return callback(null, true);
+      }
+      callback(new Error("CORS policy violation: Origin not allowed"));
+    },
+    credentials: true,
+  })
+);
+
+// Rate Limiting
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 300, // Limit each IP to 300 requests per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { msg: "Too many requests from this IP, please try again after 15 minutes." },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30, // Limit each IP to 30 auth requests per 15 minutes
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { msg: "Too many authentication attempts, please try again after 15 minutes." },
+});
+
+app.use("/api/", generalLimiter);
+app.use("/api/auth", authLimiter);
+
+// Payload Parsers (Restricted payload size to prevent DoS)
+app.use(express.json({ limit: "5mb" }));
+app.use(express.urlencoded({ limit: "5mb", extended: true }));
+
+// Activity Logging (Sanitizing output)
 app.use((req, res, next) => {
-  console.log(
-    `[ACTIVITY] ${req.method} ${req.url} - ${new Date().toISOString()}`,
-  );
+  console.log(`[ACTIVITY] ${req.method} ${req.path} - ${new Date().toISOString()}`);
   next();
 });
 
@@ -36,26 +94,34 @@ app.use("/api/locations", require("./routes/locations"));
 app.use("/api/gallery", require("./routes/gallery"));
 app.use("/api/inquiries", require("./routes/inquiries"));
 
-// Basic Route
+// Basic Health Check Route
 app.get("/", (req, res) => {
-  res.send("bulebeti Backend API is running!");
+  res.status(200).json({ status: "healthy", service: "Bulebet Backend API" });
 });
 
-// Connect to MongoDB
+// Global Centralized Error Handler (No stack trace leaks)
+app.use((err, req, res, next) => {
+  console.error("[GLOBAL ERROR LOG]", err.stack || err.message);
+  if (res.headersSent) {
+    return next(err);
+  }
+  res.status(err.status || 500).json({
+    msg: isProduction ? "An unexpected error occurred" : err.message,
+  });
+});
+
+// Connect to MongoDB & Start Server
+const finalMongoUri = mongoUri || "mongodb://localhost:27017/bulebeti";
+
 mongoose
-  .connect(
-    process.env.MONGODB_URI ||
-      process.env.MONGO_URI ||
-      "mongodb://localhost:27017/bulebeti",
-  )
+  .connect(finalMongoUri)
   .then(() => {
-    console.log("Connected to MongoDB");
+    console.log("✅ Connected to MongoDB successfully");
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log(`🚀 Bulebet API Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("MongoDB connection error:", err);
+    console.error("❌ MongoDB connection failed:", err.message);
+    process.exit(1);
   });
-
-// Trigger restart
