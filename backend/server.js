@@ -75,8 +75,6 @@ app.use(
   })
 );
 
-// Handle preflight requests for all routes
-app.options("*", cors());
 
 // Rate Limiting
 const generalLimiter = rateLimit({
