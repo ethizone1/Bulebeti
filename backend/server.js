@@ -26,28 +26,57 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Security Headers (Helmet)
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 // CORS Configuration
 const allowedOrigins = [
   process.env.CLIENT_ORIGIN,
   process.env.FRONTEND_URL,
+  "https://bulebeti.com",
+  "https://www.bulebeti.com",
+  "http://bulebeti.com",
+  "http://www.bulebeti.com",
   "http://localhost:3000",
   "http://localhost:5173",
+  "http://localhost:4173",
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, server-to-server) or matched origins
-      if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes("*") || !isProduction) {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      const cleanOrigin = origin.replace(/\/$/, "");
+
+      const isExplicitlyAllowed = allowedOrigins.some(
+        (allowed) => allowed === "*" || allowed.replace(/\/$/, "") === cleanOrigin
+      );
+
+      const isDomainMatch =
+        cleanOrigin.endsWith(".bulebeti.com") ||
+        cleanOrigin === "https://bulebeti.com" ||
+        cleanOrigin === "http://bulebeti.com";
+
+      if (isExplicitlyAllowed || isDomainMatch || !isProduction) {
         return callback(null, true);
       }
-      callback(new Error("CORS policy violation: Origin not allowed"));
+
+      console.warn(`[CORS BLOCKED] Origin not allowed: ${origin}`);
+      return callback(null, false);
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"],
   })
 );
+
+// Handle preflight requests for all routes
+app.options("*", cors());
 
 // Rate Limiting
 const generalLimiter = rateLimit({
