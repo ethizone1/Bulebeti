@@ -148,11 +148,17 @@ const LoginPage = () => {
 
   useEffect(() => {
     const initializeGoogleSignIn = () => {
+      const rawClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+      const isPlaceholder = !rawClientId || rawClientId.includes("YOUR_CLIENT_ID");
+
+      if (isPlaceholder) {
+        console.warn("⚠️ [Google OAuth] VITE_GOOGLE_CLIENT_ID is not configured or contains placeholder.");
+        return;
+      }
+
       if (window.google && window.google.accounts) {
         window.google.accounts.id.initialize({
-          client_id:
-            import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-            "1014167389146-YOUR_CLIENT_ID.apps.googleusercontent.com",
+          client_id: rawClientId,
           callback: handleGoogleLoginResponse,
         });
         window.google.accounts.id.renderButton(

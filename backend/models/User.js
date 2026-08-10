@@ -15,8 +15,11 @@ const userSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['active', 'pending'],
-    default: 'active'
+    default: 'pending'
   },
+  isVerified: { type: Boolean, default: false },
+  verificationCode: { type: String },
+  verificationCodeExpires: { type: Date },
   restaurantId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Restaurant',

@@ -95,6 +95,11 @@ export const translations = {
     reg_submit: "Create Your Hub",
     reg_already: "Already have an account?",
     reg_login: "Log in",
+    reg_modal_title: "Verify Registration Email",
+    reg_modal_desc: "A 6-digit confirmation code was sent to:",
+    reg_modal_code_label: "ENTER 6-DIGIT CONFIRMATION CODE",
+    reg_modal_confirm: "Confirm & Activate Account",
+    reg_modal_resend: "Didn't get the code? Resend",
 
     // Menu Page
     menu_sig_label: "THE SIGNATURE EXPERIENCE",
@@ -506,6 +511,11 @@ export const translations = {
     reg_submit: "የእርስዎን Hub ይፍጠሩ",
     reg_already: "አካውንት አለዎት?",
     reg_login: "ግባ",
+    reg_modal_title: "የምዝገባ ኢሜይል ያረጋግጡ",
+    reg_modal_desc: "ባለ 6-አሃዝ የማረጋገጫ ኮድ ተልኳል ወደ፡",
+    reg_modal_code_label: "ባለ 6-አሃዝ የማረጋገጫ ኮድ ያስገቡ",
+    reg_modal_confirm: "አረጋግጥ እና አካውንት አስጀምር",
+    reg_modal_resend: "ኮዱ አልደረሰዎትም? እንደገና ላክ",
 
     // Menu Page
     menu_sig_label: "የእኛ ልዩ ዝግጅቶች",

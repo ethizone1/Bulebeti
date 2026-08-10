@@ -24,6 +24,14 @@ const RegistrationPage = () => {
   const [googleToken, setGoogleToken] = useState(null);
   const [googleUserEmail, setGoogleUserEmail] = useState("");
 
+  // Email verification modal states
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const [verificationError, setVerificationError] = useState("");
+  const [resendStatus, setResendStatus] = useState("");
+  const [pendingEmail, setPendingEmail] = useState("");
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -58,11 +66,17 @@ const RegistrationPage = () => {
 
   useEffect(() => {
     const initializeGoogleSignup = () => {
+      const rawClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+      const isPlaceholder = !rawClientId || rawClientId.includes("YOUR_CLIENT_ID");
+
+      if (isPlaceholder) {
+        console.warn("⚠️ [Google OAuth] VITE_GOOGLE_CLIENT_ID is not configured or contains placeholder.");
+        return;
+      }
+
       if (window.google && window.google.accounts) {
         window.google.accounts.id.initialize({
-          client_id:
-            import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-            "1014167389146-YOUR_CLIENT_ID.apps.googleusercontent.com",
+          client_id: rawClientId,
           callback: handleGoogleSignupResponse,
         });
         window.google.accounts.id.renderButton(
@@ -91,16 +105,75 @@ const RegistrationPage = () => {
     }
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  const validateForm = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email || !emailRegex.test(formData.email.trim())) {
+      setError("Please enter a valid email address (e.g., owner@example.com).");
+      return false;
+    }
+
+    if (formData.phone) {
+      const phoneRegex = /^\+?[0-9\s\-()]{9,18}$/;
+      if (!phoneRegex.test(formData.phone.trim())) {
+        setError("Please enter a valid phone number (at least 9 digits).");
+        return false;
+      }
+    }
+
+    if (!googleToken && formData.password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return false;
+    }
 
     if (!googleToken && formData.password !== formData.confirmPassword) {
       setError("Passwords do not match. Please try again.");
-      setLoading(false);
-      return;
+      return false;
     }
+
+    return true;
+  };
+
+  const finalizeRegistration = async (token, userObj) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userObj));
+
+    const slug = formData.restaurantName
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-");
+
+    const restResponse = await fetch(`${config.API_URL}/api/restaurants`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-auth-token": token,
+      },
+      body: JSON.stringify({
+        name: formData.restaurantName,
+        slug: slug,
+        address: formData.location,
+        phone: formData.phone,
+        menuLayout: formData.menuLayout,
+        logoUrl: formData.logoBase64,
+        description: `A ${formData.cuisineType} restaurant.`,
+        subscriptionTier: formData.subscriptionTier,
+      }),
+    });
+
+    if (!restResponse.ok) {
+      const restData = await restResponse.json().catch(() => ({}));
+      throw new Error(restData.msg || "Failed to create restaurant profile.");
+    }
+
+    navigate(`/bulebeti/${slug}/admin`);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setError("");
 
     try {
       // 1. Register the user (Admin role)
@@ -111,7 +184,8 @@ const RegistrationPage = () => {
         },
         body: JSON.stringify({
           name: formData.ownerName,
-          email: formData.email,
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
           password: googleToken ? undefined : formData.password,
           googleToken: googleToken || undefined,
           role: "admin",
@@ -124,42 +198,72 @@ const RegistrationPage = () => {
         throw new Error(authData.msg || "Registration failed");
       }
 
-      // Store token
-      localStorage.setItem("token", authData.token);
-      localStorage.setItem("user", JSON.stringify(authData.user));
+      if (authData.requiresVerification) {
+        setPendingEmail(authData.email || formData.email.trim());
+        setShowVerificationModal(true);
+        setLoading(false);
+        return;
+      }
 
-      // 2. Create the Restaurant Profile
-      const slug = formData.restaurantName
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-");
-      const restResponse = await fetch(`${config.API_URL}/api/restaurants`, {
+      // If already verified (e.g. Google Login)
+      await finalizeRegistration(authData.token, authData.user);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e) => {
+    e.preventDefault();
+    if (!verificationCode || verificationCode.trim().length !== 6) {
+      setVerificationError("Please enter the complete 6-digit confirmation code.");
+      return;
+    }
+
+    setVerificationLoading(true);
+    setVerificationError("");
+    setResendStatus("");
+
+    try {
+      const verifyResponse = await fetch(`${config.API_URL}/api/auth/verify-email`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-token": authData.token,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: formData.restaurantName,
-          slug: slug,
-          address: formData.location,
-          phone: formData.phone,
-          menuLayout: formData.menuLayout,
-          logoUrl: formData.logoBase64,
-          description: `A ${formData.cuisineType} restaurant.`,
-          subscriptionTier: formData.subscriptionTier,
+          email: pendingEmail || formData.email.trim(),
+          code: verificationCode.trim(),
         }),
       });
 
-      if (!restResponse.ok) {
-        const restData = await restResponse.json().catch(() => ({}));
-        throw new Error(restData.msg || "Failed to create restaurant profile.");
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyResponse.ok) {
+        throw new Error(verifyData.msg || "Verification failed. Please try again.");
       }
 
-      navigate(`/bulebeti/${slug}/admin`);
+      // Complete registration and navigate
+      await finalizeRegistration(verifyData.token, verifyData.user);
     } catch (err) {
-      setError(err.message);
+      setVerificationError(err.message);
     } finally {
-      setLoading(false);
+      setVerificationLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setResendStatus("Sending new code to your email...");
+    setVerificationError("");
+    try {
+      const resendResp = await fetch(`${config.API_URL}/api/auth/resend-verification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: pendingEmail || formData.email.trim() }),
+      });
+      const data = await resendResp.json();
+      if (!resendResp.ok) throw new Error(data.msg || "Failed to resend code");
+      setResendStatus(data.msg || "A new 6-digit code has been sent!");
+    } catch (err) {
+      setVerificationError(err.message);
+      setResendStatus("");
     }
   };
 
@@ -670,6 +774,146 @@ const RegistrationPage = () => {
           </div>
         </div>
       </div>
+
+      {/* ─── EMAIL VERIFICATION CONFIRMATION MODAL ─── */}
+      {showVerificationModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            backdropFilter: "blur(5px)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "16px",
+          }}
+        >
+          <div
+            className="card shadow-lg border-0 text-start w-100"
+            style={{
+              maxWidth: "460px",
+              borderRadius: "16px",
+              overflow: "hidden",
+              backgroundColor: "var(--surface, #ffffff)",
+            }}
+          >
+            <div
+              className="card-header border-0 text-white p-4 text-center"
+              style={{
+                background: "linear-gradient(135deg, #1f2937 0%, #111827 100%)",
+              }}
+            >
+              <div
+                className="mx-auto mb-2 d-flex align-items-center justify-content-center rounded-circle"
+                style={{
+                  width: "56px",
+                  height: "56px",
+                  backgroundColor: "rgba(212, 175, 55, 0.2)",
+                  color: "#D4AF37",
+                  fontSize: "24px",
+                }}
+              >
+                ✉️
+              </div>
+              <h4 className="fw-bold mb-1" style={{ color: "#D4AF37" }}>
+                Verify Registration Email
+              </h4>
+              <p className="small text-light opacity-75 mb-0">
+                A 6-digit confirmation code was sent to:
+              </p>
+              <div className="fw-bold text-white small mt-1">{pendingEmail}</div>
+            </div>
+
+            <div className="card-body p-4">
+              {verificationError && (
+                <div className="alert alert-danger p-3 small mb-3 rounded-3">
+                  <i className="fa-solid fa-triangle-exclamation me-2"></i>
+                  {verificationError}
+                </div>
+              )}
+
+              {resendStatus && (
+                <div className="alert alert-success p-3 small mb-3 rounded-3">
+                  <i className="fa-solid fa-circle-check me-2"></i>
+                  {resendStatus}
+                </div>
+              )}
+
+              <form onSubmit={handleVerifyCode}>
+                <div className="mb-4">
+                  <label className="form-label fw-bold small text-muted">
+                    ENTER 6-DIGIT CONFIRMATION CODE
+                  </label>
+                  <input
+                    type="text"
+                    maxLength="6"
+                    value={verificationCode}
+                    onChange={(e) =>
+                      setVerificationCode(e.target.value.replace(/\D/g, ""))
+                    }
+                    placeholder="e.g. 123456"
+                    className="form-control form-control-lg text-center fw-bold fs-3 p-3"
+                    style={{
+                      letterSpacing: "8px",
+                      borderColor: "var(--gold, #D4AF37)",
+                      borderRadius: "10px",
+                    }}
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={
+                    verificationLoading || verificationCode.length !== 6
+                  }
+                  className="btn btn-primary w-100 p-3 fw-bold mb-3"
+                  style={{
+                    borderRadius: "10px",
+                    opacity:
+                      verificationLoading || verificationCode.length !== 6
+                        ? 0.6
+                        : 1,
+                  }}
+                >
+                  {verificationLoading ? (
+                    <span>
+                      <i className="fa-solid fa-spinner fa-spin me-2"></i>
+                      Verifying Code...
+                    </span>
+                  ) : (
+                    "Confirm & Activate Account"
+                  )}
+                </button>
+              </form>
+
+              <div className="d-flex justify-content-between align-items-center pt-2 border-top mt-3">
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  className="btn btn-link text-decoration-none p-0 small fw-bold"
+                  style={{ color: "var(--gold, #D4AF37)" }}
+                >
+                  Didn't get the code? Resend
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowVerificationModal(false)}
+                  className="btn btn-link text-muted text-decoration-none p-0 small"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
