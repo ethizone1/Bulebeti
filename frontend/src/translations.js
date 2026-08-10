@@ -68,6 +68,7 @@ export const translations = {
     login_signin: "Sign In",
     login_didnt_receive: "Didn't receive the code?",
     login_try_again: "Try again",
+    login_forgot_password: "Forgot password? Sign in with Email Code",
 
     // Registration Page
     reg_title: "Register Your Restaurant",
@@ -146,7 +147,7 @@ export const translations = {
     landing_launch_badge: "LIMITED LAUNCH PROMO",
     landing_tier_silver: "Basic",
     landing_free: "Free",
-    landing_basic_reg: "Regular $299/year (Save $299)",
+    landing_basic_reg: "Regular $99/year (Save $99)",
     landing_select_silver: "Select Basic",
     landing_silver_f1: "✓ 1 Admin",
     landing_silver_f2: "✓ Up to 20 Menu Items",
@@ -485,6 +486,7 @@ export const translations = {
     login_signin: "ግባ",
     login_didnt_receive: "ኮዱ አልደረሰዎትም?",
     login_try_again: "እንደገና ሞክር",
+    login_forgot_password: "የይለፍ ቃል ረስተዋል? በኢሜይል ኮድ ግቡ",
 
     // Registration Page
     reg_title: "ምግብ ቤትዎን ይመዝገቡ",
@@ -558,7 +560,7 @@ export const translations = {
     landing_launch_badge: "የጅማሮ ልዩ ቅናሽ",
     landing_tier_silver: "ቤዚክ (Basic)",
     landing_free: "ነፃ",
-    landing_basic_reg: "መደበኛ $299/አመት ($299 ቅናሽ)",
+    landing_basic_reg: "መደበኛ $99/አመት ($99 ቅናሽ)",
     landing_select_silver: "ቤዚክን ይምረጡ",
     landing_silver_f1: "✓ 1 አስተዳዳሪ",
     landing_silver_f2: "✓ እስከ 20 የምናለ ምግቦች",

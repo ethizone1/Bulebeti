@@ -640,4 +640,118 @@ router.post("/change-password", auth, async (req, res) => {
   }
 });
 
+// Send Login OTP (Passwordless Login / Forgot Password)
+router.post("/send-login-otp", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || !isValidEmail(email)) {
+      return res.status(400).json({ msg: "Please enter a valid email address." });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    let user = await User.findOne({ email: cleanEmail });
+
+    if (!user) {
+      return res.status(404).json({ msg: "No account found with this email address. Please register first." });
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    user.verificationCode = otpCode;
+    user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await user.save();
+
+    const subject = "🔑 Your BuleBet Login Access Code";
+    const htmlContent = `
+      <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;">
+        <h2 style="color: #D4AF37; margin-top: 0;">BuleBet Login Access Code</h2>
+        <p>Hi <strong>${user.name}</strong>,</p>
+        <p>Use the following 6-digit access code to log in to your account without a password:</p>
+        <div style="background: #f3f4f6; font-size: 32px; font-weight: bold; letter-spacing: 6px; text-align: center; padding: 16px; border-radius: 8px; margin: 20px 0; color: #111827;">
+          ${otpCode}
+        </div>
+        <p style="font-size: 13px; color: #6b7280;">This access code is valid for 15 minutes. If you did not request this code, please ignore this email.</p>
+      </div>
+    `;
+
+    await sendEmail(cleanEmail, subject, htmlContent, "BuleBet Platform");
+    console.log(`[BACKEND] 🔑 Login OTP sent to ${cleanEmail}: ${otpCode}`);
+
+    res.json({ msg: "Access code sent to your email. Please check your inbox." });
+  } catch (err) {
+    console.error("[SEND LOGIN OTP ERROR]", err.message);
+    res.status(500).json({ msg: "Server error while sending access code." });
+  }
+});
+
+// Verify Login OTP
+router.post("/verify-login-otp", async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ msg: "Email and access code are required." });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = code.toString().trim();
+
+    let user = await User.findOne({ email: cleanEmail });
+    if (!user) {
+      return res.status(404).json({ msg: "Account not found." });
+    }
+
+    if (!user.verificationCode || user.verificationCode !== cleanCode) {
+      return res.status(400).json({ msg: "Invalid access code. Please check your email and try again." });
+    }
+
+    if (user.verificationCodeExpires && new Date() > user.verificationCodeExpires) {
+      return res.status(400).json({ msg: "Access code has expired. Please request a new code." });
+    }
+
+    // Clear OTP & mark verified/active
+    user.isVerified = true;
+    user.status = "active";
+    user.verificationCode = undefined;
+    user.verificationCodeExpires = undefined;
+    await user.save();
+
+    console.log(`[BACKEND] ✅ User logged in via Email OTP: ${user.name} (${user.email})`);
+
+    // Find restaurant slug
+    const Restaurant = require("../models/Restaurant");
+    const restaurant = await Restaurant.findOne({ ownerId: user.id });
+    const adminOf = await Restaurant.findOne({ "admins.user": user.id });
+    let slug = restaurant ? restaurant.slug : adminOf ? adminOf.slug : null;
+
+    const payload = {
+      user: {
+        id: user.id,
+        role: user.role,
+      },
+    };
+
+    jwt.sign(
+      payload,
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" },
+      (err, token) => {
+        if (err) throw err;
+        res.json({
+          token,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            picture: user.picture,
+          },
+          restaurantSlug: slug,
+        });
+      }
+    );
+  } catch (err) {
+    console.error("[VERIFY LOGIN OTP ERROR]", err.message);
+    res.status(500).json({ msg: "Server error during access code verification." });
+  }
+});
+
 module.exports = router;
