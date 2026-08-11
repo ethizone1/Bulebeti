@@ -18,6 +18,22 @@ const restaurantSchema = new mongoose.Schema({
   },
   logoUrl: { type: String },
   bannerUrl: { type: String },
+  openingHours: {
+    weekdays: { type: String, default: '' },
+    weekends: { type: String, default: '' },
+  },
+  socialLinks: {
+    instagram: { type: String, default: '' },
+    facebook: { type: String, default: '' },
+    twitter: { type: String, default: '' },
+    linkedin: { type: String, default: '' },
+    youtube: { type: String, default: '' },
+    tiktok: { type: String, default: '' },
+    pinterest: { type: String, default: '' },
+    whatsapp: { type: String, default: '' },
+    telegram: { type: String, default: '' },
+    snapchat: { type: String, default: '' },
+  },
   menuLayout: { 
     type: String, 
     enum: ['image-left', 'image-right', 'image-top', 'image-bottom', 'text-centered'],

@@ -39,35 +39,73 @@ const Footer = () => {
   const displayPhone = restaurant?.phone || null;
   const displayAddress = restaurant?.address || null;
   const displayDescription = restaurant?.description || t("footer_tagline");
+  const openingHours = restaurant?.openingHours || null;
 
-  const socialPlatforms = [
-    {
-      name: "Instagram",
-      icon: "📸",
-      url: "https://instagram.com",
-      color: "#E1306C",
-    },
-    {
-      name: "Facebook",
-      icon: "👤",
-      url: "https://facebook.com",
-      color: "#1877F2",
-    },
-    { name: "X", icon: "✖", url: "https://x.com", color: "#000000" },
-    {
-      name: "YouTube",
-      icon: "▶",
-      url: "https://youtube.com",
-      color: "#FF0000",
-    },
-    {
-      name: "WhatsApp",
-      icon: "💬",
-      url: "https://whatsapp.com",
-      color: "#25D366",
-    },
-    { name: "TikTok", icon: "🎵", url: "https://tiktok.com", color: "#000000" },
+  const formatSocialUrl = (key, val) => {
+    if (!val || typeof val !== "string" || !val.trim()) return null;
+    const trimmed = val.trim();
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      return trimmed;
+    }
+    const handle = trimmed.replace(/^@/, "");
+    switch (key) {
+      case "instagram":
+        return `https://instagram.com/${handle}`;
+      case "facebook":
+        return trimmed.includes("facebook.com") || trimmed.includes("fb.com")
+          ? `https://${trimmed}`
+          : `https://facebook.com/${handle}`;
+      case "twitter":
+        return `https://x.com/${handle}`;
+      case "linkedin":
+        return trimmed.includes("linkedin.com")
+          ? `https://${trimmed}`
+          : `https://linkedin.com/in/${handle}`;
+      case "youtube":
+        return trimmed.includes("youtube.com")
+          ? `https://${trimmed}`
+          : `https://youtube.com/@${handle}`;
+      case "tiktok":
+        return `https://tiktok.com/@${handle}`;
+      case "pinterest":
+        return trimmed.includes("pinterest.com")
+          ? `https://${trimmed}`
+          : `https://pinterest.com/${handle}`;
+      case "whatsapp": {
+        const digits = trimmed.replace(/\D/g, "");
+        return digits ? `https://wa.me/${digits}` : `https://wa.me/${trimmed}`;
+      }
+      case "telegram":
+        return `https://t.me/${handle}`;
+      case "snapchat":
+        return trimmed.includes("snapchat.com")
+          ? `https://${trimmed}`
+          : `https://snapchat.com/add/${handle}`;
+      default:
+        return `https://${trimmed}`;
+    }
+  };
+
+  const allSocialDefinitions = [
+    { key: "instagram", name: "Instagram", icon: "📸", color: "#E1306C" },
+    { key: "facebook", name: "Facebook", icon: "👤", color: "#1877F2" },
+    { key: "twitter", name: "X", icon: "✖", color: "#000000" },
+    { key: "linkedin", name: "LinkedIn", icon: "💼", color: "#0A66C2" },
+    { key: "youtube", name: "YouTube", icon: "▶", color: "#FF0000" },
+    { key: "tiktok", name: "TikTok", icon: "🎵", color: "#000000" },
+    { key: "pinterest", name: "Pinterest", icon: "📌", color: "#E60023" },
+    { key: "whatsapp", name: "WhatsApp", icon: "💬", color: "#25D366" },
+    { key: "telegram", name: "Telegram", icon: "✈", color: "#24A1DE" },
+    { key: "snapchat", name: "Snapchat", icon: "👻", color: "#FFFC00" },
   ];
+
+  const activeSocialPlatforms = allSocialDefinitions
+    .map((item) => {
+      const rawValue = restaurant?.socialLinks?.[item.key];
+      const url = formatSocialUrl(item.key, rawValue);
+      return url ? { ...item, url } : null;
+    })
+    .filter(Boolean);
 
   return (
     <footer
@@ -122,8 +160,8 @@ const Footer = () => {
               {displayDescription}
             </p>
 
-            {/* Contact details pulled from DB */}
-            {(displayPhone || displayAddress) && (
+            {/* Contact details & hours pulled from DB */}
+            {(displayPhone || displayAddress || openingHours?.weekdays || openingHours?.weekends) && (
               <div
                 style={{
                   marginTop: "16px",
@@ -160,6 +198,32 @@ const Footer = () => {
                     📍 {displayAddress}
                   </span>
                 )}
+                {openingHours?.weekdays && (
+                  <span
+                    style={{
+                      color: "rgba(255,255,255,0.7)",
+                      fontSize: "13px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    🕒 Mon - Fri: {openingHours.weekdays}
+                  </span>
+                )}
+                {openingHours?.weekends && (
+                  <span
+                    style={{
+                      color: "rgba(255,255,255,0.7)",
+                      fontSize: "13px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    🕒 Sat - Sun: {openingHours.weekends}
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -186,66 +250,60 @@ const Footer = () => {
               }}
             >
               {(() => {
-                const currentTier =
-                  restaurant?.subscriptionTier === "Basic"
-                    ? "Silver"
-                    : restaurant?.subscriptionTier || "Platinum";
                 const tierImportance = {
-                  Silver: 0,
-                  Gold: 1,
-                  Platinum: 2,
-                  Premium: 3,
+                  Basic: 1,
+                  Silver: 2,
+                  Gold: 3,
+                  Platinum: 4,
+                  Premium: 5,
                 };
                 const currentTierImp =
-                  tierImportance[currentTier] !== undefined
-                    ? tierImportance[currentTier]
-                    : 2;
+                  tierImportance[restaurant?.subscriptionTier] || 1;
 
-                const links = isRestaurantPage
-                  ? [
-                      {
-                        name: t("nav_menu") || "Our Menu",
-                        path: `/bulebeti/${restaurantName}/menu`,
-                        minTier: "Silver",
-                      },
-                      {
-                        name: t("nav_reservations") || "Reservations",
-                        path: `/bulebeti/${restaurantName}/reservations`,
-                        minTier: "Gold",
-                      },
-                      {
-                        name: t("nav_catering") || "Catering",
-                        path: `/bulebeti/${restaurantName}/catering`,
-                        minTier: "Gold",
-                      },
-                      {
-                        name: t("nav_gallery") || "Gallery",
-                        path: `/bulebeti/${restaurantName}/gallery`,
-                        minTier: "Gold",
-                      },
-                      {
-                        name: t("nav_contact") || "Contact Us",
-                        path: `/bulebeti/${restaurantName}/contact`,
-                        minTier: "Silver",
-                      },
-                    ]
-                  : [
-                      {
-                        name: t("footer_features"),
-                        path: "/#features",
-                        minTier: "Silver",
-                      },
-                      {
-                        name: t("footer_pricing"),
-                        path: "/#pricing",
-                        minTier: "Silver",
-                      },
-                      {
-                        name: t("nav_gallery"),
-                        path: "/gallery",
-                        minTier: "Silver",
-                      },
-                    ];
+                const links = [
+                  {
+                    name: t("footer_our_menu"),
+                    path: isRestaurantPage
+                      ? `/bulebeti/${restaurantName}/menu`
+                      : "/menu",
+                    minTier: "Basic",
+                  },
+                  {
+                    name: t("footer_sister_rest"),
+                    path: isRestaurantPage
+                      ? `/bulebeti/${restaurantName}/sister-restaurants`
+                      : "/sister-restaurants",
+                    minTier: "Silver",
+                  },
+                  {
+                    name: t("footer_catering"),
+                    path: isRestaurantPage
+                      ? `/bulebeti/${restaurantName}/catering`
+                      : "/catering",
+                    minTier: "Gold",
+                  },
+                  {
+                    name: t("footer_events"),
+                    path: isRestaurantPage
+                      ? `/bulebeti/${restaurantName}/events`
+                      : "/events",
+                    minTier: "Gold",
+                  },
+                  {
+                    name: t("footer_feedback"),
+                    path: isRestaurantPage
+                      ? `/bulebeti/${restaurantName}/feedback`
+                      : "/feedback",
+                    minTier: "Platinum",
+                  },
+                  {
+                    name: t("footer_gallery"),
+                    path: isRestaurantPage
+                      ? `/bulebeti/${restaurantName}/gallery`
+                      : "/gallery",
+                    minTier: "Platinum",
+                  },
+                ];
 
                 return links
                   .filter(
@@ -347,60 +405,64 @@ const Footer = () => {
 
           {/* Social / Connect */}
           <div>
-            <h4
-              style={{
-                color: "var(--gold)",
-                marginBottom: "var(--spacing-lg)",
-                fontSize: "13px",
-                letterSpacing: "1px",
-              }}
-            >
-              {t("footer_connect").toUpperCase()}
-            </h4>
-            <div
-              style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}
-              className="social-icon-grid"
-            >
-              {socialPlatforms.map((social) => (
-                <a
-                  key={social.name}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={social.name}
+            {activeSocialPlatforms.length > 0 && (
+              <>
+                <h4
                   style={{
-                    width: "38px",
-                    height: "38px",
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textDecoration: "none",
-                    fontSize: "16px",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    transition: "all 0.25s ease",
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.backgroundColor = social.color;
-                    e.currentTarget.style.transform = "translateY(-3px)";
-                    e.currentTarget.style.borderColor = social.color;
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.backgroundColor =
-                      "rgba(255,255,255,0.1)";
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.borderColor =
-                      "rgba(255,255,255,0.15)";
+                    color: "var(--gold)",
+                    marginBottom: "var(--spacing-lg)",
+                    fontSize: "13px",
+                    letterSpacing: "1px",
                   }}
                 >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
+                  {t("footer_connect").toUpperCase()}
+                </h4>
+                <div
+                  style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}
+                  className="social-icon-grid"
+                >
+                  {activeSocialPlatforms.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={social.name}
+                      style={{
+                        width: "38px",
+                        height: "38px",
+                        backgroundColor: "rgba(255,255,255,0.1)",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textDecoration: "none",
+                        fontSize: "16px",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        transition: "all 0.25s ease",
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.backgroundColor = social.color;
+                        e.currentTarget.style.transform = "translateY(-3px)";
+                        e.currentTarget.style.borderColor = social.color;
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          "rgba(255,255,255,0.1)";
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.borderColor =
+                          "rgba(255,255,255,0.15)";
+                      }}
+                    >
+                      {social.icon}
+                    </a>
+                  ))}
+                </div>
+              </>
+            )}
 
             {/* Newsletter / CTA */}
-            <div style={{ marginTop: "24px" }}>
+            <div style={{ marginTop: activeSocialPlatforms.length > 0 ? "24px" : "0" }}>
               <p
                 style={{
                   fontSize: "13px",

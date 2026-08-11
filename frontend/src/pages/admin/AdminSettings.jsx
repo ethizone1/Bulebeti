@@ -16,6 +16,19 @@ const AdminSettings = () => {
   const [description, setDescription] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
+  const [openingHours, setOpeningHours] = useState({ weekdays: "", weekends: "" });
+  const [socialLinks, setSocialLinks] = useState({
+    instagram: "",
+    facebook: "",
+    twitter: "",
+    linkedin: "",
+    youtube: "",
+    tiktok: "",
+    pinterest: "",
+    whatsapp: "",
+    telegram: "",
+    snapchat: "",
+  });
   const [profileSuccess, setProfileSuccess] = useState(null);
   const [profileError, setProfileError] = useState(null);
   const [profileSubmitting, setProfileSubmitting] = useState(false);
@@ -29,6 +42,22 @@ const AdminSettings = () => {
       setDescription(restaurant.description || "");
       setLogoUrl(restaurant.logoUrl || "");
       setBannerUrl(restaurant.bannerUrl || "");
+      setOpeningHours({
+        weekdays: restaurant.openingHours?.weekdays || "",
+        weekends: restaurant.openingHours?.weekends || "",
+      });
+      setSocialLinks({
+        instagram: restaurant.socialLinks?.instagram || "",
+        facebook: restaurant.socialLinks?.facebook || "",
+        twitter: restaurant.socialLinks?.twitter || "",
+        linkedin: restaurant.socialLinks?.linkedin || "",
+        youtube: restaurant.socialLinks?.youtube || "",
+        tiktok: restaurant.socialLinks?.tiktok || "",
+        pinterest: restaurant.socialLinks?.pinterest || "",
+        whatsapp: restaurant.socialLinks?.whatsapp || "",
+        telegram: restaurant.socialLinks?.telegram || "",
+        snapchat: restaurant.socialLinks?.snapchat || "",
+      });
     }
   }, [restaurant]);
 
@@ -63,6 +92,8 @@ const AdminSettings = () => {
             description,
             logoUrl,
             bannerUrl,
+            openingHours,
+            socialLinks,
           }),
         },
       );
@@ -283,7 +314,11 @@ const AdminSettings = () => {
                 </label>
                 <input
                   type="text"
-                  defaultValue="11:00 AM - 11:00 PM"
+                  value={openingHours.weekdays}
+                  onChange={(e) =>
+                    setOpeningHours({ ...openingHours, weekdays: e.target.value })
+                  }
+                  placeholder="e.g. 11:00 AM - 11:00 PM"
                   className="form-control"
                 />
               </div>
@@ -293,7 +328,11 @@ const AdminSettings = () => {
                 </label>
                 <input
                   type="text"
-                  defaultValue="10:00 AM - 12:00 AM"
+                  value={openingHours.weekends}
+                  onChange={(e) =>
+                    setOpeningHours({ ...openingHours, weekends: e.target.value })
+                  }
+                  placeholder="e.g. 10:00 AM - 12:00 AM"
                   className="form-control"
                 />
               </div>
@@ -303,67 +342,77 @@ const AdminSettings = () => {
             <div className="row g-3 mb-5">
               {[
                 {
+                  key: "instagram",
                   name: "Instagram",
                   icon: "fa-brands fa-instagram",
                   color: "#E1306C",
-                  default: "@bulebeti_official",
+                  placeholder: "@your_handle or URL",
                 },
                 {
+                  key: "facebook",
                   name: "Facebook",
                   icon: "fa-brands fa-facebook-f",
                   color: "#1877F2",
-                  default: "fb.com/bulebeti",
+                  placeholder: "fb.com/your_page or URL",
                 },
                 {
+                  key: "twitter",
                   name: "Twitter",
                   icon: "fa-brands fa-x-twitter",
                   color: "#000000",
-                  default: "@bulebeti",
+                  placeholder: "@your_handle or URL",
                 },
                 {
+                  key: "linkedin",
                   name: "LinkedIn",
                   icon: "fa-brands fa-linkedin-in",
                   color: "#0A66C2",
-                  default: "linkedin.com/bulebeti",
+                  placeholder: "linkedin.com/in/profile",
                 },
                 {
+                  key: "youtube",
                   name: "YouTube",
                   icon: "fa-brands fa-youtube",
                   color: "#FF0000",
-                  default: "youtube.com/bulebeti",
+                  placeholder: "youtube.com/@channel",
                 },
                 {
+                  key: "tiktok",
                   name: "TikTok",
                   icon: "fa-brands fa-tiktok",
                   color: "#000000",
-                  default: "@bulebeti",
+                  placeholder: "@your_handle or URL",
                 },
                 {
+                  key: "pinterest",
                   name: "Pinterest",
                   icon: "fa-brands fa-pinterest-p",
                   color: "#E60023",
-                  default: "pinterest.com/bulebeti",
+                  placeholder: "pinterest.com/profile",
                 },
                 {
+                  key: "whatsapp",
                   name: "WhatsApp",
                   icon: "fa-brands fa-whatsapp",
                   color: "#25D366",
-                  default: "+1 (555) 000-0000",
+                  placeholder: "+1 (555) 000-0000",
                 },
                 {
+                  key: "telegram",
                   name: "Telegram",
                   icon: "fa-brands fa-telegram",
                   color: "#24A1DE",
-                  default: "@bulebeti",
+                  placeholder: "@your_handle",
                 },
                 {
+                  key: "snapchat",
                   name: "Snapchat",
                   icon: "fa-brands fa-snapchat",
                   color: "#FFFC00",
-                  default: "snapchat.com/add/bulebeti",
+                  placeholder: "snapchat.com/add/handle",
                 },
               ].map((social) => (
-                <div key={social.name} className="col-12 col-md-6 col-lg-4">
+                <div key={social.key} className="col-12 col-md-6 col-lg-4">
                   <div className="d-flex align-items-center gap-2 bg-light p-2 rounded border">
                     <i
                       className={social.icon}
@@ -377,8 +426,14 @@ const AdminSettings = () => {
                     ></i>
                     <input
                       type="text"
-                      defaultValue={social.default}
-                      placeholder={`${social.name} URL`}
+                      value={socialLinks[social.key] || ""}
+                      onChange={(e) =>
+                        setSocialLinks({
+                          ...socialLinks,
+                          [social.key]: e.target.value,
+                        })
+                      }
+                      placeholder={social.placeholder}
                       className="form-control border-0 bg-transparent shadow-none p-1"
                     />
                   </div>

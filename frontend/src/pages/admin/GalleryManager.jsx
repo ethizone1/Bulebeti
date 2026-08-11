@@ -55,6 +55,11 @@ const GalleryManager = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image file size must be under 5MB.');
+        e.target.value = '';
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData({ ...formData, imageUrl: reader.result });
@@ -88,6 +93,7 @@ const GalleryManager = () => {
 
     setSubmitting(true);
     try {
+      const token = localStorage.getItem('token');
       const url = editingId 
         ? `${config.API_URL}/api/gallery/${editingId}`
         : `${config.API_URL}/api/gallery`;
@@ -96,7 +102,10 @@ const GalleryManager = () => {
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-auth-token': token
+        },
         body: JSON.stringify({
           restaurantId: restaurantId,
           ...formData
@@ -108,7 +117,8 @@ const GalleryManager = () => {
         cancelEdit();
         fetchImages(restaurantId);
       } else {
-        alert('Failed to save image.');
+        const errorData = await res.json().catch(() => ({}));
+        alert(errorData.msg || 'Failed to save image.');
       }
     } catch (err) {
       console.error(err);
@@ -121,9 +131,18 @@ const GalleryManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this image?')) return;
     try {
-      const res = await fetch(`${config.API_URL}/api/gallery/${id}`, { method: 'DELETE' });
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${config.API_URL}/api/gallery/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-auth-token': token
+        }
+      });
       if (res.ok) {
         fetchImages(restaurantId);
+      } else {
+        const errorData = await res.json().catch(() => ({}));
+        alert(errorData.msg || 'Failed to delete image.');
       }
     } catch (err) {
       console.error('Failed to delete image', err);

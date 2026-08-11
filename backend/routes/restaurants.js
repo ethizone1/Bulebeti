@@ -250,16 +250,22 @@ router.put("/:slug", auth, async (req, res) => {
       email,
       menuLayout,
       logoUrl,
+      bannerUrl,
       subscriptionTier,
+      openingHours,
+      socialLinks,
     } = req.body;
 
     if (name) restaurant.name = name;
     if (description !== undefined) restaurant.description = description;
-    if (address) restaurant.address = address;
-    if (phone) restaurant.phone = phone;
+    if (address !== undefined) restaurant.address = address;
+    if (phone !== undefined) restaurant.phone = phone;
     if (email !== undefined) restaurant.email = email;
     if (menuLayout) restaurant.menuLayout = menuLayout;
-    if (logoUrl) restaurant.logoUrl = logoUrl;
+    if (logoUrl !== undefined) restaurant.logoUrl = logoUrl;
+    if (bannerUrl !== undefined) restaurant.bannerUrl = bannerUrl;
+    if (openingHours !== undefined) restaurant.openingHours = openingHours;
+    if (socialLinks !== undefined) restaurant.socialLinks = socialLinks;
     if (subscriptionTier && isSuperAdmin) restaurant.subscriptionTier = subscriptionTier;
 
     await restaurant.save();
