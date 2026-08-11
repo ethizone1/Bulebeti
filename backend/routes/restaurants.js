@@ -33,18 +33,27 @@ router.get("/owner/my", auth, async (req, res) => {
 // Get restaurant by slug
 router.get("/:slug", async (req, res) => {
   try {
-    const restaurant = await Restaurant.findOne({
-      slug: { $regex: new RegExp(`^${req.params.slug}$`, "i") },
+    const slugParam = (req.params.slug || "").trim();
+    const escapedSlug = slugParam.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+
+    let restaurant = await Restaurant.findOne({
+      $or: [
+        { slug: slugParam.toLowerCase() },
+        { slug: { $regex: new RegExp(`^${escapedSlug}$`, "i") } },
+        { name: { $regex: new RegExp(`^${escapedSlug}$`, "i") } },
+      ],
     });
+
+    if (!restaurant && slugParam.match(/^[0-9a-fA-F]{24}$/)) {
+      restaurant = await Restaurant.findById(slugParam);
+    }
+
     if (!restaurant) {
       return res.status(404).json({ msg: "Restaurant not found" });
     }
     res.json(restaurant);
   } catch (err) {
     console.error("[GET RESTAURANT SLUG ERROR]", err.message);
-    if (err.kind === "ObjectId") {
-      return res.status(404).json({ msg: "Restaurant not found" });
-    }
     res.status(500).json({ msg: "Server error" });
   }
 });

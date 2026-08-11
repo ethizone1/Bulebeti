@@ -155,6 +155,21 @@ const CateringPage = () => {
 
   return (
     <div style={{ padding: 'var(--spacing-xxl) 0', backgroundColor: '#f9fafb', minHeight: '100vh' }}>
+      <style>{`
+        .catering-form-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+        @media (max-width: 768px) {
+          .catering-form-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .catering-full-width-mobile {
+            grid-column: span 1 !important;
+          }
+        }
+      `}</style>
       <div className="container" style={{ maxWidth: '920px' }}>
 
         {/* ── Hero Header ───────────────────────────────────── */}
@@ -184,7 +199,7 @@ const CateringPage = () => {
               <h3 style={{ margin: '0 0 24px', fontSize: '16px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--on-surface-variant)' }}>
                 📋 Event Details
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div className="catering-form-grid">
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '6px' }}>EVENT TYPE</label>
                   <select name="eventType" value={formData.eventType} onChange={handleChange} style={{ ...inputStyle, backgroundColor: 'white' }}>
@@ -214,8 +229,8 @@ const CateringPage = () => {
               <h3 style={{ margin: '0 0 24px', fontSize: '16px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--on-surface-variant)' }}>
                 👤 Contact Information
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                <div style={{ gridColumn: 'span 2' }}>
+              <div className="catering-form-grid">
+                <div style={{ gridColumn: 'span 2' }} className="catering-full-width-mobile">
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '6px' }}>FULL NAME</label>
                   <input type="text" name="name" value={formData.name} onChange={handleChange} required style={inputStyle} />
                 </div>
@@ -227,7 +242,7 @@ const CateringPage = () => {
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '6px' }}>PHONE NUMBER</label>
                   <input type="text" name="phone" value={formData.phone} onChange={handleChange} required style={inputStyle} />
                 </div>
-                <div style={{ gridColumn: 'span 2' }}>
+                <div style={{ gridColumn: 'span 2' }} className="catering-full-width-mobile">
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '6px' }}>ADDITIONAL NOTES</label>
                   <textarea name="details" value={formData.details} onChange={handleChange} rows="3"
                     placeholder="Dietary requirements, theme, special requests..."

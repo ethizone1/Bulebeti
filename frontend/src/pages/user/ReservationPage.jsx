@@ -96,10 +96,35 @@ const ReservationPage = () => {
     );
   }
 
+  const openingHours = restaurant?.openingHours;
+
   return (
     <div style={{ padding: 'var(--spacing-xxl) 0' }}>
+      <style>{`
+        .reservation-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: var(--spacing-xxl);
+          align-items: start;
+        }
+        .form-row-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: var(--spacing-md);
+          margin-bottom: var(--spacing-md);
+        }
+        @media (max-width: 768px) {
+          .reservation-grid {
+            grid-template-columns: 1fr !important;
+            gap: var(--spacing-lg) !important;
+          }
+          .form-row-2col {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
       <div className="container" style={{ maxWidth: '800px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-xxl)', alignItems: 'start' }}>
+        <div className="reservation-grid">
           
           {/* Info Side */}
           <div>
@@ -108,10 +133,20 @@ const ReservationPage = () => {
               Join us for an unforgettable dining experience. Please note that for groups of 6 or more, we require a credit card on file.
             </p>
             <div style={{ marginBottom: 'var(--spacing-md)' }}>
-              <h4 style={{ color: 'var(--gold)' }}>Hours of Operation</h4>
-              <p style={{ fontSize: '14px' }}>Mon - Thu: 17:00 - 22:00</p>
-              <p style={{ fontSize: '14px' }}>Fri - Sat: 17:00 - 23:30</p>
-              <p style={{ fontSize: '14px' }}>Sun: 12:00 - 21:00</p>
+              <h4 style={{ color: 'var(--gold)', marginBottom: '8px' }}>Hours of Operation</h4>
+              {openingHours?.weekdays ? (
+                <p style={{ fontSize: '14px', margin: '4px 0' }}>Mon - Fri: {openingHours.weekdays}</p>
+              ) : (
+                <p style={{ fontSize: '14px', margin: '4px 0' }}>Mon - Thu: 17:00 - 22:00</p>
+              )}
+              {openingHours?.weekends ? (
+                <p style={{ fontSize: '14px', margin: '4px 0' }}>Sat - Sun: {openingHours.weekends}</p>
+              ) : (
+                <>
+                  <p style={{ fontSize: '14px', margin: '4px 0' }}>Fri - Sat: 17:00 - 23:30</p>
+                  <p style={{ fontSize: '14px', margin: '4px 0' }}>Sun: 12:00 - 21:00</p>
+                </>
+              )}
             </div>
           </div>
 
@@ -124,7 +159,7 @@ const ReservationPage = () => {
             border: '1px solid var(--platinum)'
           }}>
             <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-md)' }}>
+              <div className="form-row-2col">
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '4px' }}>DATE</label>
                   <input 
@@ -178,7 +213,7 @@ const ReservationPage = () => {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-md)' }}>
+              <div className="form-row-2col">
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', marginBottom: '4px' }}>EMAIL</label>
                   <input 

@@ -1,16 +1,24 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import config from "../../config";
 
 const ActivatePage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [oldPassword, setOldPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("Admin.123");
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    const qEmail = searchParams.get("email");
+    const qPhone = searchParams.get("phone");
+    if (qEmail) setEmail(qEmail);
+    if (qPhone) setPhone(qPhone);
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

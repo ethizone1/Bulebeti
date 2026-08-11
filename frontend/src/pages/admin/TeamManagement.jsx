@@ -76,6 +76,8 @@ const TeamManagement = () => {
     fetchTeam();
   }, [restaurantName]);
 
+  const [createdInvite, setCreatedInvite] = useState(null);
+
   const handleAddAdmin = async (e) => {
     e.preventDefault();
     if (!newEmail) return;
@@ -93,11 +95,16 @@ const TeamManagement = () => {
       });
 
       if (res.ok) {
+        const inviteLink = `${window.location.origin}/bulebeti/activate?email=${encodeURIComponent(newEmail)}&phone=${encodeURIComponent(newPhone)}&restaurant=${encodeURIComponent(restaurantName)}`;
+        setCreatedInvite({
+          email: newEmail,
+          phone: newPhone,
+          link: inviteLink
+        });
         setNewEmail('');
         setNewPhone('');
         setNewPermissions([]);
         fetchTeam();
-        alert('User added successfully!');
       } else {
         const data = await res.json();
         alert(data.msg || 'Failed to add user');
@@ -231,6 +238,40 @@ const TeamManagement = () => {
         <h1 className="fs-3 fw-bold m-0">Team Management</h1>
         <p className="text-muted">Manage who has access to your restaurant's dashboard and what they can do.</p>
       </div>
+
+      {createdInvite && (
+        <div className="alert alert-success border-0 shadow-sm rounded-4 p-4 mb-4">
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <h6 className="fw-bold m-0 text-success">🎉 Sub-Admin Invitation Link Created!</h6>
+            <button 
+              type="button" 
+              className="btn-close" 
+              onClick={() => setCreatedInvite(null)}
+            />
+          </div>
+          <p className="small mb-3 text-dark">
+            An invitation email/SMS dispatch was sent to <strong>{createdInvite.email}</strong> ({createdInvite.phone}). You can also copy and send this activation link directly to the sub-admin:
+          </p>
+          <div className="input-group">
+            <input 
+              type="text" 
+              className="form-control form-control-sm bg-white fw-semibold" 
+              value={createdInvite.link} 
+              readOnly 
+            />
+            <button 
+              type="button" 
+              className="btn btn-dark btn-sm fw-bold px-3"
+              onClick={() => {
+                navigator.clipboard.writeText(createdInvite.link);
+                alert('Invitation link copied to clipboard!');
+              }}
+            >
+              📋 Copy Link
+            </button>
+          </div>
+        </div>
+      )}
 
       {canManageTeam && (
         <div className="card border-0 shadow-sm rounded-4 p-4 mb-4">

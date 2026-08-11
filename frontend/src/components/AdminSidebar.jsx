@@ -83,14 +83,17 @@ const AdminSidebar = ({ currentTier = "Platinum", onTierChange }) => {
   const ownerName = owner?.name || "Admin";
   const ownerEmail = owner?.email || "";
   // Check if owner or admin
+  const currentUserIdStr = String(owner?._id || owner?.id || "");
+  const ownerIdStr = String(restaurant?.ownerId?._id || restaurant?.ownerId || "");
   const isOwner =
-    restaurant?.ownerId === owner?._id ||
-    restaurant?.ownerId?._id === owner?._id ||
-    owner?.role === "hub owner";
+    (ownerIdStr && currentUserIdStr && ownerIdStr === currentUserIdStr) ||
+    owner?.role === "hub owner" ||
+    owner?.role === "super-admin";
+
   const adminRecord = restaurant?.admins?.find(
-    (a) => a.user === owner?._id || (a.user && a.user._id === owner?._id),
+    (a) => String(a.user?._id || a.user?.id || a.user) === currentUserIdStr
   );
-  const userRole = isOwner ? "Owner" : "Team Member";
+  const userRole = isOwner ? "Owner" : "Sub-Admin";
   const userPermissions = isOwner ? ["all"] : adminRecord?.permissions || [];
 
   const ownerInitials = ownerName

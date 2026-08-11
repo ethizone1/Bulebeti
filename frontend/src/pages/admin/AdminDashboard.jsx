@@ -31,11 +31,36 @@ const AdminDashboard = () => {
         setLoading(true);
 
         // 1. Resolve restaurant slug → _id
+        let restaurant = null;
         const restRes = await fetch(
           `${config.API_URL}/api/restaurants/${restaurantName}`,
+          { headers: { "x-auth-token": localStorage.getItem("token") || "" } }
         );
-        if (!restRes.ok) throw new Error("Restaurant not found");
-        const restaurant = await restRes.json();
+
+        if (restRes.ok) {
+          restaurant = await restRes.json();
+        } else {
+          const token = localStorage.getItem("token");
+          if (token) {
+            const myRestRes = await fetch(
+              `${config.API_URL}/api/restaurants/owner/my`,
+              { headers: { "x-auth-token": token } }
+            );
+            if (myRestRes.ok) {
+              const myData = await myRestRes.json();
+              if (myData && myData.length > 0) {
+                restaurant =
+                  myData.find(
+                    (r) =>
+                      r.slug &&
+                      r.slug.toLowerCase() === (restaurantName || "").toLowerCase()
+                  ) || myData[0];
+              }
+            }
+          }
+        }
+
+        if (!restaurant) throw new Error("Restaurant not found");
         const rId = restaurant._id;
 
         // 2. Parallel fetch of all data

@@ -207,6 +207,15 @@ function App() {
           />
 
           <Route
+            path="/bulebeti/activate"
+            element={
+              <CustomerLayout>
+                <ActivatePage />
+              </CustomerLayout>
+            }
+          />
+
+          <Route
             path="/bulebeti/login"
             element={
               <CustomerLayout>

@@ -4,6 +4,7 @@ const auth = require('../middleware/auth');
 const Restaurant = require('../models/Restaurant');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const { sendEmail, sendSms } = require('../services/notifications');
 
 // Middleware to check if user is Owner or Manager
 const verifyOwnerOrManager = async (req, res, next) => {
@@ -67,6 +68,7 @@ router.post('/:slug/team', auth, verifyOwnerOrManager, async (req, res) => {
 
   try {
     let targetUser = await User.findOne({ email });
+    let isNewUser = false;
     if (!targetUser) {
       if (!phone) {
         return res.status(400).json({ msg: 'Phone number is required to invite a new user.' });
@@ -84,17 +86,38 @@ router.post('/:slug/team', auth, verifyOwnerOrManager, async (req, res) => {
         status: 'active'
       });
       await targetUser.save();
-      
-      // Simulate sending Email and SMS
-      console.log(`\n===========================================`);
-      console.log(`[MOCK EMAIL/SMS DISPATCH]`);
-      console.log(`To: ${email} | Phone: ${phone}`);
-      console.log(`Subject: You have been invited to manage ${restaurant.name}`);
-      console.log(`Message: You have been added as a sub-admin.`);
-      console.log(`Your login email/phone: ${email || phone}`);
-      console.log(`Your default password: Admin.123`);
-      console.log(`Please login and change your password immediately at: http://localhost:5173/activate`);
-      console.log(`===========================================\n`);
+      isNewUser = true;
+    }
+
+    // Dispatch real Email and SMS notifications
+    const frontendHost = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const inviteUrl = `${frontendHost}/bulebeti/activate?email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&restaurant=${encodeURIComponent(restaurant.slug)}`;
+
+    const emailSubject = `🔑 Sub-Admin Invitation to Manage ${restaurant.name}`;
+    const emailHtml = `
+      <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; background: #ffffff;">
+        <h2 style="color: #D4AF37; margin-top: 0;">You've Been Invited!</h2>
+        <p>Hi,</p>
+        <p>You have been added as a <strong>Sub-Admin</strong> for <strong>${restaurant.name}</strong> on BuleBet Hub.</p>
+        <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0 0 8px 0;"><strong>Login Email:</strong> ${email}</p>
+          <p style="margin: 0 0 8px 0;"><strong>Login Phone:</strong> ${phone}</p>
+          <p style="margin: 0;"><strong>Default Password:</strong> ${isNewUser ? 'Admin.123' : '(Use your existing password)'}</p>
+        </div>
+        <p>Please click the button below to set your password and activate your account:</p>
+        <a href="${inviteUrl}" style="display: inline-block; background: #111827; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; margin: 12px 0;">Activate Account & Set Password</a>
+        <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">Or open this activation link directly:<br/><a href="${inviteUrl}">${inviteUrl}</a></p>
+      </div>
+    `;
+
+    try {
+      await sendEmail(email, emailSubject, emailHtml, `${restaurant.name} Admin`);
+      if (phone) {
+        const smsMsg = `[BuleBet] You were invited as a Sub-Admin for ${restaurant.name}. Login: ${email || phone} / Password: Admin.123. Activate at: ${inviteUrl}`;
+        await sendSms(phone, smsMsg, restaurant);
+      }
+    } catch (e) {
+      console.error("[TEAM INVITE NOTIFICATION ERROR]", e.message);
     }
 
     if (restaurant.ownerId.toString() === targetUser._id.toString()) {

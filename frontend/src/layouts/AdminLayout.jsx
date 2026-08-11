@@ -29,16 +29,37 @@ const AdminLayout = ({ children }) => {
     if (!restaurantName) return;
     const fetchRestaurant = async () => {
       try {
+        const token = localStorage.getItem("token");
         const res = await fetch(
           `${config.API_URL}/api/restaurants/${restaurantName}`,
+          { headers: token ? { "x-auth-token": token } : {} }
         );
+        let data = null;
         if (res.ok) {
-          const data = await res.json();
+          data = await res.json();
+        } else if (token) {
+          const myRes = await fetch(
+            `${config.API_URL}/api/restaurants/owner/my`,
+            { headers: { "x-auth-token": token } }
+          );
+          if (myRes.ok) {
+            const myData = await myRes.json();
+            if (myData && myData.length > 0) {
+              data =
+                myData.find(
+                  (r) =>
+                    r.slug &&
+                    r.slug.toLowerCase() === (restaurantName || "").toLowerCase()
+                ) || myData[0];
+            }
+          }
+        }
+
+        if (data) {
           setRestaurant(data);
           document.title = `BuleBet | ${data.name} Admin`;
           setDynamicFavicon(data.name, data.logoUrl);
           if (data.subscriptionTier) {
-            // Map backend 'Basic' to frontend 'Silver'
             const mappedTier =
               data.subscriptionTier === "Basic"
                 ? "Silver"
@@ -84,6 +105,27 @@ const AdminLayout = ({ children }) => {
     }
   };
 
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const storedUserId = String(storedUser._id || storedUser.id || "");
+  const ownerIdStr = String(restaurant?.ownerId?._id || restaurant?.ownerId || "");
+  const isOwner =
+    (ownerIdStr && storedUserId && ownerIdStr === storedUserId) ||
+    storedUser.role === "hub owner" ||
+    storedUser.role === "super-admin";
+
+  const adminRecord = restaurant?.admins?.find(
+    (a) => String(a.user?._id || a.user?.id || a.user) === storedUserId
+  );
+
+  const userPermissions = isOwner ? ["all"] : adminRecord?.permissions || [];
+
+  const canAccess = (permissionKey) => {
+    if (isOwner) return true;
+    if (!permissionKey || permissionKey === "none") return true;
+    if (permissionKey === "all") return isOwner;
+    return userPermissions.includes(permissionKey);
+  };
+
   return (
     <AdminContext.Provider
       value={{
@@ -93,6 +135,9 @@ const AdminLayout = ({ children }) => {
         setRestaurant,
         searchQuery,
         setSearchQuery,
+        isOwner,
+        userPermissions,
+        canAccess,
       }}
     >
       <div

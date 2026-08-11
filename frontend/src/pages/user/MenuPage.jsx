@@ -78,6 +78,8 @@ const MenuPage = () => {
         let layoutMap = {
           "image-left": "Left",
           "image-right": "Right",
+          "image-top": "Top",
+          "image-bottom": "Bottom",
           "text-centered": "Center",
         };
         setGlobalImgPos(layoutMap[restaurant.menuLayout] || "Left");
@@ -458,13 +460,17 @@ const MenuPage = () => {
                       style={{
                         display: "flex",
                         flexDirection:
-                          globalImgPos === "Center"
+                          globalImgPos === "Center" || globalImgPos === "Top"
                             ? "column"
-                            : globalImgPos === "Right"
-                              ? "row-reverse"
-                              : "row",
+                            : globalImgPos === "Bottom"
+                              ? "column-reverse"
+                              : globalImgPos === "Right"
+                                ? "row-reverse"
+                                : "row",
                         alignItems:
-                          globalImgPos === "Center" ? "center" : "flex-start",
+                          globalImgPos === "Center" || globalImgPos === "Top" || globalImgPos === "Bottom"
+                            ? "center"
+                            : "flex-start",
                         gap: "clamp(16px, 4vw, 32px)",
                         textAlign:
                           globalImgPos === "Center" ? "center" : "left",

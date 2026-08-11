@@ -79,17 +79,19 @@ app.use(
 // Rate Limiting
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300, // Limit each IP to 300 requests per window
+  max: 1000, // Limit each IP to 1000 requests per window
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => !isProduction,
   message: { msg: "Too many requests from this IP, please try again after 15 minutes." },
 });
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 30, // Limit each IP to 30 auth requests per 15 minutes
+  max: 100, // Limit each IP to 100 auth requests per 15 minutes
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => !isProduction,
   message: { msg: "Too many authentication attempts, please try again after 15 minutes." },
 });
 

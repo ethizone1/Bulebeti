@@ -16,6 +16,7 @@ const AdminSettings = () => {
   const [description, setDescription] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
+  const [menuLayout, setMenuLayout] = useState("image-left");
   const [openingHours, setOpeningHours] = useState({ weekdays: "", weekends: "" });
   const [socialLinks, setSocialLinks] = useState({
     instagram: "",
@@ -42,6 +43,7 @@ const AdminSettings = () => {
       setDescription(restaurant.description || "");
       setLogoUrl(restaurant.logoUrl || "");
       setBannerUrl(restaurant.bannerUrl || "");
+      setMenuLayout(restaurant.menuLayout || "image-left");
       setOpeningHours({
         weekdays: restaurant.openingHours?.weekdays || "",
         weekends: restaurant.openingHours?.weekends || "",
@@ -94,6 +96,7 @@ const AdminSettings = () => {
             bannerUrl,
             openingHours,
             socialLinks,
+            menuLayout,
           }),
         },
       );
@@ -132,6 +135,38 @@ const AdminSettings = () => {
       return defaultNotifs;
     }
   });
+
+  const handleLogoFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image file size must be under 5MB.");
+        e.target.value = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBannerFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Image file size must be under 5MB.");
+        e.target.value = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBannerUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const toggleNotif = (key) => {
     const updated = { ...notifSettings, [key]: !notifSettings[key] };
@@ -193,26 +228,42 @@ const AdminSettings = () => {
                 <img
                   src={logoUrl}
                   alt="Logo"
-                  className="rounded-circle object-fit-cover border"
+                  className="rounded-circle object-fit-cover border shadow-sm"
                   style={{ width: "80px", height: "80px" }}
                 />
               ) : (
                 <div
-                  className="bg-light rounded-circle d-flex align-items-center justify-content-center fs-4"
+                  className="bg-light rounded-circle d-flex align-items-center justify-content-center fs-4 border"
                   style={{ width: "80px", height: "80px" }}
                 >
                   🏢
                 </div>
               )}
-              <div className="flex-grow-1">
-                <h4 className="m-0 mb-2">{t("admin_set_prof_logo")}</h4>
+              <div className="flex-grow-1" style={{ maxWidth: "450px" }}>
+                <h4 className="m-0 mb-2">{t("admin_set_prof_logo") || "Restaurant Logo"}</h4>
+                <div className="d-flex gap-2 mb-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoFileChange}
+                    className="form-control"
+                  />
+                  {logoUrl && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => setLogoUrl("")}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
                 <input
                   type="text"
-                  value={logoUrl}
+                  value={logoUrl.startsWith("data:") ? "" : logoUrl}
                   onChange={(e) => setLogoUrl(e.target.value)}
-                  placeholder="Logo Image URL (e.g. https://...)"
-                  className="form-control"
-                  style={{ maxWidth: "400px" }}
+                  placeholder={logoUrl.startsWith("data:") ? "[Image File Uploaded]" : "Or paste image URL (https://...)"}
+                  className="form-control form-control-sm text-muted"
                 />
               </div>
             </div>
@@ -294,14 +345,41 @@ const AdminSettings = () => {
               </div>
               <div className="col-12">
                 <label className="form-label fw-bold small mb-1">
-                  BANNER IMAGE URL
+                  BANNER IMAGE
                 </label>
+                {bannerUrl && (
+                  <div className="mb-2">
+                    <img
+                      src={bannerUrl}
+                      alt="Banner Preview"
+                      className="rounded border object-fit-cover w-100"
+                      style={{ maxHeight: "140px" }}
+                    />
+                  </div>
+                )}
+                <div className="d-flex gap-2 mb-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBannerFileChange}
+                    className="form-control"
+                  />
+                  {bannerUrl && (
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => setBannerUrl("")}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
                 <input
                   type="text"
-                  value={bannerUrl}
+                  value={bannerUrl.startsWith("data:") ? "" : bannerUrl}
                   onChange={(e) => setBannerUrl(e.target.value)}
-                  placeholder="Banner Image URL (e.g. https://...)"
-                  className="form-control"
+                  placeholder={bannerUrl.startsWith("data:") ? "[Banner File Uploaded]" : "Or paste image URL (https://...)"}
+                  className="form-control form-control-sm text-muted"
                 />
               </div>
             </form>
@@ -671,30 +749,43 @@ const AdminSettings = () => {
               {[
                 {
                   id: "image-left",
-                  name: t("admin_set_lay_left"),
-                  desc: t("admin_set_lay_left_d"),
+                  name: t("admin_set_lay_left") || "Image Left",
+                  desc: t("admin_set_lay_left_d") || "Images positioned on the left side of menu items",
                   icon: "📑",
                 },
                 {
                   id: "image-right",
-                  name: t("admin_set_lay_right"),
-                  desc: t("admin_set_lay_right_d"),
+                  name: t("admin_set_lay_right") || "Image Right",
+                  desc: t("admin_set_lay_right_d") || "Images positioned on the right side of menu items",
                   icon: "📖",
                 },
                 {
+                  id: "image-top",
+                  name: "Image Top",
+                  desc: "Images stacked above menu item details",
+                  icon: "🖼️",
+                },
+                {
+                  id: "image-bottom",
+                  name: "Image Bottom",
+                  desc: "Images stacked below menu item details",
+                  icon: "🖼️",
+                },
+                {
                   id: "text-centered",
-                  name: t("admin_set_lay_cent"),
-                  desc: t("admin_set_lay_cent_d"),
+                  name: t("admin_set_lay_cent") || "Text Centered",
+                  desc: t("admin_set_lay_cent_d") || "Clean centered text alignment for an elegant feel",
                   icon: "🔝",
                 },
               ].map((layout) => {
-                const currentLayout = restaurant?.menuLayout || "image-left";
+                const currentLayout = menuLayout || restaurant?.menuLayout || "image-left";
                 const isActive = currentLayout === layout.id;
                 return (
                   <div key={layout.id} className="col-12 col-md-4">
                     <div
                       onClick={async () => {
                         try {
+                          setMenuLayout(layout.id);
                           const token = localStorage.getItem("token");
                           const res = await fetch(
                             `${config.API_URL}/api/restaurants/${restaurant.slug}`,
@@ -710,7 +801,7 @@ const AdminSettings = () => {
                           const data = await res.json();
                           if (res.ok) {
                             setRestaurant(data);
-                            alert(`Layout updated successfully!`);
+                            alert(`Menu layout updated to "${layout.name}" successfully!`);
                           } else {
                             alert(data.msg || "Failed to update layout");
                           }
