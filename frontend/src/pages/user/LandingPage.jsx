@@ -3,11 +3,105 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import config from "../../config";
 
+// Haversine formula to compute distance in Km
+const calculateDistanceKm = (lat1, lon1, lat2, lon2) => {
+  if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) return null;
+  const R = 6371; // Earth radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const dist = R * c;
+  return Math.round(dist * 10) / 10; // Round to 1 decimal place
+};
+
+// Geocode lookup & fallback for restaurant addresses
+const getRestaurantCoords = (restaurant) => {
+  if (
+    restaurant.lat &&
+    restaurant.lng &&
+    !isNaN(restaurant.lat) &&
+    !isNaN(restaurant.lng)
+  ) {
+    return { lat: Number(restaurant.lat), lng: Number(restaurant.lng) };
+  }
+  const addr = (
+    (restaurant.address || "") +
+    " " +
+    (restaurant.name || "")
+  ).toLowerCase();
+
+  if (addr.includes("gonder") || addr.includes("gondar"))
+    return { lat: 12.6000, lng: 37.4667 };
+  if (addr.includes("hawassa") || addr.includes("awassa"))
+    return { lat: 7.0621, lng: 38.4763 };
+  if (addr.includes("nazret") || addr.includes("adama"))
+    return { lat: 8.5400, lng: 39.2700 };
+  if (addr.includes("bole")) return { lat: 8.9806, lng: 38.7831 };
+  if (addr.includes("kazanchis")) return { lat: 9.0180, lng: 38.7650 };
+  if (addr.includes("piassa")) return { lat: 9.0345, lng: 38.7520 };
+  if (addr.includes("mexico")) return { lat: 9.0100, lng: 38.7450 };
+  if (addr.includes("sarbet")) return { lat: 9.0010, lng: 38.7320 };
+  if (addr.includes("addis")) return { lat: 9.0192, lng: 38.7525 };
+  if (addr.includes("decatur")) return { lat: 33.7748, lng: -84.2963 };
+  if (addr.includes("rexburg") || addr.includes("mine gap"))
+    return { lat: 43.8260, lng: -111.7897 };
+
+  // Fallback deterministic offset relative to Addis Ababa center
+  const hash = addr
+    .split("")
+    .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const latOffset = ((hash % 100) - 50) * 0.006;
+  const lngOffset = (((hash * 7) % 100) - 50) * 0.006;
+  return { lat: 9.0192 + latOffset, lng: 38.7525 + lngOffset };
+};
+
 const LandingPage = () => {
   const { t } = useLanguage();
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Customer geolocation state
+  const [userCoords, setUserCoords] = useState(null);
+  const [userLocationName, setUserLocationName] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
+
+  const requestUserLocation = () => {
+    setIsLocating(true);
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setUserCoords({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          });
+          setUserLocationName("Your Current Geolocation");
+          setIsLocating(false);
+        },
+        (err) => {
+          console.warn("Geolocation error/denied:", err.message);
+          setUserCoords({ lat: 9.0192, lng: 38.7525 });
+          setUserLocationName("Addis Ababa (Default)");
+          setIsLocating(false);
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    } else {
+      setUserCoords({ lat: 9.0192, lng: 38.7525 });
+      setUserLocationName("Addis Ababa (Default)");
+      setIsLocating(false);
+    }
+  };
+
+  useEffect(() => {
+    requestUserLocation();
+  }, []);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -17,11 +111,7 @@ const LandingPage = () => {
           throw new Error("Failed to fetch restaurants");
         }
         const data = await response.json();
-        const activeRestaurants = data
-          .filter((r) => r.status === "Active")
-          .sort(
-            (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
-          );
+        const activeRestaurants = data.filter((r) => r.status === "Active");
         setRestaurants(activeRestaurants);
       } catch (err) {
         console.error("Error fetching restaurants:", err);
@@ -32,6 +122,27 @@ const LandingPage = () => {
     };
     fetchRestaurants();
   }, []);
+
+  // Compute distance and sort restaurants so the NEAREST appears FIRST
+  const sortedRestaurants = React.useMemo(() => {
+    if (!restaurants || restaurants.length === 0) return [];
+    if (!userCoords) return restaurants;
+
+    const listWithDist = restaurants.map((r) => {
+      const coords = getRestaurantCoords(r);
+      const dist = calculateDistanceKm(
+        userCoords.lat,
+        userCoords.lng,
+        coords.lat,
+        coords.lng
+      );
+      return { ...r, distanceKm: dist };
+    });
+
+    return listWithDist.sort(
+      (a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity)
+    );
+  }, [restaurants, userCoords]);
 
   return (
     <div className="landing-page">
@@ -135,316 +246,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section
-        id="pricing"
-        style={{
-          padding: "var(--spacing-xxl) 0",
-          backgroundColor: "var(--surface)",
-        }}
-      >
-        <div className="container">
-          <h2
-            style={{ textAlign: "center", marginBottom: "var(--spacing-xl)" }}
-          >
-            {t("landing_pricing_title")}
-          </h2>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
-              gap: "24px",
-              margin: "0 auto",
-              alignItems: "stretch",
-            }}
-          >
-            {/* Basic Plan */}
-            <div
-              style={{
-                padding: "28px 20px",
-                borderRadius: "16px",
-                backgroundColor: "var(--surface)",
-                border: "1px solid var(--platinum)",
-                textAlign: "center",
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-              }}
-            >
-              <h3 style={{ color: "var(--primary)", marginBottom: "4px", fontSize: "22px" }}>
-                {t("landing_tier_silver")}
-              </h3>
-              <div
-                style={{
-                  fontSize: "28px",
-                  fontWeight: "800",
-                  marginTop: "8px",
-                }}
-              >
-                {t("landing_free")}
-                <span style={{ fontSize: "14px", opacity: 0.5, fontWeight: "400" }}>
-                  {t("landing_year")}
-                </span>
-              </div>
-              <div
-                style={{
-                  fontSize: "12px",
-                  textDecoration: "line-through",
-                  opacity: 0.55,
-                  marginBottom: "20px",
-                  minHeight: "18px",
-                }}
-              >
-                {t("landing_basic_reg")}
-              </div>
-              <ul
-                style={{
-                  listStyle: "none",
-                  padding: 0,
-                  marginBottom: "24px",
-                  textAlign: "left",
-                  flex: 1,
-                  fontSize: "13px",
-                  lineHeight: "1.6",
-                }}
-              >
-                <li style={{ marginBottom: "8px" }}>
-                  {t("landing_silver_f1")}
-                </li>
-                <li style={{ marginBottom: "8px" }}>
-                  {t("landing_silver_f2")}
-                </li>
-                <li style={{ marginBottom: "8px", color: "rgba(0,0,0,0.3)" }}>
-                  {t("landing_silver_f3")}
-                </li>
-                <li style={{ marginBottom: "8px", color: "rgba(0,0,0,0.3)" }}>
-                  {t("landing_silver_f4")}
-                </li>
-              </ul>
-              <Link
-                to="/register"
-                className="btn btn-outline"
-                style={{ width: "100%", marginTop: "auto" }}
-              >
-                {t("landing_select_silver")}
-              </Link>
-            </div>
 
-            {/* Gold Plan */}
-            <div
-              style={{
-                padding: "28px 20px",
-                borderRadius: "16px",
-                backgroundColor: "var(--surface)",
-                border: "1px solid var(--platinum)",
-                textAlign: "center",
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-              }}
-            >
-              <h3 style={{ color: "var(--gold)", marginBottom: "4px", fontSize: "22px" }}>
-                {t("landing_tier_gold")}
-              </h3>
-              <div
-                style={{
-                  fontSize: "28px",
-                  fontWeight: "800",
-                  marginTop: "8px",
-                }}
-              >
-                {t("landing_gold_price")}
-                <span style={{ fontSize: "14px", opacity: 0.5, fontWeight: "400" }}>
-                  {t("landing_year")}
-                </span>
-              </div>
-              <div
-                style={{
-                  fontSize: "12px",
-                  textDecoration: "line-through",
-                  opacity: 0.55,
-                  marginBottom: "20px",
-                  minHeight: "18px",
-                }}
-              >
-                {t("landing_gold_reg")}
-              </div>
-              <ul
-                style={{
-                  listStyle: "none",
-                  padding: 0,
-                  marginBottom: "24px",
-                  textAlign: "left",
-                  flex: 1,
-                  fontSize: "13px",
-                  lineHeight: "1.6",
-                }}
-              >
-                <li style={{ marginBottom: "8px" }}>{t("landing_gold_f1")}</li>
-                <li style={{ marginBottom: "8px" }}>{t("landing_gold_f2")}</li>
-                <li style={{ marginBottom: "8px" }}>{t("landing_gold_f3")}</li>
-              </ul>
-              <Link
-                to="/register"
-                className="btn btn-outline"
-                style={{ width: "100%", marginTop: "auto" }}
-              >
-                {t("landing_select_gold")}
-              </Link>
-            </div>
-
-            {/* Platinum Plan */}
-            <div
-              style={{
-                padding: "28px 20px",
-                borderRadius: "16px",
-                backgroundColor: "var(--surface)",
-                border: "2px solid var(--gold)",
-                textAlign: "center",
-                display: "flex",
-                flexDirection: "column",
-                boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1)",
-                position: "relative",
-                height: "100%",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  top: "-12px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  backgroundColor: "var(--gold)",
-                  color: "white",
-                  padding: "2px 12px",
-                  borderRadius: "12px",
-                  fontSize: "10px",
-                  fontWeight: "700",
-                }}
-              >
-                {t("landing_popular")}
-              </div>
-              <h3 style={{ color: "var(--primary)", marginBottom: "4px", fontSize: "22px" }}>
-                {t("landing_tier_plat")}
-              </h3>
-              <div
-                style={{
-                  fontSize: "28px",
-                  fontWeight: "800",
-                  marginTop: "8px",
-                }}
-              >
-                {t("landing_plat_price")}
-                <span style={{ fontSize: "14px", opacity: 0.5, fontWeight: "400" }}>
-                  {t("landing_year")}
-                </span>
-              </div>
-              <div
-                style={{
-                  fontSize: "12px",
-                  textDecoration: "line-through",
-                  opacity: 0.55,
-                  marginBottom: "20px",
-                  minHeight: "18px",
-                }}
-              >
-                {t("landing_plat_reg")}
-              </div>
-              <ul
-                style={{
-                  listStyle: "none",
-                  padding: 0,
-                  marginBottom: "24px",
-                  textAlign: "left",
-                  flex: 1,
-                  fontSize: "13px",
-                  lineHeight: "1.6",
-                }}
-              >
-                <li style={{ marginBottom: "8px" }}>{t("landing_plat_f1")}</li>
-                <li style={{ marginBottom: "8px" }}>{t("landing_plat_f2")}</li>
-                <li style={{ marginBottom: "8px" }}>{t("landing_plat_f3")}</li>
-                <li style={{ marginBottom: "8px" }}>{t("landing_plat_f4")}</li>
-                <li style={{ marginBottom: "8px" }}>{t("landing_plat_f5")}</li>
-                <li style={{ marginBottom: "8px" }}>{t("landing_plat_f6")}</li>
-              </ul>
-              <Link
-                to="/register"
-                className="btn btn-primary"
-                style={{ width: "100%", marginTop: "auto" }}
-              >
-                {t("landing_select_plat")}
-              </Link>
-            </div>
-
-            {/* Premium Plan */}
-            <div
-              style={{
-                padding: "28px 20px",
-                borderRadius: "16px",
-                backgroundColor: "var(--primary)",
-                color: "var(--on-primary)",
-                textAlign: "center",
-                display: "flex",
-                flexDirection: "column",
-                height: "100%",
-              }}
-            >
-              <h3 style={{ color: "var(--gold)", marginBottom: "4px", fontSize: "22px" }}>
-                {t("landing_tier_prem")}
-              </h3>
-              <div
-                style={{
-                  fontSize: "28px",
-                  fontWeight: "800",
-                  marginTop: "8px",
-                }}
-              >
-                {t("landing_prem_price")}
-                <span style={{ fontSize: "14px", opacity: 0.5, fontWeight: "400" }}>
-                  {t("landing_year")}
-                </span>
-              </div>
-              <div
-                style={{
-                  fontSize: "12px",
-                  textDecoration: "line-through",
-                  opacity: 0.7,
-                  marginBottom: "20px",
-                  minHeight: "18px",
-                }}
-              >
-                {t("landing_prem_reg")}
-              </div>
-              <ul
-                style={{
-                  listStyle: "none",
-                  padding: 0,
-                  marginBottom: "24px",
-                  textAlign: "left",
-                  flex: 1,
-                  fontSize: "13px",
-                  lineHeight: "1.6",
-                }}
-              >
-                <li style={{ marginBottom: "8px" }}>{t("landing_prem_f1")}</li>
-                <li style={{ marginBottom: "8px" }}>{t("landing_prem_f2")}</li>
-                <li style={{ marginBottom: "8px" }}>{t("landing_prem_f3")}</li>
-                <li style={{ marginBottom: "8px" }}>{t("landing_prem_f4")}</li>
-                <li style={{ marginBottom: "8px" }}>{t("landing_prem_f5")}</li>
-                <li style={{ marginBottom: "8px" }}>{t("landing_prem_f6")}</li>
-              </ul>
-              <Link
-                to="/register"
-                className="btn btn-gold"
-                style={{ width: "100%", marginTop: "auto" }}
-              >
-                {t("landing_select_prem")}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Registered Restaurants Section */}
       <section
@@ -485,6 +287,53 @@ const LandingPage = () => {
             </p>
           </div>
 
+          {/* Location Status Bar */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "12px",
+              marginBottom: "28px",
+              flexWrap: "wrap",
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: "rgba(212, 175, 55, 0.1)",
+                color: "var(--primary)",
+                border: "1px solid rgba(212, 175, 55, 0.3)",
+                padding: "8px 18px",
+                borderRadius: "30px",
+                fontSize: "14px",
+                fontWeight: "600",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+              }}
+            >
+              <span style={{ fontSize: "16px" }}>📍</span>
+              <span>
+                Nearest Restaurants First • <strong>{userLocationName || "Your Location"}</strong>
+              </span>
+            </div>
+            <button
+              onClick={requestUserLocation}
+              disabled={isLocating}
+              className="btn btn-outline"
+              style={{
+                padding: "6px 16px",
+                fontSize: "13px",
+                borderRadius: "20px",
+                cursor: "pointer",
+                fontWeight: "600",
+              }}
+            >
+              {isLocating ? "Detecting Location..." : "📍 Update My Location"}
+            </button>
+          </div>
+
           {loading ? (
             <div
               style={{
@@ -523,7 +372,7 @@ const LandingPage = () => {
                 }
               `}</style>
             </div>
-          ) : restaurants.length === 0 ? (
+          ) : sortedRestaurants.length === 0 ? (
             <div
               style={{
                 textAlign: "center",
@@ -576,7 +425,7 @@ const LandingPage = () => {
                 padding: "10px 0",
               }}
             >
-              {restaurants.map((restaurant) => {
+              {sortedRestaurants.map((restaurant, index) => {
                 // Determine a nice fallback gradient based on the restaurant's name
                 const gradients = [
                   "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
@@ -652,8 +501,14 @@ const LandingPage = () => {
                       background: "white",
                       borderRadius: "16px",
                       overflow: "hidden",
-                      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.03)",
-                      border: "1px solid rgba(0, 0, 0, 0.05)",
+                      boxShadow:
+                        index === 0
+                          ? "0 10px 30px rgba(22, 163, 74, 0.15)"
+                          : "0 4px 20px rgba(0, 0, 0, 0.03)",
+                      border:
+                        index === 0
+                          ? "2px solid #16a34a"
+                          : "1px solid rgba(0, 0, 0, 0.05)",
                       display: "flex",
                       flexDirection: "column",
                       transition:
@@ -665,7 +520,7 @@ const LandingPage = () => {
                       e.currentTarget.style.transform = "translateY(-6px)";
                       e.currentTarget.style.boxShadow =
                         "0 20px 40px rgba(0, 0, 0, 0.08)";
-                      e.currentTarget.style.borderColor = "var(--gold)";
+                      if (index !== 0) e.currentTarget.style.borderColor = "var(--gold)";
                       const arrow =
                         e.currentTarget.querySelector(".card-arrow");
                       if (arrow) arrow.style.transform = "translateX(4px)";
@@ -675,8 +530,10 @@ const LandingPage = () => {
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = "none";
                       e.currentTarget.style.boxShadow =
-                        "0 4px 20px rgba(0, 0, 0, 0.03)";
-                      e.currentTarget.style.borderColor = "rgba(0, 0, 0, 0.05)";
+                        index === 0
+                          ? "0 10px 30px rgba(22, 163, 74, 0.15)"
+                          : "0 4px 20px rgba(0, 0, 0, 0.03)";
+                      if (index !== 0) e.currentTarget.style.borderColor = "rgba(0, 0, 0, 0.05)";
                       const arrow =
                         e.currentTarget.querySelector(".card-arrow");
                       if (arrow) arrow.style.transform = "none";
@@ -695,6 +552,53 @@ const LandingPage = () => {
                         position: "relative",
                       }}
                     >
+                      {/* Nearest / Distance Badge Overlay */}
+                      {index === 0 && restaurant.distanceKm != null ? (
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "12px",
+                            left: "12px",
+                            backgroundColor: "#16a34a",
+                            color: "white",
+                            padding: "4px 12px",
+                            borderRadius: "20px",
+                            fontSize: "11px",
+                            fontWeight: "800",
+                            letterSpacing: "0.5px",
+                            boxShadow: "0 4px 12px rgba(22, 163, 74, 0.35)",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            zIndex: 3,
+                          }}
+                        >
+                          <span>🏆</span> NEAREST ({restaurant.distanceKm} km)
+                        </div>
+                      ) : (
+                        restaurant.distanceKm != null && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: "12px",
+                              left: "12px",
+                              backgroundColor: "rgba(15, 23, 42, 0.8)",
+                              backdropFilter: "blur(4px)",
+                              color: "white",
+                              padding: "4px 10px",
+                              borderRadius: "20px",
+                              fontSize: "11px",
+                              fontWeight: "600",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "4px",
+                              zIndex: 3,
+                            }}
+                          >
+                            <span>📍</span> {restaurant.distanceKm} km away
+                          </div>
+                        )
+                      )}
                       {/* Tier Badge Overlay */}
                       <div
                         style={{

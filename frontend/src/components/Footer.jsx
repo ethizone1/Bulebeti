@@ -238,7 +238,7 @@ const Footer = () => {
                 letterSpacing: "1px",
               }}
             >
-              {t("footer_quick_links").toUpperCase()}
+              {(t("footer_quick_links") || "Quick Links").toUpperCase()}
             </h4>
             <ul
               style={{
@@ -262,42 +262,42 @@ const Footer = () => {
 
                 const links = [
                   {
-                    name: t("footer_our_menu"),
+                    name: t("footer_our_menu") || "Our Menu",
                     path: isRestaurantPage
                       ? `/bulebeti/${restaurantName}/menu`
                       : "/menu",
                     minTier: "Basic",
                   },
                   {
-                    name: t("footer_sister_rest"),
+                    name: t("footer_sister_rest") || "Sister Restaurants",
                     path: isRestaurantPage
                       ? `/bulebeti/${restaurantName}/sister-restaurants`
                       : "/sister-restaurants",
                     minTier: "Silver",
                   },
                   {
-                    name: t("footer_catering"),
+                    name: t("footer_catering") || "Catering",
                     path: isRestaurantPage
                       ? `/bulebeti/${restaurantName}/catering`
                       : "/catering",
                     minTier: "Gold",
                   },
                   {
-                    name: t("footer_events"),
+                    name: t("footer_events") || "Events",
                     path: isRestaurantPage
                       ? `/bulebeti/${restaurantName}/events`
                       : "/events",
                     minTier: "Gold",
                   },
                   {
-                    name: t("footer_feedback"),
+                    name: t("footer_feedback") || "Feedback",
                     path: isRestaurantPage
                       ? `/bulebeti/${restaurantName}/feedback`
                       : "/feedback",
                     minTier: "Platinum",
                   },
                   {
-                    name: t("footer_gallery"),
+                    name: t("footer_gallery") || "Gallery",
                     path: isRestaurantPage
                       ? `/bulebeti/${restaurantName}/gallery`
                       : "/gallery",
@@ -345,7 +345,7 @@ const Footer = () => {
                 letterSpacing: "1px",
               }}
             >
-              {t("footer_support").toUpperCase()}
+              {(t("footer_support") || "Support").toUpperCase()}
             </h4>
             <ul
               style={{
@@ -358,25 +358,25 @@ const Footer = () => {
             >
               {[
                 {
-                  name: t("footer_help_center"),
+                  name: t("footer_help_center") || "Help Center",
                   path: isRestaurantPage
                     ? `/bulebeti/${restaurantName}/contact`
                     : "#",
                 },
                 {
-                  name: t("footer_privacy"),
+                  name: t("footer_privacy") || "Privacy Policy",
                   path: isRestaurantPage
                     ? `/bulebeti/${restaurantName}/privacy`
                     : "/privacy",
                 },
                 {
-                  name: t("footer_terms"),
+                  name: t("footer_terms") || "Terms of Service",
                   path: isRestaurantPage
                     ? `/bulebeti/${restaurantName}/terms`
                     : "/terms",
                 },
                 {
-                  name: t("footer_contact_us"),
+                  name: t("footer_contact_us") || "Contact Us",
                   path: isRestaurantPage
                     ? `/bulebeti/${restaurantName}/contact`
                     : "/contact-us",
@@ -415,7 +415,7 @@ const Footer = () => {
                     letterSpacing: "1px",
                   }}
                 >
-                  {t("footer_connect").toUpperCase()}
+                  {(t("footer_connect") || "Connect").toUpperCase()}
                 </h4>
                 <div
                   style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}
@@ -521,7 +521,7 @@ const Footer = () => {
           className="footer-bottom"
         >
           <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>
-            © {currentYear} {displayName}. {t("footer_rights")}
+            © {currentYear} {displayName}. {t("footer_rights") || "All rights reserved."}
           </div>
           <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
             <span

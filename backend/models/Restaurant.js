@@ -5,6 +5,8 @@ const restaurantSchema = new mongoose.Schema({
   slug: { type: String, required: true, unique: true },
   description: { type: String },
   address: { type: String },
+  lat: { type: Number },
+  lng: { type: Number },
   phone: { type: String },
   email: { type: String },
   ownerId: { 
@@ -60,5 +62,11 @@ const restaurantSchema = new mongoose.Schema({
   }],
   createdAt: { type: Date, default: Date.now },
 });
+
+// Database performance indexes
+restaurantSchema.index({ slug: 1 });
+restaurantSchema.index({ ownerId: 1 });
+restaurantSchema.index({ status: 1 });
+restaurantSchema.index({ lat: 1, lng: 1 });
 
 module.exports = mongoose.model('Restaurant', restaurantSchema);

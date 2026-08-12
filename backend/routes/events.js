@@ -2,7 +2,47 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const { canManageRestaurant } = require('../middleware/ownership');
-const Event = require('../models/Event');
+const Restaurant = require('../models/Restaurant');
+
+// Get all active public events across platform
+router.get('/', async (req, res) => {
+  try {
+    const events = await Event.find({ status: 'Active' })
+      .populate('restaurantId', 'name slug logoUrl bannerUrl address')
+      .sort({ createdAt: -1 });
+    res.json(events);
+  } catch (err) {
+    console.error('[GET ALL EVENTS ERROR]', err.message);
+    res.status(500).json({ msg: 'Server Error' });
+  }
+});
+
+// Get events for a restaurant by slug (Public)
+router.get('/restaurant-slug/:slug', async (req, res) => {
+  try {
+    const slugParam = (req.params.slug || '').trim();
+    const restaurant = await Restaurant.findOne({
+      $or: [
+        { slug: slugParam.toLowerCase() },
+        { slug: { $regex: new RegExp(`^${slugParam}$`, 'i') } },
+      ],
+    });
+
+    if (!restaurant) {
+      return res.status(404).json({ msg: 'Restaurant not found' });
+    }
+
+    const events = await Event.find({
+      restaurantId: restaurant._id,
+      status: 'Active',
+    }).sort({ createdAt: -1 });
+
+    res.json({ restaurant, events });
+  } catch (err) {
+    console.error('[GET SLUG EVENTS ERROR]', err.message);
+    res.status(500).json({ msg: 'Server Error' });
+  }
+});
 
 // Get events for a specific restaurant (Public)
 router.get('/restaurant/:restaurantId', async (req, res) => {

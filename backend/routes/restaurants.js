@@ -30,6 +30,37 @@ router.get("/owner/my", auth, async (req, res) => {
   }
 });
 
+// Get sister restaurants for a given restaurant slug
+router.get("/:slug/sisters", async (req, res) => {
+  try {
+    const slugParam = (req.params.slug || "").trim();
+    const escapedSlug = slugParam.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+
+    const restaurant = await Restaurant.findOne({
+      $or: [
+        { slug: slugParam.toLowerCase() },
+        { slug: { $regex: new RegExp(`^${escapedSlug}$`, "i") } },
+      ],
+    });
+
+    if (!restaurant) {
+      return res.status(404).json({ msg: "Restaurant not found" });
+    }
+
+    // Find other active restaurants owned by the same owner
+    const sisterRestaurants = await Restaurant.find({
+      ownerId: restaurant.ownerId,
+      _id: { $ne: restaurant._id },
+      status: "Active",
+    });
+
+    res.json({ mainRestaurant: restaurant, sisterRestaurants });
+  } catch (err) {
+    console.error("[GET SISTER RESTAURANTS ERROR]", err.message);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
 // Get restaurant by slug
 router.get("/:slug", async (req, res) => {
   try {
@@ -65,6 +96,8 @@ router.post("/", auth, async (req, res) => {
     slug,
     description,
     address,
+    lat,
+    lng,
     phone,
     email,
     menuLayout,
@@ -121,6 +154,8 @@ router.post("/", auth, async (req, res) => {
       slug,
       description,
       address,
+      lat: lat ? Number(lat) : undefined,
+      lng: lng ? Number(lng) : undefined,
       phone,
       email,
       menuLayout,

@@ -23,6 +23,8 @@ import FeedbackPage from "./pages/user/FeedbackPage";
 import EventLandingPage from "./pages/user/EventLandingPage";
 import GalleryPage from "./pages/user/GalleryPage";
 import TestimonialsPage from "./pages/user/TestimonialsPage";
+import SisterRestaurantsPage from "./pages/user/SisterRestaurantsPage";
+import EventsPage from "./pages/user/EventsPage";
 import { PrivacyPolicy, TermsOfService } from "./pages/user/LegalPages";
 
 // Admin Pages
@@ -318,6 +320,22 @@ function App() {
               }
             />
             <Route
+              path="sister-restaurants"
+              element={
+                <CustomerLayout>
+                  <SisterRestaurantsPage />
+                </CustomerLayout>
+              }
+            />
+            <Route
+              path="events"
+              element={
+                <CustomerLayout>
+                  <EventsPage />
+                </CustomerLayout>
+              }
+            />
+            <Route
               path="privacy"
               element={
                 <CustomerLayout>
@@ -492,6 +510,24 @@ function App() {
             element={
               <CustomerLayout>
                 <TestimonialsPage />
+              </CustomerLayout>
+            }
+          />
+
+          <Route
+            path="/sister-restaurants"
+            element={
+              <CustomerLayout>
+                <SisterRestaurantsPage />
+              </CustomerLayout>
+            }
+          />
+
+          <Route
+            path="/events"
+            element={
+              <CustomerLayout>
+                <EventsPage />
               </CustomerLayout>
             }
           />

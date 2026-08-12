@@ -44,4 +44,7 @@ const ReservationSchema = new mongoose.Schema({
   }
 });
 
+ReservationSchema.index({ restaurantId: 1 });
+ReservationSchema.index({ date: 1 });
+
 module.exports = mongoose.model('Reservation', ReservationSchema);

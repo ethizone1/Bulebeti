@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import config from "../../config";
 
 const RegistrationPage = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
   const [formData, setFormData] = useState({
     restaurantName: "",
     ownerName: "",
@@ -19,6 +21,28 @@ const RegistrationPage = () => {
     logoBase64: null,
     subscriptionTier: "Silver",
   });
+
+  useEffect(() => {
+    const paramTier = searchParams.get("tier") || searchParams.get("plan");
+    if (paramTier) {
+      const formatted =
+        paramTier.charAt(0).toUpperCase() + paramTier.slice(1).toLowerCase();
+      if (["Silver", "Gold", "Platinum", "Premium", "Basic"].includes(formatted)) {
+        setFormData((prev) => ({
+          ...prev,
+          subscriptionTier: formatted === "Basic" ? "Silver" : formatted,
+        }));
+      }
+    }
+  }, [searchParams]);
+
+  const handleSelectTier = (tier) => {
+    setFormData((prev) => ({ ...prev, subscriptionTier: tier }));
+    const formElement = document.getElementById("registration-form");
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleToken, setGoogleToken] = useState(null);
@@ -268,8 +292,478 @@ const RegistrationPage = () => {
   };
 
   return (
-    <div className="py-5">
-      <div className="container" style={{ maxWidth: "800px" }}>
+    <div className="py-4">
+      {/* ─── HUB TIER SELECTION SECTION ─── */}
+      <section
+        id="pricing"
+        style={{
+          padding: "20px 0 40px 0",
+          backgroundColor: "var(--surface)",
+        }}
+      >
+        <div className="container" style={{ maxWidth: "1200px" }}>
+          <div style={{ textAlign: "center", marginBottom: "36px" }}>
+            <h2
+              style={{
+                fontSize: "clamp(26px, 4vw, 36px)",
+                fontWeight: "800",
+                color: "var(--primary)",
+                marginBottom: "12px",
+              }}
+            >
+              {t("landing_pricing_title") || "Select Your BuleBet Hub Tier"}
+            </h2>
+            <p
+              style={{
+                fontSize: "16px",
+                color: "var(--on-surface-variant)",
+                maxWidth: "640px",
+                margin: "0 auto",
+              }}
+            >
+              Choose the perfect plan for your venue. Select a tier below to pre-select your plan and begin registration.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+              gap: "24px",
+              margin: "0 auto",
+              alignItems: "stretch",
+            }}
+          >
+            {/* Basic Plan */}
+            <div
+              onClick={() => handleSelectTier("Silver")}
+              style={{
+                padding: "28px 20px",
+                borderRadius: "16px",
+                backgroundColor: "white",
+                border:
+                  formData.subscriptionTier === "Silver" ||
+                  formData.subscriptionTier === "Basic"
+                    ? "3px solid var(--gold)"
+                    : "1px solid var(--platinum)",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+                cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
+                boxShadow:
+                  formData.subscriptionTier === "Silver" ||
+                  formData.subscriptionTier === "Basic"
+                    ? "0 8px 25px rgba(212, 175, 55, 0.25)"
+                    : "0 2px 8px rgba(0,0,0,0.04)",
+                transform:
+                  formData.subscriptionTier === "Silver" ||
+                  formData.subscriptionTier === "Basic"
+                    ? "translateY(-4px)"
+                    : "none",
+              }}
+            >
+              <h3
+                style={{
+                  color: "var(--primary)",
+                  marginBottom: "4px",
+                  fontSize: "22px",
+                }}
+              >
+                {t("landing_tier_silver") || "Basic"}
+              </h3>
+              <div
+                style={{
+                  fontSize: "28px",
+                  fontWeight: "800",
+                  marginTop: "8px",
+                }}
+              >
+                {t("landing_free") || "Free"}
+                <span
+                  style={{ fontSize: "14px", opacity: 0.5, fontWeight: "400" }}
+                >
+                  {t("landing_year") || "/year"}
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  textDecoration: "line-through",
+                  opacity: 0.55,
+                  marginBottom: "20px",
+                  minHeight: "18px",
+                }}
+              >
+                {t("landing_basic_reg") || "Regular $99/year (Save $99)"}
+              </div>
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  marginBottom: "24px",
+                  textAlign: "left",
+                  flex: 1,
+                  fontSize: "13px",
+                  lineHeight: "1.6",
+                }}
+              >
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_silver_f1") || "✓ 1 Admin"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_silver_f2") || "✓ Up to 20 Menu Items"}
+                </li>
+                <li style={{ marginBottom: "8px", color: "rgba(0,0,0,0.3)" }}>
+                  {t("landing_silver_f3") || "✗ Add New Menu Categories"}
+                </li>
+                <li style={{ marginBottom: "8px", color: "rgba(0,0,0,0.3)" }}>
+                  {t("landing_silver_f4") || "✗ SMS Notifications"}
+                </li>
+              </ul>
+              <button
+                type="button"
+                className={
+                  formData.subscriptionTier === "Silver" ||
+                  formData.subscriptionTier === "Basic"
+                    ? "btn btn-primary"
+                    : "btn btn-outline"
+                }
+                style={{ width: "100%", marginTop: "auto" }}
+              >
+                {formData.subscriptionTier === "Silver" ||
+                formData.subscriptionTier === "Basic"
+                  ? "Selected ✨"
+                  : t("landing_select_silver") || "Select Basic"}
+              </button>
+            </div>
+
+            {/* Gold Plan */}
+            <div
+              onClick={() => handleSelectTier("Gold")}
+              style={{
+                padding: "28px 20px",
+                borderRadius: "16px",
+                backgroundColor: "white",
+                border:
+                  formData.subscriptionTier === "Gold"
+                    ? "3px solid var(--gold)"
+                    : "1px solid var(--platinum)",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+                cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
+                boxShadow:
+                  formData.subscriptionTier === "Gold"
+                    ? "0 8px 25px rgba(212, 175, 55, 0.25)"
+                    : "0 2px 8px rgba(0,0,0,0.04)",
+                transform:
+                  formData.subscriptionTier === "Gold"
+                    ? "translateY(-4px)"
+                    : "none",
+              }}
+            >
+              <h3
+                style={{
+                  color: "var(--gold)",
+                  marginBottom: "4px",
+                  fontSize: "22px",
+                }}
+              >
+                {t("landing_tier_gold") || "Gold"}
+              </h3>
+              <div
+                style={{
+                  fontSize: "28px",
+                  fontWeight: "800",
+                  marginTop: "8px",
+                }}
+              >
+                {t("landing_gold_price") || "$149"}
+                <span
+                  style={{ fontSize: "14px", opacity: 0.5, fontWeight: "400" }}
+                >
+                  {t("landing_year") || "/year"}
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  textDecoration: "line-through",
+                  opacity: 0.55,
+                  marginBottom: "20px",
+                  minHeight: "18px",
+                }}
+              >
+                {t("landing_gold_reg") || "Regular $250/year (Save $101)"}
+              </div>
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  marginBottom: "24px",
+                  textAlign: "left",
+                  flex: 1,
+                  fontSize: "13px",
+                  lineHeight: "1.6",
+                }}
+              >
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_gold_f1") || "✓ Up to 3 Admins"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_gold_f2") ||
+                    "✓ Unlimited add new Food & Beverage Menus"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_gold_f3") || "✓ Reservation SMS Alerts"}
+                </li>
+              </ul>
+              <button
+                type="button"
+                className={
+                  formData.subscriptionTier === "Gold"
+                    ? "btn btn-primary"
+                    : "btn btn-outline"
+                }
+                style={{ width: "100%", marginTop: "auto" }}
+              >
+                {formData.subscriptionTier === "Gold"
+                  ? "Selected ✨"
+                  : t("landing_select_gold") || "Select Gold"}
+              </button>
+            </div>
+
+            {/* Platinum Plan */}
+            <div
+              onClick={() => handleSelectTier("Platinum")}
+              style={{
+                padding: "28px 20px",
+                borderRadius: "16px",
+                backgroundColor: "white",
+                border:
+                  formData.subscriptionTier === "Platinum"
+                    ? "3px solid var(--gold)"
+                    : "2px solid var(--gold)",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                position: "relative",
+                height: "100%",
+                cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
+                boxShadow:
+                  formData.subscriptionTier === "Platinum"
+                    ? "0 12px 30px rgba(212, 175, 55, 0.35)"
+                    : "0 10px 25px -5px rgba(0,0,0,0.1)",
+                transform:
+                  formData.subscriptionTier === "Platinum"
+                    ? "translateY(-4px)"
+                    : "none",
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: "-12px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "var(--gold)",
+                  color: "white",
+                  padding: "2px 12px",
+                  borderRadius: "12px",
+                  fontSize: "10px",
+                  fontWeight: "700",
+                }}
+              >
+                {t("landing_popular") || "MOST POPULAR"}
+              </div>
+              <h3
+                style={{
+                  color: "var(--primary)",
+                  marginBottom: "4px",
+                  fontSize: "22px",
+                }}
+              >
+                {t("landing_tier_plat") || "Platinum"}
+              </h3>
+              <div
+                style={{
+                  fontSize: "28px",
+                  fontWeight: "800",
+                  marginTop: "8px",
+                }}
+              >
+                {t("landing_plat_price") || "$399"}
+                <span
+                  style={{ fontSize: "14px", opacity: 0.5, fontWeight: "400" }}
+                >
+                  {t("landing_year") || "/year"}
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  textDecoration: "line-through",
+                  opacity: 0.55,
+                  marginBottom: "20px",
+                  minHeight: "18px",
+                }}
+              >
+                {t("landing_plat_reg") || "Regular $500/year (Save $101)"}
+              </div>
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  marginBottom: "24px",
+                  textAlign: "left",
+                  flex: 1,
+                  fontSize: "13px",
+                  lineHeight: "1.6",
+                }}
+              >
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_plat_f1") || "✓ Up to 7 Admins"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_plat_f2") || "✓ Reservation & Catering SMS"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_plat_f3") || "✓ Photo Gallery User Page"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_plat_f4") || "✓ Reply to Comments"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_plat_f5") || "✓ BuleBet Signature Page"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_plat_f6") || "✓ Up to 3 Locations"}
+                </li>
+              </ul>
+              <button
+                type="button"
+                className="btn btn-primary"
+                style={{ width: "100%", marginTop: "auto" }}
+              >
+                {formData.subscriptionTier === "Platinum"
+                  ? "Selected ✨"
+                  : t("landing_select_plat") || "Select Platinum"}
+              </button>
+            </div>
+
+            {/* Premium Plan */}
+            <div
+              onClick={() => handleSelectTier("Premium")}
+              style={{
+                padding: "28px 20px",
+                borderRadius: "16px",
+                backgroundColor: "var(--primary)",
+                color: "var(--on-primary)",
+                border:
+                  formData.subscriptionTier === "Premium"
+                    ? "3px solid var(--gold)"
+                    : "1px solid var(--primary)",
+                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+                cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
+                boxShadow:
+                  formData.subscriptionTier === "Premium"
+                    ? "0 12px 30px rgba(212, 175, 55, 0.4)"
+                    : "0 4px 15px rgba(0,0,0,0.15)",
+                transform:
+                  formData.subscriptionTier === "Premium"
+                    ? "translateY(-4px)"
+                    : "none",
+              }}
+            >
+              <h3
+                style={{
+                  color: "var(--gold)",
+                  marginBottom: "4px",
+                  fontSize: "22px",
+                }}
+              >
+                {t("landing_tier_prem") || "Premium"}
+              </h3>
+              <div
+                style={{
+                  fontSize: "28px",
+                  fontWeight: "800",
+                  marginTop: "8px",
+                }}
+              >
+                {t("landing_prem_price") || "$699"}
+                <span
+                  style={{ fontSize: "14px", opacity: 0.5, fontWeight: "400" }}
+                >
+                  {t("landing_year") || "/year"}
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: "12px",
+                  textDecoration: "line-through",
+                  opacity: 0.7,
+                  marginBottom: "20px",
+                  minHeight: "18px",
+                }}
+              >
+                {t("landing_prem_reg") || "Regular $1,000/year (Save $301)"}
+              </div>
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  marginBottom: "24px",
+                  textAlign: "left",
+                  flex: 1,
+                  fontSize: "13px",
+                  lineHeight: "1.6",
+                }}
+              >
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_prem_f1") || "✓ Everything in Platinum"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_prem_f2") || "✓ Edit/Delete Comments"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_prem_f3") || "✓ Unlimited Locations"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_prem_f4") || "✓ Layout Customization"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_prem_f5") || "✓ Testimonials Module"}
+                </li>
+                <li style={{ marginBottom: "8px" }}>
+                  {t("landing_prem_f6") || "✓ 24/7 Priority Concierge"}
+                </li>
+              </ul>
+              <button
+                type="button"
+                className="btn btn-gold"
+                style={{ width: "100%", marginTop: "auto" }}
+              >
+                {formData.subscriptionTier === "Premium"
+                  ? "Selected ✨"
+                  : t("landing_select_prem") || "Select Premium"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── REGISTRATION FORM CONTAINER ─── */}
+      <div id="registration-form" className="container" style={{ maxWidth: "800px", paddingBottom: "40px" }}>
         <div
           className="card shadow-sm border-0"
           style={{
@@ -424,22 +918,22 @@ const RegistrationPage = () => {
                       {
                         id: "Silver",
                         price: "Free",
-                        desc: "Overview, Menu, Settings",
+                        desc: "Basic Hub: Menu, Settings & Core Operations",
                       },
                       {
                         id: "Gold",
-                        price: "$249/year",
-                        desc: "Silver + Reservations, Menu, Settings",
+                        price: "$149/year",
+                        desc: "Gold Hub: Reservations, SMS Alerts & Unlimited Menus",
                       },
                       {
                         id: "Platinum",
-                        price: "$499/year",
-                        desc: "Gold + Catering, Gallery, Sister Hubs",
+                        price: "$399/year",
+                        desc: "Platinum Hub: Catering, Photo Gallery & Multi-location",
                       },
                       {
                         id: "Premium",
-                        price: "$999/year",
-                        desc: "Platinum + Events, Feedback, & all features",
+                        price: "$699/year",
+                        desc: "Premium Hub: Events, Concierge, Customization & All Features",
                       },
                     ].map((plan) => {
                       const isSelected = formData.subscriptionTier === plan.id;
