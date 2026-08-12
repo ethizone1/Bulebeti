@@ -16,10 +16,10 @@ const Header = () => {
 
   // Context-aware navigation links
   const isRestaurantPage =
-    location.pathname.startsWith("/bulebeti/") &&
+    Boolean(restaurantName) &&
     location.pathname !== "/bulebeti/login" &&
-    location.pathname !== "/register" &&
-    restaurantName;
+    location.pathname !== "/login" &&
+    location.pathname !== "/register";
 
   const headerRef = React.useRef(null);
 
@@ -82,37 +82,37 @@ const Header = () => {
   const allNavLinks = [
     {
       name: t("nav_menu") || "Menu",
-      path: `/bulebeti/${restaurantName}/menu`,
+      path: `/${restaurantName}/menu`,
       originalName: "Menu",
       minTier: "Silver",
     },
     {
       name: t("nav_reservations") || "Reservations",
-      path: `/bulebeti/${restaurantName}/reservations`,
+      path: `/${restaurantName}/reservations`,
       originalName: "Reservations",
       minTier: "Gold",
     },
     {
       name: t("nav_catering") || "Catering",
-      path: `/bulebeti/${restaurantName}/catering`,
+      path: `/${restaurantName}/catering`,
       originalName: "Catering",
       minTier: "Gold",
     },
     {
       name: t("nav_gallery") || "Gallery",
-      path: `/bulebeti/${restaurantName}/gallery`,
+      path: `/${restaurantName}/gallery`,
       originalName: "Gallery",
       minTier: "Gold",
     },
     {
       name: t("nav_testimonials") || "Testimonials",
-      path: `/bulebeti/${restaurantName}/testimonials`,
+      path: `/${restaurantName}/testimonials`,
       originalName: "Testimonials",
       minTier: "Gold",
     },
     {
       name: t("nav_feedback") || "Feedback",
-      path: `/bulebeti/${restaurantName}/feedback`,
+      path: `/${restaurantName}/feedback`,
       originalName: "Feedback",
       minTier: "Gold",
     },
@@ -146,11 +146,11 @@ const Header = () => {
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           {isRestaurantPage && (
             <div className="hide-on-mobile" style={{ marginRight: 4 }}>
-              <bulebetiLogo size={36} />
+              <BuleBetLogo size={36} />
             </div>
           )}
           <Link
-            to={isRestaurantPage ? `/bulebeti/${restaurantName}` : "/"}
+            to={isRestaurantPage ? `/${restaurantName}` : "/"}
             style={{
               textDecoration: "none",
               color: "var(--primary)",

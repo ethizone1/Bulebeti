@@ -10,9 +10,10 @@ const Footer = () => {
   const { restaurantName } = useParams();
 
   const isRestaurantPage =
-    location.pathname.startsWith("/bulebeti/") &&
+    Boolean(restaurantName) &&
     location.pathname !== "/bulebeti/login" &&
-    location.pathname !== "/bulebeti/register";
+    location.pathname !== "/login" &&
+    location.pathname !== "/register";
 
   // Dynamic restaurant data
   const [restaurant, setRestaurant] = useState(null);
@@ -264,42 +265,42 @@ const Footer = () => {
                   {
                     name: t("footer_our_menu") || "Our Menu",
                     path: isRestaurantPage
-                      ? `/bulebeti/${restaurantName}/menu`
+                      ? `/${restaurantName}/menu`
                       : "/menu",
                     minTier: "Basic",
                   },
                   {
                     name: t("footer_sister_rest") || "Sister Restaurants",
                     path: isRestaurantPage
-                      ? `/bulebeti/${restaurantName}/sister-restaurants`
+                      ? `/${restaurantName}/sister-restaurants`
                       : "/sister-restaurants",
                     minTier: "Silver",
                   },
                   {
                     name: t("footer_catering") || "Catering",
                     path: isRestaurantPage
-                      ? `/bulebeti/${restaurantName}/catering`
+                      ? `/${restaurantName}/catering`
                       : "/catering",
                     minTier: "Gold",
                   },
                   {
                     name: t("footer_events") || "Events",
                     path: isRestaurantPage
-                      ? `/bulebeti/${restaurantName}/events`
+                      ? `/${restaurantName}/events`
                       : "/events",
                     minTier: "Gold",
                   },
                   {
                     name: t("footer_feedback") || "Feedback",
                     path: isRestaurantPage
-                      ? `/bulebeti/${restaurantName}/feedback`
+                      ? `/${restaurantName}/feedback`
                       : "/feedback",
                     minTier: "Platinum",
                   },
                   {
                     name: t("footer_gallery") || "Gallery",
                     path: isRestaurantPage
-                      ? `/bulebeti/${restaurantName}/gallery`
+                      ? `/${restaurantName}/gallery`
                       : "/gallery",
                     minTier: "Platinum",
                   },
@@ -360,25 +361,25 @@ const Footer = () => {
                 {
                   name: t("footer_help_center") || "Help Center",
                   path: isRestaurantPage
-                    ? `/bulebeti/${restaurantName}/contact`
+                    ? `/${restaurantName}/contact`
                     : "#",
                 },
                 {
                   name: t("footer_privacy") || "Privacy Policy",
                   path: isRestaurantPage
-                    ? `/bulebeti/${restaurantName}/privacy`
+                    ? `/${restaurantName}/privacy`
                     : "/privacy",
                 },
                 {
                   name: t("footer_terms") || "Terms of Service",
                   path: isRestaurantPage
-                    ? `/bulebeti/${restaurantName}/terms`
+                    ? `/${restaurantName}/terms`
                     : "/terms",
                 },
                 {
                   name: t("footer_contact_us") || "Contact Us",
                   path: isRestaurantPage
-                    ? `/bulebeti/${restaurantName}/contact`
+                    ? `/${restaurantName}/contact`
                     : "/contact-us",
                 },
               ].map((link) => (

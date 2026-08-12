@@ -487,7 +487,7 @@ const LandingPage = () => {
                 return (
                   <Link
                     key={restaurant._id}
-                    to={`/bulebeti/${restaurant.slug}`}
+                    to={`/${restaurant.slug}`}
                     className="restaurant-card"
                     style={{
                       textDecoration: "none",

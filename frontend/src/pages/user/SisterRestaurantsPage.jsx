@@ -209,7 +209,7 @@ const RenderVenueCard = ({ venue, isSister }) => {
 
   return (
     <Link
-      to={`/bulebeti/${venue.slug}`}
+      to={`/${venue.slug}`}
       style={{
         textDecoration: "none",
         color: "inherit",

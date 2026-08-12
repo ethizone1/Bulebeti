@@ -613,7 +613,7 @@ const RestaurantLandingPage = () => {
             }}
           >
             <Link
-              to={`/bulebeti/${restaurantName}/menu`}
+              to={`/${restaurantName}/menu`}
               style={{ textDecoration: "none", color: "inherit" }}
             >
               <div
@@ -648,7 +648,7 @@ const RestaurantLandingPage = () => {
 
             {tierLevel >= TIER_LEVELS.Gold && (
               <Link
-                to={`/bulebeti/${restaurantName}/reservations`}
+                to={`/${restaurantName}/reservations`}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <div
@@ -686,7 +686,7 @@ const RestaurantLandingPage = () => {
 
             {tierLevel >= TIER_LEVELS.Platinum && (
               <Link
-                to={`/bulebeti/${restaurantName}/catering`}
+                to={`/${restaurantName}/catering`}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <div
@@ -724,7 +724,7 @@ const RestaurantLandingPage = () => {
 
             {tierLevel >= TIER_LEVELS.Premium && (
               <Link
-                to={`/bulebeti/${restaurantName}/feedback`}
+                to={`/${restaurantName}/feedback`}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <div

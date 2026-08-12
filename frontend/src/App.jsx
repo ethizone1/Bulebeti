@@ -244,248 +244,241 @@ function App() {
             }
           />
 
-          <Route
-            path="/verify"
-            element={
-              <CustomerLayout>
-                <VerificationPage />
-              </CustomerLayout>
-            }
-          />
+          {/* Public & Admin Restaurant Pages (Supports clean domain URLs like /injera-world and /bulebeti/injera-world) */}
+          {["/:restaurantName", "/bulebeti/:restaurantName"].map((pattern) => (
+            <Route key={pattern} path={pattern}>
+              <Route
+                index
+                element={
+                  <CustomerLayout>
+                    <RestaurantLandingPage />
+                  </CustomerLayout>
+                }
+              />
+              <Route
+                path="menu"
+                element={
+                  <CustomerLayout>
+                    <MenuPage />
+                  </CustomerLayout>
+                }
+              />
+              <Route
+                path="reservations"
+                element={
+                  <CustomerLayout>
+                    <ReservationPage />
+                  </CustomerLayout>
+                }
+              />
+              <Route
+                path="contact"
+                element={
+                  <CustomerLayout>
+                    <ContactPage />
+                  </CustomerLayout>
+                }
+              />
+              <Route
+                path="catering"
+                element={
+                  <CustomerLayout>
+                    <CateringPage />
+                  </CustomerLayout>
+                }
+              />
+              <Route
+                path="feedback"
+                element={
+                  <CustomerLayout>
+                    <FeedbackPage />
+                  </CustomerLayout>
+                }
+              />
+              <Route
+                path="gallery"
+                element={
+                  <CustomerLayout>
+                    <GalleryPage />
+                  </CustomerLayout>
+                }
+              />
+              <Route
+                path="testimonials"
+                element={
+                  <CustomerLayout>
+                    <TestimonialsPage />
+                  </CustomerLayout>
+                }
+              />
+              <Route
+                path="sister-restaurants"
+                element={
+                  <CustomerLayout>
+                    <SisterRestaurantsPage />
+                  </CustomerLayout>
+                }
+              />
+              <Route
+                path="events"
+                element={
+                  <CustomerLayout>
+                    <EventsPage />
+                  </CustomerLayout>
+                }
+              />
+              <Route
+                path="privacy"
+                element={
+                  <CustomerLayout>
+                    <PrivacyPolicy />
+                  </CustomerLayout>
+                }
+              />
+              <Route
+                path="terms"
+                element={
+                  <CustomerLayout>
+                    <TermsOfService />
+                  </CustomerLayout>
+                }
+              />
 
-          <Route path="/bulebeti/:restaurantName">
-            {/* Public Restaurant Pages */}
-            <Route
-              index
-              element={
-                <CustomerLayout>
-                  <RestaurantLandingPage />
-                </CustomerLayout>
-              }
-            />
-            <Route
-              path="menu"
-              element={
-                <CustomerLayout>
-                  <MenuPage />
-                </CustomerLayout>
-              }
-            />
-            <Route
-              path="reservations"
-              element={
-                <CustomerLayout>
-                  <ReservationPage />
-                </CustomerLayout>
-              }
-            />
-            <Route
-              path="contact"
-              element={
-                <CustomerLayout>
-                  <ContactPage />
-                </CustomerLayout>
-              }
-            />
-            <Route
-              path="catering"
-              element={
-                <CustomerLayout>
-                  <CateringPage />
-                </CustomerLayout>
-              }
-            />
-            <Route
-              path="feedback"
-              element={
-                <CustomerLayout>
-                  <FeedbackPage />
-                </CustomerLayout>
-              }
-            />
-            <Route
-              path="gallery"
-              element={
-                <CustomerLayout>
-                  <GalleryPage />
-                </CustomerLayout>
-              }
-            />
-            <Route
-              path="testimonials"
-              element={
-                <CustomerLayout>
-                  <TestimonialsPage />
-                </CustomerLayout>
-              }
-            />
-            <Route
-              path="sister-restaurants"
-              element={
-                <CustomerLayout>
-                  <SisterRestaurantsPage />
-                </CustomerLayout>
-              }
-            />
-            <Route
-              path="events"
-              element={
-                <CustomerLayout>
-                  <EventsPage />
-                </CustomerLayout>
-              }
-            />
-            <Route
-              path="privacy"
-              element={
-                <CustomerLayout>
-                  <PrivacyPolicy />
-                </CustomerLayout>
-              }
-            />
-            <Route
-              path="terms"
-              element={
-                <CustomerLayout>
-                  <TermsOfService />
-                </CustomerLayout>
-              }
-            />
-
-            {/* Admin Restaurant Pages */}
-            <Route
-              path="admin/*"
-              element={
-                <AdminLayout>
-                  <Routes>
-                    <Route
-                      index
-                      element={
-                        <AdminPage element={AdminDashboard} minTier="Silver" />
-                      }
-                    />
-                    <Route
-                      path="dashboard"
-                      element={
-                        <AdminPage element={AdminDashboard} minTier="Silver" />
-                      }
-                    />
-                    <Route
-                      path="reservations"
-                      element={
-                        <AdminPage
-                          element={ReservationManagement}
-                          minTier="Gold"
-                        />
-                      }
-                    />
-                    <Route
-                      path="catering"
-                      element={
-                        <AdminPage
-                          element={CateringManagement}
-                          minTier="Platinum"
-                        />
-                      }
-                    />
-                    <Route
-                      path="menu"
-                      element={
-                        <AdminPage element={MenuManagement} minTier="Silver" />
-                      }
-                    />
-                    <Route
-                      path="menu/add"
-                      element={
-                        <AdminPage element={AddMenuItem} minTier="Silver" />
-                      }
-                    />
-                    <Route
-                      path="menu/edit/:itemId"
-                      element={
-                        <AdminPage element={EditMenuItem} minTier="Silver" />
-                      }
-                    />
-                    <Route
-                      path="feedback"
-                      element={
-                        <AdminPage
-                          element={FeedbackManager}
-                          minTier="Premium"
-                        />
-                      }
-                    />
-                    <Route
-                      path="testimonials"
-                      element={
-                        <AdminPage
-                          element={TestimonialsManager}
-                          minTier="Premium"
-                        />
-                      }
-                    />
-                    <Route
-                      path="gallery"
-                      element={
-                        <AdminPage element={GalleryManager} minTier="Silver" />
-                      }
-                    />
-                    <Route
-                      path="locations"
-                      element={
-                        <AdminPage
-                          element={LocationManagement}
-                          minTier="Platinum"
-                        />
-                      }
-                    />
-                    <Route
-                      path="locations/add"
-                      element={
-                        <AdminPage element={AddLocation} minTier="Platinum" />
-                      }
-                    />
-                    <Route
-                      path="events"
-                      element={
-                        <AdminPage element={EventsManager} minTier="Premium" />
-                      }
-                    />
-                    <Route
-                      path="events/create"
-                      element={
-                        <AdminPage element={CreateEvent} minTier="Premium" />
-                      }
-                    />
-                    <Route
-                      path="events/edit/:eventId"
-                      element={
-                        <AdminPage element={EditEvent} minTier="Premium" />
-                      }
-                    />
-                    <Route
-                      path="team"
-                      element={
-                        <AdminPage element={TeamManagement} minTier="Gold" />
-                      }
-                    />
-                    <Route
-                      path="support"
-                      element={
-                        <AdminPage element={SupportForm} minTier="Silver" />
-                      }
-                    />
-                    <Route
-                      path="settings"
-                      element={
-                        <AdminPage element={AdminSettings} minTier="Silver" />
-                      }
-                    />
-                  </Routes>
-                </AdminLayout>
-              }
-            />
-          </Route>
+              {/* Admin Restaurant Pages */}
+              <Route
+                path="admin/*"
+                element={
+                  <AdminLayout>
+                    <Routes>
+                      <Route
+                        index
+                        element={
+                          <AdminPage element={AdminDashboard} minTier="Silver" />
+                        }
+                      />
+                      <Route
+                        path="dashboard"
+                        element={
+                          <AdminPage element={AdminDashboard} minTier="Silver" />
+                        }
+                      />
+                      <Route
+                        path="reservations"
+                        element={
+                          <AdminPage
+                            element={ReservationManagement}
+                            minTier="Gold"
+                          />
+                        }
+                      />
+                      <Route
+                        path="catering"
+                        element={
+                          <AdminPage
+                            element={CateringManagement}
+                            minTier="Platinum"
+                          />
+                        }
+                      />
+                      <Route
+                        path="menu"
+                        element={
+                          <AdminPage element={MenuManagement} minTier="Silver" />
+                        }
+                      />
+                      <Route
+                        path="menu/add"
+                        element={
+                          <AdminPage element={AddMenuItem} minTier="Silver" />
+                        }
+                      />
+                      <Route
+                        path="menu/edit/:itemId"
+                        element={
+                          <AdminPage element={EditMenuItem} minTier="Silver" />
+                        }
+                      />
+                      <Route
+                        path="feedback"
+                        element={
+                          <AdminPage
+                            element={FeedbackManager}
+                            minTier="Premium"
+                          />
+                        }
+                      />
+                      <Route
+                        path="testimonials"
+                        element={
+                          <AdminPage
+                            element={TestimonialsManager}
+                            minTier="Premium"
+                          />
+                        }
+                      />
+                      <Route
+                        path="gallery"
+                        element={
+                          <AdminPage element={GalleryManager} minTier="Silver" />
+                        }
+                      />
+                      <Route
+                        path="locations"
+                        element={
+                          <AdminPage
+                            element={LocationManagement}
+                            minTier="Platinum"
+                          />
+                        }
+                      />
+                      <Route
+                        path="locations/add"
+                        element={
+                          <AdminPage element={AddLocation} minTier="Platinum" />
+                        }
+                      />
+                      <Route
+                        path="events"
+                        element={
+                          <AdminPage element={EventsManager} minTier="Premium" />
+                        }
+                      />
+                      <Route
+                        path="events/create"
+                        element={
+                          <AdminPage element={CreateEvent} minTier="Premium" />
+                        }
+                      />
+                      <Route
+                        path="events/edit/:eventId"
+                        element={
+                          <AdminPage element={EditEvent} minTier="Premium" />
+                        }
+                      />
+                      <Route
+                        path="team"
+                        element={
+                          <AdminPage element={TeamManagement} minTier="Gold" />
+                        }
+                      />
+                      <Route
+                        path="support"
+                        element={
+                          <AdminPage element={SupportForm} minTier="Silver" />
+                        }
+                      />
+                      <Route
+                        path="settings"
+                        element={
+                          <AdminPage element={AdminSettings} minTier="Silver" />
+                        }
+                      />
+                    </Routes>
+                  </AdminLayout>
+                }
+              />
+            </Route>
+          ))}
 
           <Route
             path="/contact-us"
