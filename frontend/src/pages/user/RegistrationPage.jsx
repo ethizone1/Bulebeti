@@ -19,7 +19,7 @@ const RegistrationPage = () => {
     menuLayout: "image-left",
     location: "",
     logoBase64: null,
-    subscriptionTier: "Silver",
+    subscriptionTier: "Gold",
   });
 
   useEffect(() => {

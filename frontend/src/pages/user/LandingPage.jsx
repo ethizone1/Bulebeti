@@ -180,12 +180,6 @@ const LandingPage = () => {
             <Link to="/register" className="btn btn-primary btn-lg">
               {t("landing_get_started")}
             </Link>
-            <Link
-              to="/bulebeti/the-golden-truffle/menu"
-              className="btn btn-outline btn-lg"
-            >
-              {t("landing_explore")}
-            </Link>
           </div>
         </div>
       </section>
