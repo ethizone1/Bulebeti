@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
     res.json(restaurants);
   } catch (err) {
     console.error("[GET RESTAURANTS ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message || "Failed to fetch restaurants." });
   }
 });
 
@@ -27,7 +27,7 @@ router.get("/owner/my", auth, async (req, res) => {
     res.json(restaurants);
   } catch (err) {
     console.error("[GET MY RESTAURANTS ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message || "Failed to fetch user restaurants." });
   }
 });
 
@@ -58,7 +58,7 @@ router.get("/:slug/sisters", async (req, res) => {
     res.json({ mainRestaurant: restaurant, sisterRestaurants });
   } catch (err) {
     console.error("[GET SISTER RESTAURANTS ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message || "Failed to fetch sister restaurants." });
   }
 });
 
@@ -86,7 +86,7 @@ router.get("/:slug", async (req, res) => {
     res.json(restaurant);
   } catch (err) {
     console.error("[GET RESTAURANT SLUG ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message || "Failed to fetch restaurant." });
   }
 });
 
@@ -107,14 +107,15 @@ router.post("/", auth, async (req, res) => {
   } = req.body;
 
   try {
-    // Check if restaurant with the same slug already exists
+    // Check if restaurant with the same slug already exists & append suffix if duplicate
+    let finalSlug = slug;
+    const escapedSlug = (slug || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const existing = await Restaurant.findOne({
-      slug: { $regex: new RegExp(`^${slug}$`, "i") },
+      slug: { $regex: new RegExp(`^${escapedSlug}$`, "i") },
     });
     if (existing) {
-      return res
-        .status(400)
-        .json({ msg: "A restaurant with this name or slug already exists." });
+      finalSlug = `${slug}-${Math.floor(1000 + Math.random() * 9000)}`;
+      console.log(`[BACKEND] ℹ️ Duplicate slug detected, auto-generated unique slug: ${finalSlug}`);
     }
 
     // Check sister restaurant limits
@@ -154,7 +155,7 @@ router.post("/", auth, async (req, res) => {
 
     const newRestaurant = new Restaurant({
       name,
-      slug,
+      slug: finalSlug,
       description,
       address,
       lat: lat ? Number(lat) : undefined,
@@ -169,12 +170,20 @@ router.post("/", auth, async (req, res) => {
 
     const restaurant = await newRestaurant.save();
     console.log(
-      `[BACKEND] 🏢 New restaurant profile created: ${name} (slug: ${slug}) by User ID: ${req.user.id} with tier: ${initialTier}`,
+      `[BACKEND] 🏢 New restaurant profile created: ${name} (slug: ${finalSlug}) by User ID: ${req.user.id} with tier: ${initialTier}`,
     );
     res.json(restaurant);
   } catch (err) {
-    console.error("[CREATE RESTAURANT ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    console.error("[CREATE RESTAURANT ERROR]", err);
+    if (err.code === 11000) {
+      return res.status(400).json({
+        msg: "A restaurant with this name or unique identifier already exists. Please choose a different name.",
+      });
+    }
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ msg: err.message });
+    }
+    res.status(500).json({ msg: err.message || "Failed to create restaurant profile." });
   }
 });
 
@@ -206,7 +215,7 @@ router.put("/:slug/request-upgrade", auth, async (req, res) => {
     res.json(restaurant);
   } catch (err) {
     console.error("[REQUEST UPGRADE ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message || "Failed to request upgrade." });
   }
 });
 
@@ -275,7 +284,7 @@ router.put("/admin/upgrade/:id", auth, requireRole("admin", "super-admin"), asyn
     res.json({ msg: "Restaurant updated", restaurant });
   } catch (err) {
     console.error("[ADMIN UPGRADE ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message || "Admin tier update failed." });
   }
 });
 
@@ -313,7 +322,7 @@ router.put("/admin/edit/:id", auth, requireRole("admin", "super-admin"), async (
     res.json(restaurant);
   } catch (err) {
     console.error("[ADMIN EDIT ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message || "Admin edit failed." });
   }
 });
 
@@ -368,7 +377,7 @@ router.put("/:slug", auth, async (req, res) => {
     res.json(restaurant);
   } catch (err) {
     console.error("[UPDATE RESTAURANT ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message || "Failed to update restaurant profile." });
   }
 });
 

@@ -56,16 +56,16 @@ const sendEmail = async (
   htmlContent,
   senderName = "bulebeti",
 ) => {
-  const transporter = getTransporter();
-
-  if (!transporter) {
-    console.log(
-      `\n📧 EMAIL [NOT SENT — no credentials]: TO: ${toEmail} | ${subject}\n`,
-    );
-    return false;
-  }
-
   try {
+    const transporter = getTransporter();
+
+    if (!transporter) {
+      console.log(
+        `\n📧 EMAIL [NOT SENT — no credentials]: TO: ${toEmail} | ${subject}\n`,
+      );
+      return false;
+    }
+
     await transporter.sendMail({
       from: `"${senderName}" <${process.env.EMAIL_USER}>`,
       to: toEmail,

@@ -102,7 +102,7 @@ router.post("/change-password-preauth", async (req, res) => {
     res.json({ msg: "Password changed successfully" });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Server error");
+    res.status(500).json({ msg: err.message || "Failed to change password." });
   }
 });
 
@@ -312,8 +312,18 @@ router.post("/register", async (req, res) => {
       msg: "Verification code sent to your email.",
     });
   } catch (err) {
-    console.error("[AUTH REGISTER ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    console.error("[AUTH REGISTER ERROR]", err);
+    if (err.code === 11000) {
+      return res.status(400).json({
+        msg: "An account with this email address or details already exists. Please sign in instead.",
+      });
+    }
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ msg: err.message });
+    }
+    res.status(500).json({
+      msg: err.message || "Registration failed due to a server error. Please try again.",
+    });
   }
 });
 
@@ -405,7 +415,7 @@ router.post("/verify-email", async (req, res) => {
     );
   } catch (err) {
     console.error("[VERIFY EMAIL ERROR]", err.message);
-    res.status(500).json({ msg: "Server error during email verification" });
+    res.status(500).json({ msg: err.message || "Email verification failed." });
   }
 });
 
@@ -451,7 +461,7 @@ router.post("/resend-verification", async (req, res) => {
     res.json({ msg: "A new 6-digit verification code has been sent to your email." });
   } catch (err) {
     console.error("[RESEND CODE ERROR]", err.message);
-    res.status(500).json({ msg: "Server error while resending verification code." });
+    res.status(500).json({ msg: err.message || "Failed to resend verification code." });
   }
 });
 
@@ -523,7 +533,7 @@ router.post("/login", async (req, res) => {
     );
   } catch (err) {
     console.error("[AUTH LOGIN ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message || "Authentication failed." });
   }
 });
 
@@ -617,7 +627,7 @@ router.post("/google", async (req, res) => {
     );
   } catch (err) {
     console.error("Google auth server error:", err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message || "Google authentication failed." });
   }
 });
 
@@ -647,7 +657,7 @@ router.post("/change-password", auth, async (req, res) => {
     res.json({ msg: "Password updated successfully" });
   } catch (err) {
     console.error("[CHANGE PASSWORD ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message || "Failed to change password." });
   }
 });
 
@@ -690,7 +700,7 @@ router.post("/send-login-otp", async (req, res) => {
     res.json({ msg: "Access code sent to your email. Please check your inbox." });
   } catch (err) {
     console.error("[SEND LOGIN OTP ERROR]", err.message);
-    res.status(500).json({ msg: "Server error while sending access code." });
+    res.status(500).json({ msg: err.message || "Failed to send access code." });
   }
 });
 

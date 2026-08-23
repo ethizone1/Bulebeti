@@ -143,7 +143,7 @@ app.use((err, req, res, next) => {
     return next(err);
   }
   res.status(err.status || 500).json({
-    msg: isProduction ? "An unexpected error occurred" : err.message,
+    msg: err.message || "An unexpected error occurred.",
   });
 });
 
