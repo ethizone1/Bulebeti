@@ -34,7 +34,9 @@ const SupportForm = () => {
           phone: restaurant.phone || prev.phone,
         }));
       }
-    } catch (err) {}
+    } catch (err) {
+      console.warn("Error setting phone in SupportForm:", err.message);
+    }
   }, [restaurant]);
 
   const handleSubmit = async (e) => {

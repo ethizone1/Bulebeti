@@ -4,14 +4,14 @@ import { useLanguage } from "../../context/LanguageContext";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
 
-const MenuManagement = ({ currentTier = "Platinum" }) => {
+const MenuManagement = ({ _currentTier = "Platinum" }) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { restaurantName } = useParams();
   const [filter, setFilter] = useState("All");
   const [menuItems, setMenuItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [_loading, setLoading] = useState(true);
+  const [_error, setError] = useState(null);
   const [restaurantId, setRestaurantId] = useState(null);
 
   React.useEffect(() => {

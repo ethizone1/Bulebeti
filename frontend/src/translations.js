@@ -57,9 +57,6 @@ export const translations = {
     footer_faq: "FAQ",
     footer_connect: "Connect With Us",
     footer_rights: "All rights reserved.",
-    footer_rights: "All rights reserved.",
-    footer_privacy: "Privacy Policy",
-    footer_terms: "Terms of Service",
 
     // Login Page
     login_welcome: "Welcome Back",

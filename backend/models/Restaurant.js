@@ -64,7 +64,6 @@ const restaurantSchema = new mongoose.Schema({
 });
 
 // Database performance indexes
-restaurantSchema.index({ slug: 1 });
 restaurantSchema.index({ ownerId: 1 });
 restaurantSchema.index({ status: 1 });
 restaurantSchema.index({ lat: 1, lng: 1 });

@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { useLanguage } from "../../context/LanguageContext";
+import { useParams, Link } from "react-router-dom";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
 
 const TestimonialsManager = () => {
-  const { t } = useLanguage();
   const { restaurantName } = useParams();
   const { tier } = useAdmin();
-  const navigate = useNavigate();
 
   // States
   const [testimonials, setTestimonials] = useState([]);
@@ -37,6 +34,40 @@ const TestimonialsManager = () => {
 
   const isPremium = tier === "Premium";
 
+  const fetchTestimonials = React.useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${config.API_URL}/api/testimonials/restaurant/${restaurantName}/admin`,
+        {
+          headers: {
+            "x-auth-token": token,
+          },
+        },
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch testimonials");
+      }
+      const data = await response.json();
+      setTestimonials(data);
+    } catch (err) {
+      console.error("Error fetching admin testimonials:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [restaurantName]);
+
+  useEffect(() => {
+    if (isPremium) {
+      fetchTestimonials();
+    } else {
+      setLoading(false);
+    }
+  }, [restaurantName, isPremium, fetchTestimonials]);
+
   if (!isPremium) {
     return (
       <div
@@ -62,40 +93,6 @@ const TestimonialsManager = () => {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (isPremium) {
-      fetchTestimonials();
-    } else {
-      setLoading(false);
-    }
-  }, [restaurantName, isPremium]);
-
-  const fetchTestimonials = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const token = localStorage.getItem("token");
-      const response = await fetch(
-        `${config.API_URL}/api/testimonials/restaurant/${restaurantName}/admin`,
-        {
-          headers: {
-            "x-auth-token": token,
-          },
-        },
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch testimonials");
-      }
-      const data = await response.json();
-      setTestimonials(data);
-    } catch (err) {
-      console.error("Error fetching admin testimonials:", err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleFileUpload = (e, isEditing = false) => {
     const file = e.target.files[0];

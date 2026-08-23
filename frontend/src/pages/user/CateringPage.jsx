@@ -5,7 +5,7 @@ import config from '../../config';
 const CateringPage = () => {
   const { restaurantName } = useParams();
   const slug = restaurantName || window.location.pathname.split('/')[2] || '';
-  const [restaurant, setRestaurant] = useState(null);
+  const [_restaurant, setRestaurant] = useState(null);
 
   // Menu state
   const [menuItems, setMenuItems] = useState([]);

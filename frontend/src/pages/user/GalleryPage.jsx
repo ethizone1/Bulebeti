@@ -2,29 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import config from '../../config';
 
+// Fallback images if not viewing a specific restaurant or no images uploaded
+const FALLBACK_IMAGES = [
+  { imageUrl: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=800', title: 'Signature Cocktails' },
+  { imageUrl: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80&w=800', title: 'Main Dining Room' },
+  { imageUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=800', title: 'Executive Chef Selection' },
+  { imageUrl: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=800', title: 'Private Event Setting' },
+];
+
 const GalleryPage = () => {
   const { restaurantName } = useParams();
-  const [images, setImages] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  // Fallback images if not viewing a specific restaurant or no images uploaded
-  const fallbackImages = [
-    { imageUrl: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&q=80&w=800', title: 'Signature Cocktails' },
-    { imageUrl: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80&w=800', title: 'Main Dining Room' },
-    { imageUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=800', title: 'Executive Chef Selection' },
-    { imageUrl: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=800', title: 'Private Event Setting' },
-  ];
+  const [images, setImages] = useState(restaurantName ? [] : FALLBACK_IMAGES);
+  const [loading, setLoading] = useState(!!restaurantName);
 
   useEffect(() => {
     if (!restaurantName) {
-      setImages(fallbackImages);
-      setLoading(false);
       return;
     }
 
     const fetchGallery = async () => {
       try {
-        setLoading(true);
         // Get restaurant ID
         const restRes = await fetch(`${config.API_URL}/api/restaurants/${restaurantName}`);
         if (!restRes.ok) throw new Error('Restaurant not found');
@@ -34,13 +31,13 @@ const GalleryPage = () => {
         const galRes = await fetch(`${config.API_URL}/api/gallery/restaurant/${restData._id}`);
         if (galRes.ok) {
           const data = await galRes.json();
-          setImages(data.length > 0 ? data : fallbackImages);
+          setImages(data.length > 0 ? data : FALLBACK_IMAGES);
         } else {
-          setImages(fallbackImages);
+          setImages(FALLBACK_IMAGES);
         }
       } catch (err) {
         console.error('Error fetching gallery', err);
-        setImages(fallbackImages);
+        setImages(FALLBACK_IMAGES);
       } finally {
         setLoading(false);
       }

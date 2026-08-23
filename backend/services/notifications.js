@@ -27,9 +27,8 @@ const CARRIER_GATEWAYS = {
 // Build the SMS email address from phone + gateway domain
 const buildSmsEmail = (phone, gatewayDomain) => {
   const digits = cleanPhone(phone);
-  if (!digits || !gatewayDomain) return null;
-  // Use last 10 digits (removes country code)
-  const local = digits.slice(-10);
+  if (!digits || digits.length < 7 || !gatewayDomain) return null;
+  const local = digits.length >= 10 ? digits.slice(-10) : digits;
   return `${local}@${gatewayDomain}`;
 };
 

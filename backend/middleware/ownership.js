@@ -51,7 +51,7 @@ const requireRestaurantOwnership = async (req, res, next) => {
     }
 
     if (!restaurantId) {
-      return next();
+      return res.status(400).json({ msg: 'Bad Request: Restaurant identifier required for ownership verification' });
     }
 
     const hasAccess = await canManageRestaurant(req.user.id, req.user.role, restaurantId);

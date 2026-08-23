@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import config from "../config";
 
@@ -6,13 +6,7 @@ const QRCodeModal = ({ isOpen, onClose, restaurantName, restaurantId }) => {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (isOpen && restaurantId) {
-      fetchLocations();
-    }
-  }, [isOpen, restaurantId]);
-
-  const fetchLocations = async () => {
+  const fetchLocations = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(
@@ -27,7 +21,13 @@ const QRCodeModal = ({ isOpen, onClose, restaurantName, restaurantId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [restaurantId]);
+
+  useEffect(() => {
+    if (isOpen && restaurantId) {
+      fetchLocations();
+    }
+  }, [isOpen, restaurantId, fetchLocations]);
 
   const downloadQR = (id, filename) => {
     const svg = document.getElementById(id);

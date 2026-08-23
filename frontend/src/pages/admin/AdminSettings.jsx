@@ -805,7 +805,7 @@ const AdminSettings = () => {
                           } else {
                             alert(data.msg || "Failed to update layout");
                           }
-                        } catch (err) {
+                        } catch {
                           alert("Error updating layout");
                         }
                       }}

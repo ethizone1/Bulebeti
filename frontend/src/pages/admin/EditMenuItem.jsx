@@ -3,6 +3,42 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import config from "../../config";
 
+const DEFAULT_INGREDIENTS = [
+  "Injera",
+  "Berbere",
+  "Niter Kibbeh (Spiced Butter)",
+  "Garlic",
+  "Onion",
+  "Tomato",
+  "Rosemary",
+  "Green Chili / Jalapeño",
+  "Cardamom",
+  "Ginger",
+  "Beef",
+  "Chicken",
+  "Lamb",
+  "Fish",
+  "Lentils (Misir)",
+  "Shiro (Chickpea Flour)",
+  "Spinach (Gomen)",
+  "Cabbage",
+  "Carrots",
+  "Potatoes",
+  "Cheese (Ayib)",
+  "Olive Oil",
+];
+
+const DEFAULT_CONTAINS = [
+  "Dairy",
+  "Gluten",
+  "Nuts / Peanuts",
+  "Eggs",
+  "Soy",
+  "Sesame",
+  "Shellfish",
+  "Mustard",
+];
+
 const EditMenuItem = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -49,7 +85,7 @@ const EditMenuItem = () => {
     const fetchItem = async () => {
       try {
         setLoading(true);
-        // Fetch all menu items and find by ID (or you could add a GET /api/menu/:id endpoint)
+        // Fetch all menu items and find by ID
         const res = await fetch(`${config.API_URL}/api/menu`);
         if (!res.ok) throw new Error("Failed to fetch menu");
         const items = await res.json();
@@ -69,14 +105,68 @@ const EditMenuItem = () => {
           return combined;
         });
 
+        // 1. Ingredients mapping
+        const itemIngMap = {};
+        if (Array.isArray(item.ingredients)) {
+          item.ingredients.forEach((ing) => {
+            if (typeof ing === "string") itemIngMap[ing] = true;
+            else if (ing?.name) itemIngMap[ing.name] = Boolean(ing.checked);
+          });
+        }
+
+        let allIngNames = [...DEFAULT_INGREDIENTS];
+        if (Array.isArray(items)) {
+          items.forEach((it) => {
+            if (Array.isArray(it.ingredients)) {
+              it.ingredients.forEach((ing) => {
+                const n = typeof ing === "string" ? ing : ing?.name;
+                if (n && !allIngNames.includes(n)) allIngNames.push(n);
+              });
+            }
+          });
+        }
+        Object.keys(itemIngMap).forEach((n) => {
+          if (!allIngNames.includes(n)) allIngNames.push(n);
+        });
+
+        // 2. Contains mapping
+        const itemConMap = {};
+        if (Array.isArray(item.contains)) {
+          item.contains.forEach((con) => {
+            if (typeof con === "string") itemConMap[con] = true;
+            else if (con?.name) itemConMap[con.name] = Boolean(con.checked);
+          });
+        }
+
+        let allConNames = [...DEFAULT_CONTAINS];
+        if (Array.isArray(items)) {
+          items.forEach((it) => {
+            if (Array.isArray(it.contains)) {
+              it.contains.forEach((con) => {
+                const n = typeof con === "string" ? con : con?.name;
+                if (n && !allConNames.includes(n)) allConNames.push(n);
+              });
+            }
+          });
+        }
+        Object.keys(itemConMap).forEach((n) => {
+          if (!allConNames.includes(n)) allConNames.push(n);
+        });
+
         setFormData({
           name: item.name || "",
           price: item.price != null ? String(item.price) : "",
           description: item.description || "",
           isAvailable: item.isAvailable !== false,
           imageUrl: item.imageUrl || "",
-          ingredients: item.ingredients || [],
-          contains: item.contains || [],
+          ingredients: allIngNames.map((name) => ({
+            name,
+            checked: Boolean(itemIngMap[name]),
+          })),
+          contains: allConNames.map((name) => ({
+            name,
+            checked: Boolean(itemConMap[name]),
+          })),
         });
 
         if (item.imageUrl) setImagePreview(item.imageUrl);
@@ -153,17 +243,6 @@ const EditMenuItem = () => {
     } finally {
       setSaving(false);
     }
-  };
-
-  const inputStyle = {
-    width: "100%",
-    padding: "12px",
-    borderRadius: "8px",
-    border: "1px solid var(--platinum)",
-    fontSize: "14px",
-    outline: "none",
-    boxSizing: "border-box",
-    fontFamily: "inherit",
   };
 
   if (loading) {
@@ -348,36 +427,38 @@ const EditMenuItem = () => {
             <label className="form-label fw-bold small mb-1">
               {t("admin_item_lbl_ing")}
             </label>
-            <div className="bg-light border rounded p-3 d-flex flex-column gap-2">
-              {formData.ingredients.length === 0 && (
-                <div className="small text-muted fst-italic">
-                  {t("admin_item_no_ing")}
-                </div>
-              )}
-              {formData.ingredients.map((ing, idx) => (
-                <div key={idx} className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id={`edit-ing-${idx}`}
-                    checked={ing.checked}
-                    onChange={(e) => {
-                      const newIngs = [...formData.ingredients];
-                      newIngs[idx].checked = e.target.checked;
-                      setFormData({ ...formData, ingredients: newIngs });
-                    }}
-                    style={{ cursor: "pointer" }}
-                  />
-                  <label
-                    className="form-check-label small"
-                    htmlFor={`edit-ing-${idx}`}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {ing.name}
-                  </label>
-                </div>
-              ))}
-              <div className="d-flex gap-2 mt-2">
+            <div className="bg-light border rounded p-3">
+              <div
+                className="row g-2"
+                style={{ maxHeight: "220px", overflowY: "auto" }}
+              >
+                {formData.ingredients.map((ing, idx) => (
+                  <div key={ing.name || idx} className="col-6 col-sm-4 col-md-3">
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id={`edit-ing-${idx}`}
+                        checked={Boolean(ing.checked)}
+                        onChange={(e) => {
+                          const newIngs = [...formData.ingredients];
+                          newIngs[idx].checked = e.target.checked;
+                          setFormData({ ...formData, ingredients: newIngs });
+                        }}
+                        style={{ cursor: "pointer" }}
+                      />
+                      <label
+                        className="form-check-label small fw-semibold"
+                        htmlFor={`edit-ing-${idx}`}
+                        style={{ cursor: "pointer" }}
+                      >
+                        {ing.name}
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="d-flex gap-2 mt-3 pt-2 border-top">
                 <input
                   type="text"
                   placeholder={t("admin_item_ph_ing")}
@@ -385,14 +466,24 @@ const EditMenuItem = () => {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      if (e.target.value.trim()) {
-                        setFormData({
-                          ...formData,
-                          ingredients: [
-                            ...formData.ingredients,
-                            { name: e.target.value.trim(), checked: true },
-                          ],
-                        });
+                      const val = e.target.value.trim();
+                      if (val) {
+                        const existsIdx = formData.ingredients.findIndex(
+                          (i) => i.name.toLowerCase() === val.toLowerCase()
+                        );
+                        if (existsIdx >= 0) {
+                          const newIngs = [...formData.ingredients];
+                          newIngs[existsIdx].checked = true;
+                          setFormData({ ...formData, ingredients: newIngs });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            ingredients: [
+                              ...formData.ingredients,
+                              { name: val, checked: true },
+                            ],
+                          });
+                        }
                         e.target.value = "";
                       }
                     }
@@ -402,14 +493,24 @@ const EditMenuItem = () => {
                   type="button"
                   onClick={(e) => {
                     const input = e.target.previousSibling;
-                    if (input.value.trim()) {
-                      setFormData({
-                        ...formData,
-                        ingredients: [
-                          ...formData.ingredients,
-                          { name: input.value.trim(), checked: true },
-                        ],
-                      });
+                    const val = input.value.trim();
+                    if (val) {
+                      const existsIdx = formData.ingredients.findIndex(
+                        (i) => i.name.toLowerCase() === val.toLowerCase()
+                      );
+                      if (existsIdx >= 0) {
+                        const newIngs = [...formData.ingredients];
+                        newIngs[existsIdx].checked = true;
+                        setFormData({ ...formData, ingredients: newIngs });
+                      } else {
+                        setFormData({
+                          ...formData,
+                          ingredients: [
+                            ...formData.ingredients,
+                            { name: val, checked: true },
+                          ],
+                        });
+                      }
                       input.value = "";
                     }
                   }}
@@ -426,36 +527,41 @@ const EditMenuItem = () => {
             <label className="form-label fw-bold small mb-1">
               {t("admin_item_lbl_con")}
             </label>
-            <div className="bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded p-3 d-flex flex-column gap-2">
-              {formData.contains.length === 0 && (
-                <div className="small text-muted fst-italic">
-                  {t("admin_item_no_con")}
-                </div>
-              )}
-              {formData.contains.map((allergen, idx) => (
-                <div key={idx} className="form-check text-danger">
-                  <input
-                    className="form-check-input border-danger"
-                    type="checkbox"
-                    id={`edit-allergen-${idx}`}
-                    checked={allergen.checked}
-                    onChange={(e) => {
-                      const newContains = [...formData.contains];
-                      newContains[idx].checked = e.target.checked;
-                      setFormData({ ...formData, contains: newContains });
-                    }}
-                    style={{ cursor: "pointer" }}
-                  />
-                  <label
-                    className="form-check-label small"
-                    htmlFor={`edit-allergen-${idx}`}
-                    style={{ cursor: "pointer" }}
+            <div className="bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded p-3">
+              <div
+                className="row g-2"
+                style={{ maxHeight: "220px", overflowY: "auto" }}
+              >
+                {formData.contains.map((allergen, idx) => (
+                  <div
+                    key={allergen.name || idx}
+                    className="col-6 col-sm-4 col-md-3"
                   >
-                    {allergen.name}
-                  </label>
-                </div>
-              ))}
-              <div className="d-flex gap-2 mt-2">
+                    <div className="form-check text-danger">
+                      <input
+                        className="form-check-input border-danger"
+                        type="checkbox"
+                        id={`edit-allergen-${idx}`}
+                        checked={Boolean(allergen.checked)}
+                        onChange={(e) => {
+                          const newContains = [...formData.contains];
+                          newContains[idx].checked = e.target.checked;
+                          setFormData({ ...formData, contains: newContains });
+                        }}
+                        style={{ cursor: "pointer" }}
+                      />
+                      <label
+                        className="form-check-label small fw-semibold"
+                        htmlFor={`edit-allergen-${idx}`}
+                        style={{ cursor: "pointer" }}
+                      >
+                        {allergen.name}
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="d-flex gap-2 mt-3 pt-2 border-top border-danger border-opacity-25">
                 <input
                   type="text"
                   placeholder={t("admin_item_ph_con")}
@@ -463,14 +569,24 @@ const EditMenuItem = () => {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      if (e.target.value.trim()) {
-                        setFormData({
-                          ...formData,
-                          contains: [
-                            ...formData.contains,
-                            { name: e.target.value.trim(), checked: true },
-                          ],
-                        });
+                      const val = e.target.value.trim();
+                      if (val) {
+                        const existsIdx = formData.contains.findIndex(
+                          (c) => c.name.toLowerCase() === val.toLowerCase()
+                        );
+                        if (existsIdx >= 0) {
+                          const newContains = [...formData.contains];
+                          newContains[existsIdx].checked = true;
+                          setFormData({ ...formData, contains: newContains });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            contains: [
+                              ...formData.contains,
+                              { name: val, checked: true },
+                            ],
+                          });
+                        }
                         e.target.value = "";
                       }
                     }
@@ -480,14 +596,24 @@ const EditMenuItem = () => {
                   type="button"
                   onClick={(e) => {
                     const input = e.target.previousSibling;
-                    if (input.value.trim()) {
-                      setFormData({
-                        ...formData,
-                        contains: [
-                          ...formData.contains,
-                          { name: input.value.trim(), checked: true },
-                        ],
-                      });
+                    const val = input.value.trim();
+                    if (val) {
+                      const existsIdx = formData.contains.findIndex(
+                        (c) => c.name.toLowerCase() === val.toLowerCase()
+                      );
+                      if (existsIdx >= 0) {
+                        const newContains = [...formData.contains];
+                        newContains[existsIdx].checked = true;
+                        setFormData({ ...formData, contains: newContains });
+                      } else {
+                        setFormData({
+                          ...formData,
+                          contains: [
+                            ...formData.contains,
+                            { name: val, checked: true },
+                          ],
+                        });
+                      }
                       input.value = "";
                     }
                   }}

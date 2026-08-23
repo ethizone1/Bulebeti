@@ -97,9 +97,13 @@ const CreateEvent = () => {
       if (!restaurantData) throw new Error("Restaurant data not loaded");
       const payload = { ...formData, restaurantId: restaurantData._id };
 
+      const token = localStorage.getItem("token");
       const res = await fetch(`${config.API_URL}/api/events`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "x-auth-token": token } : {}),
+        },
         body: JSON.stringify(payload),
       });
 

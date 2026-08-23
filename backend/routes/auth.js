@@ -48,6 +48,8 @@ function verifyGoogleToken(token) {
             const payload = JSON.parse(data);
             if (payload.error_description || payload.error) {
               reject(new Error(payload.error_description || payload.error));
+            } else if (process.env.GOOGLE_CLIENT_ID && payload.aud !== process.env.GOOGLE_CLIENT_ID) {
+              reject(new Error("Google token client ID mismatch"));
             } else {
               resolve(payload);
             }
@@ -66,6 +68,10 @@ function verifyGoogleToken(token) {
 router.post("/change-password-preauth", async (req, res) => {
   try {
     const { email, phone, oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ msg: "Current password and new password are required." });
+    }
 
     let user = await User.findOne({ email });
     if (!user) {
@@ -232,6 +238,11 @@ router.post("/register", async (req, res) => {
 
     const isAutoVerified = !!googleToken;
 
+    // Restrict super-admin / hub owner self-registration and default to customer
+    const allowedRoles = ["customer", "admin"];
+    const requestedRole = allowedRoles.includes(role) ? role : "customer";
+    const assignedRole = (role === "super-admin" || role === "hub owner") ? "customer" : requestedRole;
+
     user = new User({
       name: finalName,
       email: finalEmail,
@@ -239,7 +250,7 @@ router.post("/register", async (req, res) => {
       password: hashedPassword,
       googleId,
       picture,
-      role: role || "admin",
+      role: assignedRole,
       status: isAutoVerified ? "active" : "pending",
       isVerified: isAutoVerified,
       verificationCode: isAutoVerified ? undefined : verificationCode,

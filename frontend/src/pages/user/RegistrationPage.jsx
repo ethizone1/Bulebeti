@@ -22,27 +22,9 @@ const RegistrationPage = () => {
     subscriptionTier: "Gold",
   });
 
-  useEffect(() => {
-    const paramTier = searchParams.get("tier") || searchParams.get("plan");
-    if (paramTier) {
-      const formatted =
-        paramTier.charAt(0).toUpperCase() + paramTier.slice(1).toLowerCase();
-      if (["Silver", "Gold", "Platinum", "Premium", "Basic"].includes(formatted)) {
-        setFormData((prev) => ({
-          ...prev,
-          subscriptionTier: formatted === "Basic" ? "Silver" : formatted,
-        }));
-      }
-    }
-  }, [searchParams]);
-
-  const handleSelectTier = (tier) => {
-    setFormData((prev) => ({ ...prev, subscriptionTier: tier }));
-    const formElement = document.getElementById("registration-form");
-    if (formElement) {
-      formElement.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  const [prefilledAlert, setPrefilledAlert] = useState("");
+  const [unfilledFields, setUnfilledFields] = useState([]);
+  const [upgradeSuccess, setUpgradeSuccess] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleToken, setGoogleToken] = useState(null);
@@ -55,6 +37,156 @@ const RegistrationPage = () => {
   const [verificationError, setVerificationError] = useState("");
   const [resendStatus, setResendStatus] = useState("");
   const [pendingEmail, setPendingEmail] = useState("");
+
+  const targetRestaurantSlug =
+    searchParams.get("restaurant") ||
+    (() => {
+      try {
+        const u = JSON.parse(localStorage.getItem("user") || "null");
+        return u?.restaurantSlug || "";
+      } catch {
+        return "";
+      }
+    })();
+
+  const isUpgradeMode = Boolean(
+    searchParams.get("restaurant") ||
+      (localStorage.getItem("token") && searchParams.get("plan"))
+  );
+
+  useEffect(() => {
+    const paramTier = searchParams.get("tier") || searchParams.get("plan");
+    const paramRestSlug = searchParams.get("restaurant");
+
+    let chosenTier = "Gold";
+    if (paramTier) {
+      const formatted =
+        paramTier.charAt(0).toUpperCase() + paramTier.slice(1).toLowerCase();
+      if (
+        ["Silver", "Gold", "Platinum", "Premium", "Basic"].includes(formatted)
+      ) {
+        chosenTier = formatted === "Basic" ? "Silver" : formatted;
+      }
+    }
+
+    const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+    const loadRestAndSet = async () => {
+      let filledCount = 0;
+      const targetSlug =
+        paramRestSlug || (storedUser ? storedUser.restaurantSlug : "");
+      let restData = null;
+      if (targetSlug) {
+        try {
+          const res = await fetch(
+            `${config.API_URL}/api/restaurants/${targetSlug}`
+          );
+          if (res.ok) {
+            restData = await res.json();
+          }
+        } catch (err) {
+          console.error("Auto-fill restaurant error:", err);
+        }
+      }
+
+      setFormData((prev) => {
+        const updated = { ...prev, subscriptionTier: chosenTier };
+        if (storedUser) {
+          if (storedUser.name) {
+            updated.ownerName = storedUser.name;
+            filledCount++;
+          }
+          if (storedUser.email) {
+            updated.email = storedUser.email;
+            filledCount++;
+          }
+          if (storedUser.phone) {
+            updated.phone = storedUser.phone;
+            filledCount++;
+          }
+        }
+        if (restData) {
+          if (restData.name) {
+            updated.restaurantName = restData.name;
+            filledCount++;
+          }
+          if (restData.address) {
+            updated.location = restData.address;
+            filledCount++;
+          }
+          if (restData.phone && !updated.phone) {
+            updated.phone = restData.phone;
+          }
+          if (restData.menuLayout) {
+            updated.menuLayout = restData.menuLayout;
+          }
+        }
+
+        const missing = [];
+        if (!updated.restaurantName) missing.push("Restaurant Name");
+        if (!isUpgradeMode && !updated.ownerName) missing.push("Owner Name");
+        if (!isUpgradeMode && !updated.email) missing.push("Email Address");
+        if (!isUpgradeMode && !storedUser && !updated.password) missing.push("Password");
+
+        setUnfilledFields(missing);
+
+        if (paramTier || paramRestSlug || filledCount > 0) {
+          setPrefilledAlert(
+            `✦ Upgrading / Selected Plan: ${chosenTier}. Your existing restaurant details are loaded below.`
+          );
+          setTimeout(() => {
+            const formElement = document.getElementById("registration-form");
+            if (formElement) {
+              formElement.scrollIntoView({ behavior: "smooth" });
+            }
+          }, 350);
+        }
+
+        return updated;
+      });
+    };
+
+    loadRestAndSet();
+  }, [searchParams, isUpgradeMode]);
+
+  const handleSelectTier = (tier) => {
+    setFormData((prev) => ({ ...prev, subscriptionTier: tier }));
+    const formElement = document.getElementById("registration-form");
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const validateForm = () => {
+    if (isUpgradeMode) {
+      return true;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email || !emailRegex.test(formData.email.trim())) {
+      setError("Please enter a valid email address (e.g., owner@example.com).");
+      return false;
+    }
+
+    if (formData.phone) {
+      const phoneRegex = /^\+?[0-9\s\-()]{9,18}$/;
+      if (!phoneRegex.test(formData.phone.trim())) {
+        setError("Please enter a valid phone number (at least 9 digits).");
+        return false;
+      }
+    }
+
+    if (!googleToken && formData.password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return false;
+    }
+
+    if (!googleToken && formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match. Please try again.");
+      return false;
+    }
+
+    return true;
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -129,33 +261,7 @@ const RegistrationPage = () => {
     }
   }, []);
 
-  const validateForm = () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email || !emailRegex.test(formData.email.trim())) {
-      setError("Please enter a valid email address (e.g., owner@example.com).");
-      return false;
-    }
 
-    if (formData.phone) {
-      const phoneRegex = /^\+?[0-9\s\-()]{9,18}$/;
-      if (!phoneRegex.test(formData.phone.trim())) {
-        setError("Please enter a valid phone number (at least 9 digits).");
-        return false;
-      }
-    }
-
-    if (!googleToken && formData.password.length < 6) {
-      setError("Password must be at least 6 characters long.");
-      return false;
-    }
-
-    if (!googleToken && formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match. Please try again.");
-      return false;
-    }
-
-    return true;
-  };
 
   const finalizeRegistration = async (token, userObj) => {
     localStorage.setItem("token", token);
@@ -198,6 +304,35 @@ const RegistrationPage = () => {
 
     setLoading(true);
     setError("");
+
+    if (isUpgradeMode && targetRestaurantSlug) {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          `${config.API_URL}/api/restaurants/${targetRestaurantSlug}/request-upgrade`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { "x-auth-token": token } : {}),
+            },
+            body: JSON.stringify({ tier: formData.subscriptionTier }),
+          }
+        );
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.msg || "Failed to submit upgrade request");
+        }
+
+        setUpgradeSuccess(true);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
 
     try {
       // 1. Register the user (Admin role)
@@ -290,6 +425,36 @@ const RegistrationPage = () => {
       setResendStatus("");
     }
   };
+
+  if (upgradeSuccess) {
+    return (
+      <div className="container py-5" style={{ maxWidth: "650px" }}>
+        <div className="card border-0 shadow-sm rounded-4 p-4 p-md-5 text-center bg-white my-5">
+          <div className="display-1 text-warning mb-3">✦</div>
+          <h2 className="fw-bold mb-2">Upgrade Request Sent to Super Admin!</h2>
+          <p
+            className="text-muted mb-4"
+            style={{ fontSize: "15px", lineHeight: "1.6" }}
+          >
+            Your request to upgrade{" "}
+            <strong>{formData.restaurantName || targetRestaurantSlug}</strong> to the{" "}
+            <strong style={{ color: "var(--gold)" }}>
+              {formData.subscriptionTier} Plan
+            </strong>{" "}
+            has been submitted to the Super Admin team for review and approval.
+          </p>
+          <button
+            onClick={() =>
+              navigate(`/bulebeti/${targetRestaurantSlug || "adme"}/admin`)
+            }
+            className="btn btn-primary btn-lg fw-bold px-4 rounded-3 mx-auto"
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-4">
@@ -779,39 +944,76 @@ const RegistrationPage = () => {
               {t("reg_subtitle") || "Enter details to get started"}
             </p>
 
+            {prefilledAlert && (
+              <div
+                className="alert border-0 shadow-sm rounded-4 p-3 mb-4"
+                style={{
+                  backgroundColor: "rgba(212, 175, 55, 0.12)",
+                  color: "#92400e",
+                  borderLeft: "4px solid var(--gold)",
+                }}
+              >
+                <div
+                  style={{
+                    fontWeight: "700",
+                    fontSize: "14px",
+                    marginBottom: "4px",
+                  }}
+                >
+                  {prefilledAlert}
+                </div>
+                {unfilledFields.length > 0 ? (
+                  <div style={{ fontSize: "13px", color: "#b45309" }}>
+                    ⚠️ <strong>Action Required:</strong> Please complete the remaining missing field(s):{" "}
+                    <span style={{ fontWeight: "700" }}>
+                      {unfilledFields.join(", ")}
+                    </span>.
+                  </div>
+                ) : (
+                  <div style={{ fontSize: "13px", color: "#15803d" }}>
+                    ✅ All required fields are pre-filled! Click submit to confirm your new plan.
+                  </div>
+                )}
+              </div>
+            )}
+
             {error && (
               <div className="alert alert-danger text-center" role="alert">
                 {error}
               </div>
             )}
 
-            <div className="mb-4 text-center">
-              <div
-                id="googleSignupButton"
-                className="mx-auto"
-                style={{ maxWidth: "400px", minHeight: "44px" }}
-              ></div>
-              {googleToken && (
-                <div
-                  className="alert alert-success mt-2 d-inline-block p-2"
-                  role="alert"
-                  style={{ fontSize: "13px" }}
-                >
-                  Linked Google Account: <strong>{googleUserEmail}</strong>.
-                  Name and email prefilled. Password is now optional!
+            {!isUpgradeMode && (
+              <>
+                <div className="mb-4 text-center">
+                  <div
+                    id="googleSignupButton"
+                    className="mx-auto"
+                    style={{ maxWidth: "400px", minHeight: "44px" }}
+                  ></div>
+                  {googleToken && (
+                    <div
+                      className="alert alert-success mt-2 d-inline-block p-2"
+                      role="alert"
+                      style={{ fontSize: "13px" }}
+                    >
+                      Linked Google Account: <strong>{googleUserEmail}</strong>.
+                      Name and email prefilled. Password is now optional!
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <div className="text-center my-3 text-muted position-relative">
-              <hr style={{ borderColor: "var(--platinum)" }} />
-              <span
-                className="position-absolute top-50 start-50 translate-middle px-3"
-                style={{ backgroundColor: "var(--surface)", fontSize: "13px" }}
-              >
-                {t("login_or") || "OR"} COMPLETE WITH PROFILE DETAILS
-              </span>
-            </div>
+                <div className="text-center my-3 text-muted position-relative">
+                  <hr style={{ borderColor: "var(--platinum)" }} />
+                  <span
+                    className="position-absolute top-50 start-50 translate-middle px-3"
+                    style={{ backgroundColor: "var(--surface)", fontSize: "13px" }}
+                  >
+                    {t("login_or") || "OR"} COMPLETE WITH PROFILE DETAILS
+                  </span>
+                </div>
+              </>
+            )}
 
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
@@ -909,159 +1111,75 @@ const RegistrationPage = () => {
                   </div>
                 </div>
 
-                <div className="col-12">
-                  <label className="form-label fw-bold">
-                    Choose Subscription Plan
-                  </label>
-                  <div className="row g-3">
-                    {[
-                      {
-                        id: "Silver",
-                        price: "Free",
-                        desc: "Basic Hub: Menu, Settings & Core Operations",
-                      },
-                      {
-                        id: "Gold",
-                        price: "$149/year",
-                        desc: "Gold Hub: Reservations, SMS Alerts & Unlimited Menus",
-                      },
-                      {
-                        id: "Platinum",
-                        price: "$399/year",
-                        desc: "Platinum Hub: Catering, Photo Gallery & Multi-location",
-                      },
-                      {
-                        id: "Premium",
-                        price: "$699/year",
-                        desc: "Premium Hub: Events, Concierge, Customization & All Features",
-                      },
-                    ].map((plan) => {
-                      const isSelected = formData.subscriptionTier === plan.id;
-                      return (
-                        <div key={plan.id} className="col-12 col-sm-6 col-lg-3">
-                          <div
-                            onClick={() =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                subscriptionTier: plan.id,
-                              }))
-                            }
-                            className={`p-3 h-100 position-relative ${isSelected ? "shadow-sm" : ""}`}
-                            style={{
-                              borderRadius: "10px",
-                              border: isSelected
-                                ? "2px solid var(--gold)"
-                                : "2px solid var(--platinum)",
-                              backgroundColor: isSelected
-                                ? "rgba(212, 175, 55, 0.06)"
-                                : "white",
-                              cursor: "pointer",
-                              transition: "all 0.2s",
-                            }}
-                          >
-                            {isSelected && (
-                              <div
-                                className="position-absolute"
-                                style={{
-                                  top: "8px",
-                                  right: "8px",
-                                  fontSize: "14px",
-                                }}
-                              >
-                                ✨
-                              </div>
-                            )}
-                            <div
-                              className="fw-bold mb-1"
-                              style={{
-                                fontSize: "15px",
-                                color: "var(--primary)",
-                              }}
-                            >
-                              {plan.id}
-                            </div>
-                            <div
-                              className="fw-bold mb-2"
-                              style={{ fontSize: "13px", color: "var(--gold)" }}
-                            >
-                              {plan.price}
-                            </div>
-                            <div
-                              className="small text-muted"
-                              style={{ fontSize: "11px", lineHeight: "1.4" }}
-                            >
-                              {plan.desc}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
 
-                <div className="col-md-6">
-                  <label className="form-label fw-bold">
-                    {t("reg_email") || "Email Address"}
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    placeholder={t("reg_email_ph") || "owner@example.com"}
-                    className="form-control p-3"
-                  />
-                </div>
 
-                <div className="col-md-6">
-                  <label className="form-label fw-bold">Phone Number</label>
-                  <input
-                    type="text"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                    placeholder="Enter phone number"
-                    className="form-control p-3"
-                  />
-                </div>
+                {!isUpgradeMode && (
+                  <>
+                    <div className="col-md-6">
+                      <label className="form-label fw-bold">
+                        {t("reg_email") || "Email Address"}
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        placeholder={t("reg_email_ph") || "owner@example.com"}
+                        className="form-control p-3"
+                      />
+                    </div>
 
-                <div className="col-md-6">
-                  <label className="form-label fw-bold">Password</label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required={!googleToken}
-                    disabled={!!googleToken}
-                    placeholder={
-                      googleToken
-                        ? "Password not required (Signed in via Google)"
-                        : "Choose a strong password"
-                    }
-                    className="form-control p-3"
-                  />
-                </div>
+                    <div className="col-md-6">
+                      <label className="form-label fw-bold">Phone Number</label>
+                      <input
+                        type="text"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        required
+                        placeholder="Enter phone number"
+                        className="form-control p-3"
+                      />
+                    </div>
 
-                <div className="col-md-6">
-                  <label className="form-label fw-bold">Confirm Password</label>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    required={!googleToken}
-                    disabled={!!googleToken}
-                    placeholder={
-                      googleToken
-                        ? "Password not required (Signed in via Google)"
-                        : "Re-enter your password"
-                    }
-                    className="form-control p-3"
-                  />
-                </div>
+                    <div className="col-md-6">
+                      <label className="form-label fw-bold">Password</label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required={!googleToken}
+                        disabled={!!googleToken}
+                        placeholder={
+                          googleToken
+                            ? "Password not required (Signed in via Google)"
+                            : "Choose a strong password"
+                        }
+                        className="form-control p-3"
+                      />
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="form-label fw-bold">Confirm Password</label>
+                      <input
+                        type="password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        required={!googleToken}
+                        disabled={!!googleToken}
+                        placeholder={
+                          googleToken
+                            ? "Password not required (Signed in via Google)"
+                            : "Re-enter your password"
+                        }
+                        className="form-control p-3"
+                      />
+                    </div>
+                  </>
+                )}
 
                 <div className="col-md-6">
                   <label className="form-label fw-bold">
@@ -1245,26 +1363,32 @@ const RegistrationPage = () => {
                     style={{ opacity: loading ? 0.7 : 1 }}
                   >
                     {loading
-                      ? "Creating Account..."
+                      ? isUpgradeMode
+                        ? "Submitting Upgrade Request..."
+                        : "Creating Account..."
+                      : isUpgradeMode
+                      ? `Submit Upgrade Request to Super Admin ✦`
                       : t("reg_submit") || "Create Account"}
                   </button>
                 </div>
               </div>
             </form>
 
-            <p className="text-center mt-4 small text-muted">
-              {t("reg_already") || "Already have an account?"}{" "}
-              <Link
-                to="/bulebeti/login"
-                style={{
-                  color: "var(--gold)",
-                  fontWeight: "600",
-                  textDecoration: "none",
-                }}
-              >
-                {t("reg_login") || "Login"}
-              </Link>
-            </p>
+            {!isUpgradeMode && (
+              <p className="text-center mt-4 small text-muted">
+                {t("reg_already") || "Already have an account?"}{" "}
+                <Link
+                  to="/bulebeti/login"
+                  style={{
+                    color: "var(--gold)",
+                    fontWeight: "600",
+                    textDecoration: "none",
+                  }}
+                >
+                  {t("reg_login") || "Login"}
+                </Link>
+              </p>
+            )}
           </div>
         </div>
       </div>

@@ -123,9 +123,17 @@ app.use("/api/locations", require("./routes/locations"));
 app.use("/api/gallery", require("./routes/gallery"));
 app.use("/api/inquiries", require("./routes/inquiries"));
 
-// Basic Health Check Route
-app.get("/", (req, res) => {
-  res.status(200).json({ status: "healthy", service: "Bulebet Backend API" });
+// Production Health Check Routes
+app.get(["/", "/api/health"], (req, res) => {
+  const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
+  res.status(200).json({
+    status: "healthy",
+    service: "Bulebet Backend API",
+    environment: process.env.NODE_ENV || "development",
+    database: dbStatus,
+    uptimeSeconds: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString(),
+  });
 });
 
 // Global Centralized Error Handler (No stack trace leaks)
@@ -137,6 +145,15 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({
     msg: isProduction ? "An unexpected error occurred" : err.message,
   });
+});
+
+// Global Process Level Crash Safety Guards
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("[UNHANDLED REJECTION]", reason);
+});
+
+process.on("uncaughtException", (error) => {
+  console.error("[UNCAUGHT EXCEPTION]", error);
 });
 
 // Connect to MongoDB & Start Server

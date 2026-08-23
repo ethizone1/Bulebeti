@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useLanguage } from "../../context/LanguageContext";
 import config from "../../config";
 
 const MenuDescription = ({ text }) => {
@@ -36,7 +35,6 @@ const MenuDescription = ({ text }) => {
 
 const RestaurantLandingPage = () => {
   const { restaurantName } = useParams();
-  const { t } = useLanguage();
   const [restaurant, setRestaurant] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
   const [menuFilter, setMenuFilter] = useState("All");

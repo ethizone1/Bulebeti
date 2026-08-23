@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import config from "../../config";
@@ -65,14 +65,13 @@ const LandingPage = () => {
   const { t } = useLanguage();
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+  const [_error, setError] = useState(null);
   // Customer geolocation state
   const [userCoords, setUserCoords] = useState(null);
   const [userLocationName, setUserLocationName] = useState("");
   const [isLocating, setIsLocating] = useState(false);
 
-  const requestUserLocation = () => {
+  const requestUserLocation = useCallback(() => {
     setIsLocating(true);
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -97,11 +96,11 @@ const LandingPage = () => {
       setUserLocationName("Addis Ababa (Default)");
       setIsLocating(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     requestUserLocation();
-  }, []);
+  }, [requestUserLocation]);
 
   useEffect(() => {
     const fetchRestaurants = async () => {

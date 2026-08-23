@@ -22,6 +22,39 @@ const CateringManagement = () => {
 
   const isPlatinumOrPremium = tier === "Platinum" || tier === "Premium";
 
+  const fetchCateringRequests = React.useCallback(async () => {
+    try {
+      setLoading(true);
+      const restRes = await fetch(
+        `${config.API_URL}/api/restaurants/${restaurantName}`,
+      );
+      if (!restRes.ok) throw new Error("Restaurant not found");
+      const restaurant = await restRes.json();
+
+      const catRes = await fetch(
+        `${config.API_URL}/api/catering/restaurant/${restaurant._id}`,
+      );
+      if (!catRes.ok) throw new Error("Failed to fetch catering requests");
+      const data = await catRes.json();
+      const sortedData = data.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+        return dateB - dateA;
+      });
+      setRequests(sortedData);
+    } catch (err) {
+      console.error("Error fetching catering:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [restaurantName]);
+
+  React.useEffect(() => {
+    if (isPlatinumOrPremium) {
+      fetchCateringRequests();
+    }
+  }, [restaurantName, isPlatinumOrPremium, fetchCateringRequests]);
+
   if (!isPlatinumOrPremium) {
     return (
       <div
@@ -48,33 +81,6 @@ const CateringManagement = () => {
     );
   }
 
-  const fetchCateringRequests = async () => {
-    try {
-      setLoading(true);
-      const restRes = await fetch(
-        `${config.API_URL}/api/restaurants/${restaurantName}`,
-      );
-      if (!restRes.ok) throw new Error("Restaurant not found");
-      const restaurant = await restRes.json();
-
-      const catRes = await fetch(
-        `${config.API_URL}/api/catering/restaurant/${restaurant._id}`,
-      );
-      if (!catRes.ok) throw new Error("Failed to fetch catering requests");
-      const data = await catRes.json();
-      const sortedData = data.sort((a, b) => {
-        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
-        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
-        return dateB - dateA;
-      });
-      setRequests(sortedData);
-    } catch (err) {
-      console.error("Error fetching catering:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const updateStatus = async (id, newStatus) => {
     const previous = [...requests];
     setRequests((prev) =>
@@ -93,10 +99,6 @@ const CateringManagement = () => {
       setRequests(previous);
     }
   };
-
-  React.useEffect(() => {
-    fetchCateringRequests();
-  }, [restaurantName]);
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -133,14 +135,6 @@ const CateringManagement = () => {
     const matchType = typeFilter === "All" || req.eventType === typeFilter;
     return matchSearch && matchStatus && matchDate && matchType;
   });
-
-  const inputStyle = {
-    padding: "8px 12px",
-    borderRadius: "var(--radius-md)",
-    border: "1px solid var(--platinum)",
-    fontSize: "14px",
-    outline: "none",
-  };
 
   return (
     <div className="catering-management py-3">

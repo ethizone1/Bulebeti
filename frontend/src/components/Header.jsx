@@ -3,7 +3,6 @@ import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { setDynamicFavicon } from "../utils/favicon";
 import config from "../config";
-import BuleBetLogo from "./BuleBetLogo";
 
 const Header = () => {
   const { language, toggleLanguage, t } = useLanguage();
@@ -144,11 +143,7 @@ const Header = () => {
       >
         {/* Left: Platform brand (customer only) + site/restaurant title */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {isRestaurantPage && (
-            <div className="hide-on-mobile" style={{ marginRight: 4 }}>
-              <BuleBetLogo size={36} />
-            </div>
-          )}
+
           <Link
             to={isRestaurantPage ? `/${restaurantName}` : "/"}
             style={{
@@ -241,10 +236,10 @@ const Header = () => {
         <nav
           style={{
             display: "flex",
-            gap: "var(--spacing-xl)",
+            gap: "clamp(8px, 1.2vw, 20px)",
             alignItems: "center",
           }}
-          className="hide-on-mobile"
+          className="hide-on-mobile header-desktop-nav"
         >
           {/* AI Search Engine */}
           <div
@@ -291,81 +286,96 @@ const Header = () => {
           </div>
 
           {isRestaurantPage ? (
-            navLinks.map((link) => (
-              <div
-                key={link.path}
-                style={{ position: "relative" }}
-                className={
-                  link.originalName === "Menu" ? "menu-dropdown-container" : ""
-                }
-              >
-                <Link
-                  to={link.path}
-                  style={{
-                    textDecoration: "none",
-                    color: "var(--on-surface-variant)",
-                    fontSize: "14px",
-                    fontWeight: "600",
-                    transition: "color 0.2s",
-                    padding: "10px 0",
-                  }}
-                  onMouseOver={(e) => (e.target.style.color = "var(--gold)")}
-                  onMouseOut={(e) =>
-                    (e.target.style.color = "var(--on-surface-variant)")
+            navLinks.map((link) => {
+              const isCurrentActive =
+                location.pathname === link.path ||
+                (link.path !== `/${restaurantName}` &&
+                  location.pathname.startsWith(link.path));
+
+              return (
+                <div
+                  key={link.path}
+                  style={{ position: "relative" }}
+                  className={
+                    link.originalName === "Menu" ? "menu-dropdown-container" : ""
                   }
                 >
-                  {link.name}
-                </Link>
-                {link.originalName === "Menu" && currentTier !== "Silver" && (
-                  <div
-                    className="menu-dropdown"
+                  <Link
+                    to={link.path}
                     style={{
-                      position: "absolute",
-                      top: "100%",
-                      left: "0",
-                      backgroundColor: "white",
-                      boxShadow: "var(--shadow-2)",
-                      borderRadius: "var(--radius-md)",
+                      textDecoration: "none",
+                      color: isCurrentActive
+                        ? "var(--gold)"
+                        : "var(--on-surface-variant)",
+                      fontSize: "14px",
+                      fontWeight: isCurrentActive ? "700" : "600",
+                      transition: "color 0.2s, border-color 0.2s",
                       padding: "10px 0",
-                      minWidth: "160px",
-                      display: "none", // Handled by CSS hover
-                      flexDirection: "column",
-                      zIndex: 1001,
-                      border: "1px solid var(--platinum)",
+                      whiteSpace: "nowrap",
+                      borderBottom: isCurrentActive
+                        ? "2px solid var(--gold)"
+                        : "2px solid transparent",
                     }}
+                    onMouseOver={(e) => (e.target.style.color = "var(--gold)")}
+                    onMouseOut={(e) =>
+                      (e.target.style.color = isCurrentActive
+                        ? "var(--gold)"
+                        : "var(--on-surface-variant)")
+                    }
                   >
-                    {[
-                      { id: "Our Signature", name: t("menu_signature") || "Our Signature" },
-                      ...categories.map((c) => ({ id: c, name: c })),
-                      { id: "All Items", name: t("menu_all") || "All Items" },
-                    ].map((cat) => (
-                      <Link
-                        key={cat.id}
-                        to={`/bulebeti/${restaurantName}/menu#${cat.id.toLowerCase().replace(/ /g, "-")}`}
-                        style={{
-                          padding: "8px 20px",
-                          color: "var(--on-surface-variant)",
-                          textDecoration: "none",
-                          fontSize: "14px",
-                          transition: "all 0.2s",
-                          display: "block",
-                        }}
-                        onMouseOver={(e) => {
-                          e.target.style.backgroundColor = "#f9fafb";
-                          e.target.style.color = "var(--gold)";
-                        }}
-                        onMouseOut={(e) => {
-                          e.target.style.backgroundColor = "transparent";
-                          e.target.style.color = "var(--on-surface-variant)";
-                        }}
-                      >
-                        {cat.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))
+                    {link.name}
+                  </Link>
+                  {link.originalName === "Menu" && currentTier !== "Silver" && (
+                    <div
+                      className="menu-dropdown"
+                      style={{
+                        position: "absolute",
+                        top: "100%",
+                        left: "0",
+                        backgroundColor: "white",
+                        boxShadow: "var(--shadow-2)",
+                        borderRadius: "var(--radius-md)",
+                        padding: "10px 0",
+                        minWidth: "160px",
+                        display: "none", // Handled by CSS hover
+                        flexDirection: "column",
+                        zIndex: 1001,
+                        border: "1px solid var(--platinum)",
+                      }}
+                    >
+                      {[
+                        { id: "Our Signature", name: t("menu_signature") || "Our Signature" },
+                        ...categories.map((c) => ({ id: c, name: c })),
+                        { id: "All Items", name: t("menu_all") || "All Items" },
+                      ].map((cat) => (
+                        <Link
+                          key={cat.id}
+                          to={`/bulebeti/${restaurantName}/menu#${cat.id.toLowerCase().replace(/ /g, "-")}`}
+                          style={{
+                            padding: "8px 20px",
+                            color: "var(--on-surface-variant)",
+                            textDecoration: "none",
+                            fontSize: "14px",
+                            transition: "all 0.2s",
+                            display: "block",
+                          }}
+                          onMouseOver={(e) => {
+                            e.target.style.backgroundColor = "#f9fafb";
+                            e.target.style.color = "var(--gold)";
+                          }}
+                          onMouseOut={(e) => {
+                            e.target.style.backgroundColor = "transparent";
+                            e.target.style.color = "var(--on-surface-variant)";
+                          }}
+                        >
+                          {cat.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })
           ) : (
             // Global Nav Links for Landing/Registration Pages
             <div
@@ -379,9 +389,17 @@ const Header = () => {
                 to="/"
                 style={{
                   textDecoration: "none",
-                  color: "var(--on-surface-variant)",
+                  color:
+                    location.pathname === "/"
+                      ? "var(--gold)"
+                      : "var(--on-surface-variant)",
                   fontSize: "14px",
-                  fontWeight: "600",
+                  fontWeight: location.pathname === "/" ? "700" : "600",
+                  borderBottom:
+                    location.pathname === "/"
+                      ? "2px solid var(--gold)"
+                      : "2px solid transparent",
+                  padding: "10px 0",
                 }}
               >
                 Platform Home
@@ -390,9 +408,17 @@ const Header = () => {
                 to="/register"
                 style={{
                   textDecoration: "none",
-                  color: "var(--gold)",
+                  color:
+                    location.pathname === "/register"
+                      ? "var(--gold)"
+                      : "var(--on-surface-variant)",
                   fontSize: "14px",
-                  fontWeight: "600",
+                  fontWeight: location.pathname === "/register" ? "700" : "600",
+                  borderBottom:
+                    location.pathname === "/register"
+                      ? "2px solid var(--gold)"
+                      : "2px solid transparent",
+                  padding: "10px 0",
                 }}
               >
                 For Restaurants
@@ -442,19 +468,7 @@ const Header = () => {
             {t("nav_login")}
           </button>
 
-          {/* Right-side brand logo (desktop only) */}
-          {isRestaurantPage && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginLeft: "8px",
-              }}
-              className="hide-on-mobile"
-            >
-              <BuleBetLogo size={36} />
-            </div>
-          )}
+
 
           {/* Mobile Toggle Button */}
           <button
@@ -510,23 +524,37 @@ const Header = () => {
           className="mobile-menu-drawer"
         >
           {isRestaurantPage ? (
-            navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsMenuOpen(false)}
-                style={{
-                  textDecoration: "none",
-                  color: "var(--primary)",
-                  fontSize: "18px",
-                  fontWeight: "600",
-                  padding: "10px 0",
-                  borderBottom: "1px solid #f3f4f6",
-                }}
-              >
-                {link.name}
-              </Link>
-            ))
+            navLinks.map((link) => {
+              const isCurrentActive =
+                location.pathname === link.path ||
+                (link.path !== `/${restaurantName}` &&
+                  location.pathname.startsWith(link.path));
+
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsMenuOpen(false)}
+                  style={{
+                    textDecoration: "none",
+                    color: isCurrentActive ? "var(--gold)" : "var(--primary)",
+                    fontSize: "18px",
+                    fontWeight: isCurrentActive ? "700" : "600",
+                    padding: "10px 12px",
+                    borderBottom: "1px solid #f3f4f6",
+                    borderLeft: isCurrentActive
+                      ? "4px solid var(--gold)"
+                      : "4px solid transparent",
+                    backgroundColor: isCurrentActive
+                      ? "rgba(212, 175, 55, 0.05)"
+                      : "transparent",
+                    borderRadius: "4px",
+                  }}
+                >
+                  {link.name}
+                </Link>
+              );
+            })
           ) : (
             <>
               <Link
@@ -534,11 +562,23 @@ const Header = () => {
                 onClick={() => setIsMenuOpen(false)}
                 style={{
                   textDecoration: "none",
-                  color: "var(--primary)",
+                  color:
+                    location.pathname === "/"
+                      ? "var(--gold)"
+                      : "var(--primary)",
                   fontSize: "18px",
-                  fontWeight: "600",
-                  padding: "10px 0",
+                  fontWeight: location.pathname === "/" ? "700" : "600",
+                  padding: "10px 12px",
                   borderBottom: "1px solid #f3f4f6",
+                  borderLeft:
+                    location.pathname === "/"
+                      ? "4px solid var(--gold)"
+                      : "4px solid transparent",
+                  backgroundColor:
+                    location.pathname === "/"
+                      ? "rgba(212, 175, 55, 0.05)"
+                      : "transparent",
+                  borderRadius: "4px",
                 }}
               >
                 Platform Home
@@ -548,11 +588,24 @@ const Header = () => {
                 onClick={() => setIsMenuOpen(false)}
                 style={{
                   textDecoration: "none",
-                  color: "var(--primary)",
+                  color:
+                    location.pathname === "/register"
+                      ? "var(--gold)"
+                      : "var(--primary)",
                   fontSize: "18px",
-                  fontWeight: "600",
-                  padding: "10px 0",
+                  fontWeight:
+                    location.pathname === "/register" ? "700" : "600",
+                  padding: "10px 12px",
                   borderBottom: "1px solid #f3f4f6",
+                  borderLeft:
+                    location.pathname === "/register"
+                      ? "4px solid var(--gold)"
+                      : "4px solid transparent",
+                  backgroundColor:
+                    location.pathname === "/register"
+                      ? "rgba(212, 175, 55, 0.05)"
+                      : "transparent",
+                  borderRadius: "4px",
                 }}
               >
                 For Restaurants
@@ -573,9 +626,13 @@ const Header = () => {
       )}
 
       <style>{`
-        @media (max-width: 768px) {
+        @media (max-width: 1080px) {
           .mobile-toggle-btn {
             display: block !important;
+          }
+          .header-desktop-nav,
+          .hide-on-mobile {
+            display: none !important;
           }
         }
         .menu-dropdown-container:hover .menu-dropdown {

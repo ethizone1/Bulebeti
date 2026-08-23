@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAdmin } from "../../layouts/AdminLayout";
@@ -18,6 +18,37 @@ const ReservationManagement = () => {
 
   const isGoldOrAbove =
     tier === "Gold" || tier === "Platinum" || tier === "Premium";
+
+  const fetchReservations = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(
+        `${config.API_URL}/api/reservations/restaurant/${restaurantName}`,
+        {
+          headers: { "x-auth-token": localStorage.getItem("token") },
+        },
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const sortedData = data.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+          const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+          return dateB - dateA;
+        });
+        setReservations(sortedData);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [restaurantName]);
+
+  useEffect(() => {
+    if (isGoldOrAbove) {
+      fetchReservations();
+    }
+  }, [restaurantName, isGoldOrAbove, fetchReservations]);
 
   if (!isGoldOrAbove) {
     return (
@@ -44,35 +75,6 @@ const ReservationManagement = () => {
       </div>
     );
   }
-
-  useEffect(() => {
-    fetchReservations();
-  }, [restaurantName]);
-
-  const fetchReservations = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(
-        `${config.API_URL}/api/reservations/restaurant/${restaurantName}`,
-        {
-          headers: { "x-auth-token": localStorage.getItem("token") },
-        },
-      );
-      if (res.ok) {
-        const data = await res.json();
-        const sortedData = data.sort((a, b) => {
-          const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
-          const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
-          return dateB - dateA;
-        });
-        setReservations(sortedData);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const updateStatus = async (id, newStatus) => {
     const previousReservations = [...reservations];
@@ -134,13 +136,7 @@ const ReservationManagement = () => {
     return matchLocalSearch && matchGlobalSearch && matchStatus && matchDate;
   });
 
-  const inputStyle = {
-    padding: "8px 12px",
-    borderRadius: "var(--radius-md)",
-    border: "1px solid var(--platinum)",
-    fontSize: "14px",
-    outline: "none",
-  };
+
 
   return (
     <div className="reservation-management py-3">

@@ -19,7 +19,6 @@ const ReservationPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
     fetch(`${config.API_URL}/api/restaurants/${restaurantName}`)
       .then(res => res.json())
       .then(data => {

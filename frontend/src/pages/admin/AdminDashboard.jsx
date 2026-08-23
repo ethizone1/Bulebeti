@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
+import PlansComparisonModal from "../../components/PlansComparisonModal";
 
 const AdminDashboard = () => {
   const { tier: currentTier } = useAdmin();
@@ -11,6 +12,7 @@ const AdminDashboard = () => {
   const { restaurantName } = useParams();
   const [showTour, setShowTour] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [isPlansModalOpen, setIsPlansModalOpen] = useState(false);
 
   // ── Live data from DB ───────────────────────────────────────
   const [stats, setStats] = useState({
@@ -64,7 +66,7 @@ const AdminDashboard = () => {
         const rId = restaurant._id;
 
         // 2. Parallel fetch of all data
-        const [resRes, catRes, menuRes, locRes] = await Promise.all([
+        const [resRes, catRes, menuRes, _locRes] = await Promise.all([
           fetch(
             `${config.API_URL}/api/reservations/restaurant/${restaurantName}`,
             {
@@ -206,11 +208,8 @@ const AdminDashboard = () => {
 
   const timeAgo = (dateStr) => {
     if (!dateStr) return "";
-    const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
-    if (diff < 60) return `${diff}s ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    return new Date(dateStr).toLocaleDateString();
+    const date = new Date(dateStr);
+    return isNaN(date.getTime()) ? "" : date.toLocaleDateString();
   };
 
   const tierImportance = { Silver: 0, Gold: 1, Platinum: 2, Premium: 3 };
@@ -450,9 +449,13 @@ const AdminDashboard = () => {
         {statCards.map((card, idx) => (
           <div key={idx} className="col-12 col-sm-6 col-xl-3">
             <div
-              onClick={() =>
-                navigate(`/bulebeti/${restaurantName}/admin/${card.path}`)
-              }
+              onClick={() => {
+                if (card.value === "🔒") {
+                  setIsPlansModalOpen(true);
+                } else {
+                  navigate(`/bulebeti/${restaurantName}/admin/${card.path}`);
+                }
+              }}
               className={`card h-100 border-0 shadow-sm p-4 position-relative overflow-hidden ${card.highlight ? "border border-danger" : ""}`}
               style={{
                 borderRadius: "12px",
@@ -710,7 +713,7 @@ const AdminDashboard = () => {
             <p className="small m-0 text-white-50">{t("admin_upgrade_desc")}</p>
             <button
               className="btn btn-warning w-100 fw-bold mt-2"
-              onClick={() => navigate("/")}
+              onClick={() => setIsPlansModalOpen(true)}
             >
               {t("admin_view_plans")}
             </button>
@@ -755,6 +758,13 @@ const AdminDashboard = () => {
           </div>
         ))}
       </div>
+
+      <PlansComparisonModal
+        isOpen={isPlansModalOpen}
+        onClose={() => setIsPlansModalOpen(false)}
+        currentTier={currentTier}
+        restaurantSlug={restaurantName}
+      />
     </div>
   );
 };

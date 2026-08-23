@@ -1,12 +1,87 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import config from "../../config";
 
 const ContactPage = () => {
+  const { restaurantName } = useParams();
+  const [restaurant, setRestaurant] = useState(null);
+  const [_loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSubmit = (e) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "General Inquiry",
+    message: "",
+  });
+
+  useEffect(() => {
+    if (!restaurantName) {
+      setLoading(false);
+      return;
+    }
+    const fetchRestaurant = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(
+          `${config.API_URL}/api/restaurants/${restaurantName}`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setRestaurant(data);
+        }
+      } catch (err) {
+        console.error("Failed to load restaurant contact details", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRestaurant();
+  }, [restaurantName]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitting(true);
+    setErrorMsg("");
+
+    try {
+      const res = await fetch(`${config.API_URL}/api/inquiries`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+          restaurantId: restaurant?._id || null,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.msg || "Failed to submit inquiry");
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      setErrorMsg(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  const displayName = restaurant?.name || "BuleBet";
+  const displayAddress =
+    restaurant?.address || "Location details available upon reservation";
+  const displayPhone = restaurant?.phone || "Direct phone line available";
+  const displayEmail =
+    restaurant?.email || `info@${restaurantName || "bulebeti"}.com`;
+  const openingHours = restaurant?.openingHours;
 
   return (
     <div
@@ -26,7 +101,7 @@ const ContactPage = () => {
               marginBottom: "var(--spacing-md)",
             }}
           >
-            Get in Touch
+            Contact {displayName}
           </h1>
           <p
             style={{
@@ -36,8 +111,8 @@ const ContactPage = () => {
               margin: "0 auto",
             }}
           >
-            Whether you are looking to elevate your restaurant or have a
-            platform inquiry, our platinum support team is here to assist.
+            Have a question, feedback, or special request for {displayName}? Our
+            guest hospitality team is here to assist you.
           </p>
         </div>
 
@@ -57,7 +132,7 @@ const ContactPage = () => {
           {/* Contact Info */}
           <div>
             <h2 style={{ fontSize: "24px", marginBottom: "32px" }}>
-              Platform Contact
+              {displayName} Info
             </h2>
 
             <div style={{ display: "grid", gap: "32px" }}>
@@ -71,12 +146,10 @@ const ContactPage = () => {
                       marginBottom: "4px",
                     }}
                   >
-                    GLOBAL HEADQUARTERS
+                    ADDRESS & LOCATION
                   </div>
                   <div style={{ fontSize: "15px", color: "#6b7280" }}>
-                    123 Platinum Ave, Suite 500
-                    <br />
-                    New York, NY 10001
+                    {displayAddress}
                   </div>
                 </div>
               </div>
@@ -91,17 +164,19 @@ const ContactPage = () => {
                       marginBottom: "4px",
                     }}
                   >
-                    SUPPORT EMAIL
+                    DIRECT EMAIL
                   </div>
-                  <div
+                  <a
+                    href={`mailto:${displayEmail}`}
                     style={{
                       fontSize: "15px",
                       color: "var(--gold)",
                       fontWeight: "600",
+                      textDecoration: "none",
                     }}
                   >
-                    concierge@bulebeti.com
-                  </div>
+                    {displayEmail}
+                  </a>
                 </div>
               </div>
 
@@ -115,13 +190,47 @@ const ContactPage = () => {
                       marginBottom: "4px",
                     }}
                   >
-                    24/7 CONCIERGE
+                    PHONE & CONCIERGE
                   </div>
-                  <div style={{ fontSize: "15px", color: "#6b7280" }}>
-                    +1 (800) BULEBET
-                  </div>
+                  <a
+                    href={`tel:${displayPhone}`}
+                    style={{
+                      fontSize: "15px",
+                      color: "#6b7280",
+                      textDecoration: "none",
+                    }}
+                  >
+                    {displayPhone}
+                  </a>
                 </div>
               </div>
+
+              {(openingHours?.weekdays || openingHours?.weekends) && (
+                <div style={{ display: "flex", gap: "16px" }}>
+                  <div style={{ fontSize: "24px" }}>🕒</div>
+                  <div>
+                    <div
+                      style={{
+                        fontWeight: "700",
+                        fontSize: "14px",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      OPENING HOURS
+                    </div>
+                    {openingHours.weekdays && (
+                      <div style={{ fontSize: "14px", color: "#6b7280" }}>
+                        Mon – Fri: {openingHours.weekdays}
+                      </div>
+                    )}
+                    {openingHours.weekends && (
+                      <div style={{ fontSize: "14px", color: "#6b7280" }}>
+                        Sat – Sun: {openingHours.weekends}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div
@@ -142,11 +251,11 @@ const ContactPage = () => {
                   letterSpacing: "0.1em",
                 }}
               >
-                PLATINUM PARTNERSHIP
+                GUEST HOSPITALITY
               </div>
               <p style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>
-                Looking to onboard multiple locations? Contact our enterprise
-                division for a personalized platform demo.
+                Messages sent here go directly to {displayName}&apos;s
+                management team. We respond to all inquiries within 24 hours.
               </p>
             </div>
           </div>
@@ -158,6 +267,19 @@ const ContactPage = () => {
                 onSubmit={handleSubmit}
                 style={{ display: "grid", gap: "20px" }}
               >
+                {errorMsg && (
+                  <div
+                    style={{
+                      padding: "12px",
+                      backgroundColor: "#fee2e2",
+                      color: "#dc2626",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                    }}
+                  >
+                    ⚠️ {errorMsg}
+                  </div>
+                )}
                 <div>
                   <label
                     style={{
@@ -167,12 +289,16 @@ const ContactPage = () => {
                       marginBottom: "8px",
                     }}
                   >
-                    FULL NAME
+                    FULL NAME *
                   </label>
                   <input
                     required
                     type="text"
                     placeholder="Your Name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     style={{
                       width: "100%",
                       padding: "14px",
@@ -191,12 +317,16 @@ const ContactPage = () => {
                       marginBottom: "8px",
                     }}
                   >
-                    EMAIL ADDRESS
+                    EMAIL ADDRESS *
                   </label>
                   <input
                     required
                     type="email"
                     placeholder="email@example.com"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     style={{
                       width: "100%",
                       padding: "14px",
@@ -215,9 +345,40 @@ const ContactPage = () => {
                       marginBottom: "8px",
                     }}
                   >
-                    SUBJECT
+                    PHONE NUMBER
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="+1 (555) 000-0000"
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "14px",
+                      borderRadius: "8px",
+                      border: "1px solid var(--platinum)",
+                      fontSize: "14px",
+                    }}
+                  />
+                </div>
+                <div>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "12px",
+                      fontWeight: "700",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    SUBJECT *
                   </label>
                   <select
+                    value={formData.subject}
+                    onChange={(e) =>
+                      setFormData({ ...formData, subject: e.target.value })
+                    }
                     style={{
                       width: "100%",
                       padding: "14px",
@@ -227,9 +388,10 @@ const ContactPage = () => {
                       backgroundColor: "white",
                     }}
                   >
-                    <option>Platform Inquiry</option>
-                    <option>Technical Support</option>
-                    <option>Partnership Proposal</option>
+                    <option>General Inquiry</option>
+                    <option>Table Reservation Query</option>
+                    <option>Catering & Private Event</option>
+                    <option>Feedback & Suggestion</option>
                     <option>Other</option>
                   </select>
                 </div>
@@ -242,12 +404,16 @@ const ContactPage = () => {
                       marginBottom: "8px",
                     }}
                   >
-                    MESSAGE
+                    MESSAGE *
                   </label>
                   <textarea
                     required
                     rows="5"
-                    placeholder="How can we assist you today?"
+                    placeholder={`How can ${displayName} assist you today?`}
+                    value={formData.message}
+                    onChange={(e) =>
+                      setFormData({ ...formData, message: e.target.value })
+                    }
                     style={{
                       width: "100%",
                       padding: "14px",
@@ -259,20 +425,26 @@ const ContactPage = () => {
                   />
                 </div>
                 <button
+                  disabled={submitting}
                   type="submit"
                   className="btn btn-primary"
-                  style={{ width: "100%", padding: "16px" }}
+                  style={{ width: "100%", padding: "16px", fontWeight: "700" }}
                 >
-                  Send Message
+                  {submitting
+                    ? "Sending Inquiry..."
+                    : "Send Message to Restaurant"}
                 </button>
               </form>
             ) : (
               <div style={{ textAlign: "center", padding: "40px 0" }}>
                 <div style={{ fontSize: "48px", marginBottom: "20px" }}>✉️</div>
-                <h2 style={{ marginBottom: "12px" }}>Message Received</h2>
+                <h2 style={{ marginBottom: "12px" }}>
+                  Inquiry Sent to {displayName}
+                </h2>
                 <p style={{ color: "#6b7280", fontSize: "14px" }}>
-                  Thank you for reaching out. Our concierge team will review
-                  your inquiry and respond within 24 hours.
+                  Thank you for reaching out to {displayName}. The restaurant
+                  management team has received your message and will get back
+                  to you shortly.
                 </p>
                 <button
                   onClick={() => setSubmitted(false)}

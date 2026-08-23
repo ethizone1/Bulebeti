@@ -4,7 +4,8 @@ const auth = require('../middleware/auth');
 const Restaurant = require('../models/Restaurant');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
-const { sendEmail, sendSms } = require('../services/notifications');
+const { sendEmail, sendSMS } = require('../services/notifications');
+
 
 // Middleware to check if user is Owner or Manager
 const verifyOwnerOrManager = async (req, res, next) => {
@@ -68,14 +69,19 @@ router.post('/:slug/team', auth, verifyOwnerOrManager, async (req, res) => {
 
   try {
     let targetUser = await User.findOne({ email });
+    const crypto = require('crypto');
     let isNewUser = false;
+    let tempPass = null;
+
     if (!targetUser) {
       if (!phone) {
         return res.status(400).json({ msg: 'Phone number is required to invite a new user.' });
       }
       
+      isNewUser = true;
+      tempPass = `Pass_${crypto.randomBytes(4).toString('hex')}!`;
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash('Admin.123', salt);
+      const hashedPassword = await bcrypt.hash(tempPass, salt);
 
       targetUser = new User({
         name: 'Pending Admin',
@@ -86,7 +92,6 @@ router.post('/:slug/team', auth, verifyOwnerOrManager, async (req, res) => {
         status: 'active'
       });
       await targetUser.save();
-      isNewUser = true;
     }
 
     // Dispatch real Email and SMS notifications
@@ -102,7 +107,7 @@ router.post('/:slug/team', auth, verifyOwnerOrManager, async (req, res) => {
         <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 0 0 8px 0;"><strong>Login Email:</strong> ${email}</p>
           <p style="margin: 0 0 8px 0;"><strong>Login Phone:</strong> ${phone}</p>
-          <p style="margin: 0;"><strong>Default Password:</strong> ${isNewUser ? 'Admin.123' : '(Use your existing password)'}</p>
+          <p style="margin: 0;"><strong>Default Temporary Password:</strong> ${isNewUser ? tempPass : '(Use your existing password)'}</p>
         </div>
         <p>Please click the button below to set your password and activate your account:</p>
         <a href="${inviteUrl}" style="display: inline-block; background: #111827; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; margin: 12px 0;">Activate Account & Set Password</a>
@@ -113,8 +118,8 @@ router.post('/:slug/team', auth, verifyOwnerOrManager, async (req, res) => {
     try {
       await sendEmail(email, emailSubject, emailHtml, `${restaurant.name} Admin`);
       if (phone) {
-        const smsMsg = `[BuleBet] You were invited as a Sub-Admin for ${restaurant.name}. Login: ${email || phone} / Password: Admin.123. Activate at: ${inviteUrl}`;
-        await sendSms(phone, smsMsg, restaurant);
+        const smsMsg = `[BuleBet] You were invited as a Sub-Admin for ${restaurant.name}. Login: ${email || phone} / Password: ${isNewUser ? tempPass : '(existing)'}. Activate at: ${inviteUrl}`;
+        await sendSMS(phone, smsMsg, restaurant.name);
       }
     } catch (e) {
       console.error("[TEAM INVITE NOTIFICATION ERROR]", e.message);

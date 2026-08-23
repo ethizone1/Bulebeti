@@ -7,7 +7,13 @@ const PlatformInquiries = () => {
 
   const fetchInquiries = async () => {
     try {
-      const res = await fetch(`${config.API_URL}/api/inquiries`);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${config.API_URL}/api/inquiries`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'x-auth-token': token } : {})
+        }
+      });
       if (res.ok) {
         const data = await res.json();
         setInquiries(data);
@@ -25,9 +31,13 @@ const PlatformInquiries = () => {
 
   const handleResolve = async (id) => {
     try {
+      const token = localStorage.getItem('token');
       const res = await fetch(`${config.API_URL}/api/inquiries/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'x-auth-token': token } : {})
+        },
         body: JSON.stringify({ status: 'Resolved' })
       });
       
@@ -35,7 +45,7 @@ const PlatformInquiries = () => {
         setInquiries(prev => prev.map(i => i._id === id ? { ...i, status: 'Resolved' } : i));
         alert('Inquiry marked as Resolved. A confirmation has been sent to the user.');
       }
-    } catch (err) {
+    } catch {
       alert('Failed to update inquiry status');
     }
   };

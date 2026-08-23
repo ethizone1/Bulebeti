@@ -9,7 +9,6 @@ import { LanguageProvider } from "./context/LanguageContext";
 // User Pages
 import LandingPage from "./pages/user/LandingPage";
 import RegistrationPage from "./pages/user/RegistrationPage";
-import VerificationPage from "./pages/user/VerificationPage";
 import LoginPage from "./pages/user/LoginPage";
 import ActivatePage from "./pages/user/ActivatePage";
 import UserProfile from "./pages/user/UserProfile";
@@ -117,30 +116,19 @@ const UpgradeRequiredScreen = ({ requiredTier, currentTier }) => {
       </p>
 
       <div style={{ display: "flex", gap: "14px", justifyContent: "center" }}>
-        <button
-          onClick={() => {
-            const buttons = Array.from(document.querySelectorAll("button"));
-            const contactBtn = buttons.find((b) =>
-              b.textContent.includes("Contact Support"),
-            );
-            if (contactBtn) {
-              contactBtn.click();
-            } else {
-              alert(
-                "Please contact support@bulebeti.com to upgrade your subscription.",
-              );
-            }
-          }}
+        <a
+          href={`/register?plan=${requiredTier}`}
           className="btn btn-primary"
           style={{
             padding: "10px 20px",
             fontWeight: "700",
             borderRadius: "8px",
-            cursor: "pointer",
+            textDecoration: "none",
+            display: "inline-block",
           }}
         >
-          Upgrade Now
-        </button>
+          Upgrade to {requiredTier} Plan ✦
+        </a>
         <button
           onClick={() => window.history.back()}
           className="btn btn-outline"

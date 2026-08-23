@@ -6,7 +6,7 @@ import config from "../../config";
 const RestaurantManagement = () => {
   const navigate = useNavigate();
   const [restaurants, setRestaurants] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [selectedQrRestaurant, setSelectedQrRestaurant] = useState(null);
 
@@ -48,11 +48,15 @@ const RestaurantManagement = () => {
   const toggleStatus = async (id, currentStatus) => {
     const nextStatus = currentStatus === "Active" ? "Inactive" : "Active";
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(
         `${config.API_URL}/api/restaurants/admin/edit/${id}`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { "x-auth-token": token } : {}),
+          },
           body: JSON.stringify({ status: nextStatus }),
         },
       );
@@ -74,24 +78,27 @@ const RestaurantManagement = () => {
     }
   };
 
-  const handleApproveUpgrade = async (id, targetTier) => {
+  const handleApproveUpgrade = async (id, targetTier, name) => {
+    if (!window.confirm(`Approve upgrade for "${name}" to ${targetTier} Plan?`)) return;
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(
         `${config.API_URL}/api/restaurants/admin/upgrade/${id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            ...(token ? { "x-auth-token": token } : {}),
           },
           body: JSON.stringify({
+            action: "approve",
             subscriptionTier: targetTier,
-            clearPending: true,
           }),
         },
       );
 
       if (res.ok) {
-        alert(`Successfully upgraded restaurant to ${targetTier}!`);
+        alert(`🎉 Upgrade APPROVED! "${name}" is now upgraded to ${targetTier} Plan in the database, and a congratulatory notification was sent to the owner.`);
         fetchRestaurants(); // Refresh data
       } else {
         alert("Failed to approve upgrade");
@@ -102,15 +109,47 @@ const RestaurantManagement = () => {
     }
   };
 
+  const handleRejectUpgrade = async (id, name, requestedTier) => {
+    if (!window.confirm(`Reject upgrade request (${requestedTier}) for "${name}"?`)) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `${config.API_URL}/api/restaurants/admin/upgrade/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { "x-auth-token": token } : {}),
+          },
+          body: JSON.stringify({
+            action: "reject",
+          }),
+        },
+      );
+
+      if (res.ok) {
+        alert(`✕ Upgrade request for "${name}" rejected.`);
+        fetchRestaurants(); // Refresh data
+      } else {
+        alert("Failed to reject upgrade");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error rejecting upgrade");
+    }
+  };
+
   const handleEditSave = async (e) => {
     e.preventDefault();
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(
         `${config.API_URL}/api/restaurants/admin/edit/${editingRestaurant._id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            ...(token ? { "x-auth-token": token } : {}),
           },
           body: JSON.stringify({
             name: editingRestaurant.name,
@@ -158,6 +197,65 @@ const RestaurantManagement = () => {
         >
           Add New Partner
         </button>
+      </div>
+
+      {/* ─── SUMMARY STATS BAR ─── */}
+      <div className="row g-3 mb-4">
+        <div className="col-md-4">
+          <div className="card border-0 shadow-sm rounded-4 p-3 bg-white d-flex flex-row align-items-center gap-3">
+            <div
+              className="rounded-3 p-3 fs-4 d-flex align-items-center justify-content-center"
+              style={{ backgroundColor: "rgba(13, 110, 253, 0.1)", width: "52px", height: "52px" }}
+            >
+              🏪
+            </div>
+            <div>
+              <div className="text-muted small fw-bold text-uppercase">Total Restaurants</div>
+              <div className="fs-3 fw-bold">{restaurants.length}</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-4">
+          <div className="card border-0 shadow-sm rounded-4 p-3 bg-white d-flex flex-row align-items-center gap-3">
+            <div
+              className="rounded-3 p-3 fs-4 d-flex align-items-center justify-content-center"
+              style={{ backgroundColor: "rgba(25, 135, 84, 0.1)", width: "52px", height: "52px" }}
+            >
+              ✅
+            </div>
+            <div>
+              <div className="text-muted small fw-bold text-uppercase">Active Operational</div>
+              <div className="fs-3 fw-bold">
+                {restaurants.filter((r) => r.status === "Active").length}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-4">
+          <div
+            className="card border-0 shadow-sm rounded-4 p-3 bg-white d-flex flex-row align-items-center gap-3"
+            style={{
+              borderLeft: restaurants.some((r) => r.pendingTierRequest)
+                ? "4px solid #d97706"
+                : "none",
+            }}
+          >
+            <div
+              className="rounded-3 p-3 fs-4 d-flex align-items-center justify-content-center"
+              style={{ backgroundColor: "rgba(217, 119, 6, 0.1)", width: "52px", height: "52px" }}
+            >
+              ⚡
+            </div>
+            <div>
+              <div className="text-muted small fw-bold text-uppercase">Pending Upgrades</div>
+              <div className="fs-3 fw-bold text-warning">
+                {restaurants.filter((r) => r.pendingTierRequest).length}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div
@@ -357,30 +455,55 @@ const RestaurantManagement = () => {
                         {row.status === "Active" ? "Deactivate" : "Activate"}
                       </button>
                       {row.pendingTierRequest && (
-                        <button
-                          onClick={() =>
-                            handleApproveUpgrade(row.id, row.pendingTierRequest)
-                          }
-                          style={{
-                            padding: "6px 12px",
-                            backgroundColor: "#10b981",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                            fontSize: "12px",
-                            fontWeight: "700",
-                            transition: "opacity 0.2s",
-                          }}
-                          onMouseOver={(e) =>
-                            (e.currentTarget.style.opacity = "0.9")
-                          }
-                          onMouseOut={(e) =>
-                            (e.currentTarget.style.opacity = "1")
-                          }
-                        >
-                          Approve Upgrade
-                        </button>
+                        <div className="d-flex align-items-center gap-2">
+                          <button
+                            onClick={() =>
+                              handleApproveUpgrade(
+                                row.id,
+                                row.pendingTierRequest,
+                                row.name
+                              )
+                            }
+                            style={{
+                              padding: "6px 12px",
+                              backgroundColor: "#10b981",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "12px",
+                              fontWeight: "700",
+                              boxShadow: "0 2px 4px rgba(16, 185, 129, 0.25)",
+                              transition: "all 0.2s",
+                            }}
+                            title={`Approve upgrade to ${row.pendingTierRequest}`}
+                          >
+                            ✓ Approve ({row.pendingTierRequest})
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleRejectUpgrade(
+                                row.id,
+                                row.name,
+                                row.pendingTierRequest
+                              )
+                            }
+                            style={{
+                              padding: "5px 11px",
+                              backgroundColor: "#fef2f2",
+                              color: "#dc2626",
+                              border: "1px solid #fca5a5",
+                              borderRadius: "6px",
+                              cursor: "pointer",
+                              fontSize: "12px",
+                              fontWeight: "700",
+                              transition: "all 0.2s",
+                            }}
+                            title="Reject upgrade request"
+                          >
+                            ✕ Reject
+                          </button>
+                        </div>
                       )}
                       <button
                         onClick={() => {

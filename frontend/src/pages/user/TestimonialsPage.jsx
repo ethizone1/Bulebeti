@@ -1,57 +1,50 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useLanguage } from "../../context/LanguageContext";
 import config from "../../config";
 
+// Default platform testimonials if accessed globally or as fallback
+const FALLBACK_TESTIMONIALS = [
+  {
+    name: "Julianne Vance",
+    text: "BuleBet has completely transformed how we manage our high-profile catering events. The precision is unmatched.",
+    rating: 5,
+    date: "May 1, 2026",
+  },
+  {
+    name: "Marcus Sterling",
+    text: "The digital concierge feel is exactly what our brand needed. Our customers love the seamless reservation experience.",
+    rating: 5,
+    date: "May 5, 2026",
+  },
+  {
+    name: "Elena Rodriguez",
+    text: "A masterclass in digital hospitality. Every touchpoint feels premium and intentionally designed.",
+    rating: 5,
+    date: "May 10, 2026",
+  },
+  {
+    name: "Thomas Wright",
+    text: "The catering hub makes it so easy to manage complex requests. Highly recommended for elite operators.",
+    rating: 4,
+    date: "May 15, 2026",
+  },
+];
+
 const TestimonialsPage = () => {
-  const { t } = useLanguage();
   const { restaurantName } = useParams();
 
   // States
   const [restaurant, setRestaurant] = useState(null);
-  const [testimonials, setTestimonials] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Default platform testimonials if accessed globally or as fallback
-  const fallbackTestimonials = [
-    {
-      name: "Julianne Vance",
-      text: "BuleBet has completely transformed how we manage our high-profile catering events. The precision is unmatched.",
-      rating: 5,
-      date: "May 1, 2026",
-    },
-    {
-      name: "Marcus Sterling",
-      text: "The digital concierge feel is exactly what our brand needed. Our customers love the seamless reservation experience.",
-      rating: 5,
-      date: "May 5, 2026",
-    },
-    {
-      name: "Elena Rodriguez",
-      text: "A masterclass in digital hospitality. Every touchpoint feels premium and intentionally designed.",
-      rating: 5,
-      date: "May 10, 2026",
-    },
-    {
-      name: "Thomas Wright",
-      text: "The catering hub makes it so easy to manage complex requests. Highly recommended for elite operators.",
-      rating: 4,
-      date: "May 15, 2026",
-    },
-  ];
+  const [testimonials, setTestimonials] = useState(restaurantName ? [] : FALLBACK_TESTIMONIALS);
+  const [loading, setLoading] = useState(!!restaurantName);
 
   useEffect(() => {
     if (!restaurantName) {
-      // Global mode
-      setTestimonials(fallbackTestimonials);
-      setLoading(false);
       return;
     }
 
     const fetchRestaurantAndTestimonials = async () => {
       try {
-        setLoading(true);
         // Fetch restaurant details
         const restRes = await fetch(
           `${config.API_URL}/api/restaurants/${restaurantName}`,
@@ -72,7 +65,6 @@ const TestimonialsPage = () => {
         }
       } catch (err) {
         console.error("Error fetching testimonials page data:", err);
-        setError(err.message);
       } finally {
         setLoading(false);
       }

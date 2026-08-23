@@ -38,6 +38,7 @@ const Footer = () => {
 
   const displayName = restaurant?.name || "BuleBet";
   const displayPhone = restaurant?.phone || null;
+  const displayEmail = restaurant?.email || null;
   const displayAddress = restaurant?.address || null;
   const displayDescription = restaurant?.description || t("footer_tagline");
   const openingHours = restaurant?.openingHours || null;
@@ -186,6 +187,21 @@ const Footer = () => {
                     📞 {displayPhone}
                   </a>
                 )}
+                {displayEmail && (
+                  <a
+                    href={`mailto:${displayEmail}`}
+                    style={{
+                      color: "rgba(255,255,255,0.7)",
+                      fontSize: "13px",
+                      textDecoration: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    📧 {displayEmail}
+                  </a>
+                )}
                 {displayAddress && (
                   <span
                     style={{
@@ -261,77 +277,99 @@ const Footer = () => {
                 const currentTierImp =
                   tierImportance[restaurant?.subscriptionTier] || 1;
 
-                const links = [
-                  {
-                    name: t("footer_our_menu") || "Our Menu",
-                    path: isRestaurantPage
-                      ? `/${restaurantName}/menu`
-                      : "/menu",
-                    minTier: "Basic",
-                  },
-                  {
-                    name: t("footer_sister_rest") || "Sister Restaurants",
-                    path: isRestaurantPage
-                      ? `/${restaurantName}/sister-restaurants`
-                      : "/sister-restaurants",
-                    minTier: "Silver",
-                  },
-                  {
-                    name: t("footer_catering") || "Catering",
-                    path: isRestaurantPage
-                      ? `/${restaurantName}/catering`
-                      : "/catering",
-                    minTier: "Gold",
-                  },
-                  {
-                    name: t("footer_events") || "Events",
-                    path: isRestaurantPage
-                      ? `/${restaurantName}/events`
-                      : "/events",
-                    minTier: "Gold",
-                  },
-                  {
-                    name: t("footer_feedback") || "Feedback",
-                    path: isRestaurantPage
-                      ? `/${restaurantName}/feedback`
-                      : "/feedback",
-                    minTier: "Platinum",
-                  },
-                  {
-                    name: t("footer_gallery") || "Gallery",
-                    path: isRestaurantPage
-                      ? `/${restaurantName}/gallery`
-                      : "/gallery",
-                    minTier: "Platinum",
-                  },
-                ];
+                const links = isRestaurantPage
+                  ? [
+                      {
+                        name: t("footer_our_menu") || "Our Menu",
+                        path: `/${restaurantName}/menu`,
+                        minTier: "Basic",
+                      },
+                      {
+                        name: t("footer_sister_rest") || "Sister Restaurants",
+                        path: `/${restaurantName}/sister-restaurants`,
+                        minTier: "Silver",
+                      },
+                      {
+                        name: t("footer_catering") || "Catering",
+                        path: `/${restaurantName}/catering`,
+                        minTier: "Gold",
+                      },
+                      {
+                        name: t("footer_events") || "Events",
+                        path: `/${restaurantName}/events`,
+                        minTier: "Gold",
+                      },
+                      {
+                        name: t("footer_feedback") || "Feedback",
+                        path: `/${restaurantName}/feedback`,
+                        minTier: "Platinum",
+                      },
+                      {
+                        name: t("footer_gallery") || "Gallery",
+                        path: `/${restaurantName}/gallery`,
+                        minTier: "Platinum",
+                      },
+                    ]
+                  : [
+                      {
+                        name: "Platform Home",
+                        path: "/",
+                        minTier: "Basic",
+                      },
+                      {
+                        name: "Explore Restaurants",
+                        path: "/stores",
+                        minTier: "Basic",
+                      },
+                      {
+                        name: "For Restaurants",
+                        path: "/register",
+                        minTier: "Basic",
+                      },
+                    ];
+
+                const isLinkActive = (path) => {
+                  if (!path || path === "#") return false;
+                  return (
+                    location.pathname === path ||
+                    (path !== "/" && location.pathname.startsWith(path))
+                  );
+                };
 
                 return links
                   .filter(
                     (link) =>
                       currentTierImp >= (tierImportance[link.minTier] || 0),
                   )
-                  .map((link) => (
-                    <li key={link.name}>
-                      <Link
-                        to={link.path}
-                        style={{
-                          color: "rgba(255,255,255,0.75)",
-                          textDecoration: "none",
-                          fontSize: "14px",
-                          transition: "color 0.2s",
-                        }}
-                        onMouseOver={(e) =>
-                          (e.target.style.color = "var(--gold)")
-                        }
-                        onMouseOut={(e) =>
-                          (e.target.style.color = "rgba(255,255,255,0.75)")
-                        }
-                      >
-                        › {link.name}
-                      </Link>
-                    </li>
-                  ));
+                  .map((link) => {
+                    const active = isLinkActive(link.path);
+                    return (
+                      <li key={link.name}>
+                        <Link
+                          to={link.path}
+                          style={{
+                            color: active
+                              ? "var(--gold)"
+                              : "rgba(255,255,255,0.75)",
+                            fontWeight: active ? "700" : "400",
+                            textDecoration: "none",
+                            fontSize: "14px",
+                            transition: "all 0.2s ease",
+                          }}
+                          onMouseOver={(e) =>
+                            (e.target.style.color = "var(--gold)")
+                          }
+                          onMouseOut={(e) =>
+                            (e.target.style.color = active
+                              ? "var(--gold)"
+                              : "rgba(255,255,255,0.75)")
+                          }
+                        >
+                          › {link.name}
+                        </Link>
+                      </li>
+                    );
+                  });
               })()}
             </ul>
           </div>
@@ -357,50 +395,70 @@ const Footer = () => {
                 gap: "12px",
               }}
             >
-              {[
-                {
-                  name: t("footer_help_center") || "Help Center",
-                  path: isRestaurantPage
-                    ? `/${restaurantName}/contact`
-                    : "#",
-                },
-                {
-                  name: t("footer_privacy") || "Privacy Policy",
-                  path: isRestaurantPage
-                    ? `/${restaurantName}/privacy`
-                    : "/privacy",
-                },
-                {
-                  name: t("footer_terms") || "Terms of Service",
-                  path: isRestaurantPage
-                    ? `/${restaurantName}/terms`
-                    : "/terms",
-                },
-                {
-                  name: t("footer_contact_us") || "Contact Us",
-                  path: isRestaurantPage
-                    ? `/${restaurantName}/contact`
-                    : "/contact-us",
-                },
-              ].map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    style={{
-                      color: "rgba(255,255,255,0.75)",
-                      textDecoration: "none",
-                      fontSize: "14px",
-                      transition: "color 0.2s",
-                    }}
-                    onMouseOver={(e) => (e.target.style.color = "var(--gold)")}
-                    onMouseOut={(e) =>
-                      (e.target.style.color = "rgba(255,255,255,0.75)")
-                    }
-                  >
-                    › {link.name}
-                  </Link>
-                </li>
-              ))}
+              {(() => {
+                const isLinkActive = (path) => {
+                  if (!path || path === "#") return false;
+                  return (
+                    location.pathname === path ||
+                    (path !== "/" && location.pathname.startsWith(path))
+                  );
+                };
+
+                return [
+                  {
+                    name: t("footer_help_center") || "Help Center",
+                    path: isRestaurantPage
+                      ? `/${restaurantName}/contact`
+                      : "#",
+                  },
+                  {
+                    name: t("footer_privacy") || "Privacy Policy",
+                    path: isRestaurantPage
+                      ? `/${restaurantName}/privacy`
+                      : "/privacy",
+                  },
+                  {
+                    name: t("footer_terms") || "Terms of Service",
+                    path: isRestaurantPage
+                      ? `/${restaurantName}/terms`
+                      : "/terms",
+                  },
+                  {
+                    name: t("footer_contact_us") || "Contact Us",
+                    path: isRestaurantPage
+                      ? `/${restaurantName}/contact`
+                      : "/contact-us",
+                  },
+                ].map((link) => {
+                  const active = isLinkActive(link.path);
+                  return (
+                    <li key={link.name}>
+                      <Link
+                        to={link.path}
+                        style={{
+                          color: active
+                            ? "var(--gold)"
+                            : "rgba(255,255,255,0.75)",
+                          fontWeight: active ? "700" : "400",
+                          textDecoration: "none",
+                          fontSize: "14px",
+                          transition: "all 0.2s ease",
+                        }}
+                        onMouseOver={(e) =>
+                          (e.target.style.color = "var(--gold)")
+                        }
+                        onMouseOut={(e) =>
+                          (e.target.style.color = active
+                            ? "var(--gold)"
+                            : "rgba(255,255,255,0.75)")
+                        }
+                      >
+                        › {link.name}
+                      </Link>
+                    </li>
+                  );
+                });
+              })()}
             </ul>
           </div>
 

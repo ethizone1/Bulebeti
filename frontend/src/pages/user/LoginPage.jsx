@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import config from "../../config";
 
@@ -10,10 +10,6 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const [showForcePasswordChange, setShowForcePasswordChange] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
-  const [userData, setUserData] = useState(null);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -42,12 +38,6 @@ const LoginPage = () => {
         throw new Error(data.msg || "Login failed");
       }
 
-      if (data.requiresPasswordChange) {
-        setUserData(data);
-        setShowForcePasswordChange(true);
-        return;
-      }
-
       // Store token
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -65,53 +55,7 @@ const LoginPage = () => {
     }
   };
 
-  const handlePasswordChange = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    const changePayload = { oldPassword: password, newPassword };
-    if (identifier.includes("@")) {
-      changePayload.email = identifier.trim();
-    } else {
-      changePayload.phone = identifier.trim();
-    }
-
-    try {
-      const response = await fetch(
-        `${config.API_URL}/api/auth/change-password-preauth`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(changePayload),
-        },
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.msg || "Failed to change password");
-      }
-
-      // Proceed with original login flow
-      localStorage.setItem("token", userData.token);
-      localStorage.setItem("user", JSON.stringify(userData.user));
-
-      if (userData.user.role === "super-admin") {
-        navigate("/super-admin");
-      } else {
-        navigate(`/bulebeti/${userData.restaurantSlug || "default"}/admin`);
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleLoginResponse = async (googleResponse) => {
+  const handleGoogleLoginResponse = useCallback(async (googleResponse) => {
     setLoading(true);
     setError("");
     try {
@@ -144,7 +88,7 @@ const LoginPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     const initializeGoogleSignIn = () => {
@@ -185,7 +129,7 @@ const LoginPage = () => {
         document.head.appendChild(newScript);
       }
     }
-  }, []);
+  }, [handleGoogleLoginResponse]);
 
   const [useOtpMode, setUseOtpMode] = useState(false);
   const [otpStep, setOtpStep] = useState(1);

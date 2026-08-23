@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { NavLink, Link, useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import config from "../config";
+import PlansComparisonModal from "./PlansComparisonModal";
 
 // Super-admin contact details (platform support)
 const SUPER_ADMIN_CONTACT = {
@@ -12,14 +13,14 @@ const SUPER_ADMIN_CONTACT = {
   hours: "Mon–Fri, 9am–6pm EAT",
 };
 
-const AdminSidebar = ({ currentTier = "Platinum", onTierChange }) => {
+const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { restaurantName } = useParams();
 
   const [showContactModal, setShowContactModal] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [requestingUpgrade, setRequestingUpgrade] = useState(false);
+  const [_requestingUpgrade, setRequestingUpgrade] = useState(false);
 
   // ── Real owner info from localStorage ──────────────────────────
   const [owner, setOwner] = useState(null);
@@ -43,7 +44,7 @@ const AdminSidebar = ({ currentTier = "Platinum", onTierChange }) => {
       .catch(() => {});
   }, [restaurantName]);
 
-  const handleRequestUpgrade = async (targetTier) => {
+  const _handleRequestUpgrade = async (targetTier) => {
     setRequestingUpgrade(true);
     try {
       const token = localStorage.getItem("token");
@@ -193,7 +194,7 @@ const AdminSidebar = ({ currentTier = "Platinum", onTierChange }) => {
     },
   ];
 
-  const tiers = ["Silver", "Gold", "Platinum", "Premium"];
+  const _tiers = ["Silver", "Gold", "Platinum", "Premium"];
   const tierImportance = { Silver: 0, Gold: 1, Platinum: 2, Premium: 3 };
   const filteredItems = allMenuItems.filter(
     (item) =>
@@ -814,199 +815,12 @@ const AdminSidebar = ({ currentTier = "Platinum", onTierChange }) => {
         </div>
       )}
 
-      {/* ── Upgrade Plan Modal ───────────────────────────────────── */}
-      {showUpgradeModal && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.6)",
-            zIndex: 2000,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "20px",
-          }}
-          onClick={() => setShowUpgradeModal(false)}
-        >
-          <div
-            style={{
-              backgroundColor: "white",
-              borderRadius: "16px",
-              padding: "32px",
-              maxWidth: "480px",
-              width: "100%",
-              boxShadow: "0 25px 60px rgba(0,0,0,0.3)",
-              position: "relative",
-              color: "#1f2937",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close */}
-            <button
-              onClick={() => setShowUpgradeModal(false)}
-              style={{
-                position: "absolute",
-                top: "16px",
-                right: "16px",
-                background: "none",
-                border: "none",
-                fontSize: "20px",
-                cursor: "pointer",
-                color: "#9ca3af",
-              }}
-            >
-              ✕
-            </button>
-
-            {/* Header */}
-            <div style={{ textAlign: "center", marginBottom: "24px" }}>
-              <div style={{ fontSize: "48px", marginBottom: "12px" }}>✦</div>
-              <h3 style={{ margin: 0, fontSize: "20px", fontWeight: "800" }}>
-                Upgrade Subscription Plan
-              </h3>
-              <p
-                style={{
-                  margin: "6px 0 0",
-                  fontSize: "13px",
-                  color: "#6b7280",
-                }}
-              >
-                Your current plan is{" "}
-                <strong style={{ color: "var(--gold)" }}>{currentTier}</strong>.
-                Choose a target plan below to send an upgrade request to the
-                super admin.
-              </p>
-            </div>
-
-            {/* Plans List */}
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
-            >
-              {[
-                {
-                  id: "Silver",
-                  price: "$19/mo",
-                  desc: "Overview, Menu, settings.",
-                },
-                {
-                  id: "Gold",
-                  price: "$49/mo",
-                  desc: "Reservations, Menu, settings.",
-                },
-                {
-                  id: "Platinum",
-                  price: "$99/mo",
-                  desc: "Catering, Gallery, Sister Hubs.",
-                },
-                {
-                  id: "Premium",
-                  price: "$199/mo",
-                  desc: "Events, Feedback, Testimonials & more.",
-                },
-              ].map((plan) => {
-                const isCurrent =
-                  currentTier.toLowerCase() === plan.id.toLowerCase() ||
-                  (currentTier.toLowerCase() === "basic" &&
-                    plan.id.toLowerCase() === "silver");
-                return (
-                  <div
-                    key={plan.id}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "14px 16px",
-                      borderRadius: "10px",
-                      border: isCurrent
-                        ? "1px solid var(--gold)"
-                        : "1px solid #e5e7eb",
-                      backgroundColor: isCurrent
-                        ? "rgba(212,175,55,0.05)"
-                        : "white",
-                      opacity: isCurrent ? 0.75 : 1,
-                    }}
-                  >
-                    <div>
-                      <div
-                        style={{
-                          fontWeight: "800",
-                          fontSize: "14px",
-                          color: "#111827",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        {plan.id}
-                        {isCurrent && (
-                          <span
-                            style={{
-                              fontSize: "10px",
-                              backgroundColor: "var(--gold)",
-                              color: "white",
-                              padding: "1px 6px",
-                              borderRadius: "4px",
-                            }}
-                          >
-                            Active
-                          </span>
-                        )}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          color: "#6b7280",
-                          marginTop: "2px",
-                        }}
-                      >
-                        {plan.desc}
-                      </div>
-                    </div>
-                    <div>
-                      {isCurrent ? (
-                        <span
-                          style={{
-                            fontSize: "12px",
-                            fontWeight: "700",
-                            color: "var(--gold)",
-                          }}
-                        >
-                          {plan.price}
-                        </span>
-                      ) : (
-                        <button
-                          disabled={requestingUpgrade}
-                          onClick={() => handleRequestUpgrade(plan.id)}
-                          style={{
-                            padding: "6px 12px",
-                            backgroundColor: "var(--primary)",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "6px",
-                            fontSize: "11px",
-                            fontWeight: "700",
-                            cursor: "pointer",
-                            transition: "opacity 0.2s",
-                          }}
-                          onMouseOver={(e) =>
-                            (e.currentTarget.style.opacity = "0.9")
-                          }
-                          onMouseOut={(e) =>
-                            (e.currentTarget.style.opacity = "1")
-                          }
-                        >
-                          Request
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+      <PlansComparisonModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        currentTier={currentTier}
+        restaurantSlug={restaurantName}
+      />
     </>
   );
 };

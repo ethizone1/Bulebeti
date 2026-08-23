@@ -3,6 +3,8 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const { canManageRestaurant } = require('../middleware/ownership');
 const Restaurant = require('../models/Restaurant');
+const Event = require('../models/Event');
+
 
 // Get all active public events across platform
 router.get('/', async (req, res) => {

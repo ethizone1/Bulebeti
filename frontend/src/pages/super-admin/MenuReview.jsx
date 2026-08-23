@@ -4,7 +4,7 @@ import config from "../../config";
 const MenuReview = () => {
   const [globalMenu, setGlobalMenu] = useState([]);
 
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchGlobalMenu = async () => {
@@ -37,15 +37,31 @@ const MenuReview = () => {
     fetchGlobalMenu();
   }, []);
 
-  const handleApprove = (id) => {
-    setGlobalMenu((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, status: "Reviewed" } : item,
-      ),
-    );
-    alert(
-      "Menu item approved and officially registered in the bulebeti Network!",
-    );
+  const handleApprove = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${config.API_URL}/api/menu/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "x-auth-token": token } : {}),
+        },
+        body: JSON.stringify({ isAvailable: true }),
+      });
+      if (res.ok) {
+        setGlobalMenu((prev) =>
+          prev.map((item) =>
+            item.id === id ? { ...item, status: "Reviewed" } : item,
+          ),
+        );
+        alert("Menu item approved and officially registered in the bulebeti Network!");
+      } else {
+        alert("Failed to update menu item in database");
+      }
+    } catch (err) {
+      console.error("Failed to approve menu item", err);
+      alert("Error approving menu item");
+    }
   };
 
   return (

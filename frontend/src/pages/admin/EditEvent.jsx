@@ -124,9 +124,13 @@ const EditEvent = () => {
     setError("");
 
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(`${config.API_URL}/api/events/${eventId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "x-auth-token": token } : {}),
+        },
         body: JSON.stringify(formData),
       });
 

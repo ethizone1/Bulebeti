@@ -3,6 +3,7 @@ const router = express.Router();
 const auth = require("../middleware/auth");
 const { requireRole } = require("../middleware/ownership");
 const Restaurant = require("../models/Restaurant");
+const Inquiry = require("../models/Inquiry");
 
 // Get all restaurants
 router.get("/", async (req, res) => {
@@ -149,6 +150,8 @@ router.post("/", auth, async (req, res) => {
       }
     }
 
+    const initialTier = (req.user && req.user.role === "super-admin") ? (subscriptionTier || "Basic") : "Basic";
+
     const newRestaurant = new Restaurant({
       name,
       slug,
@@ -160,13 +163,13 @@ router.post("/", auth, async (req, res) => {
       email,
       menuLayout,
       logoUrl,
-      subscriptionTier: subscriptionTier || "Basic",
+      subscriptionTier: initialTier,
       ownerId: req.user.id,
     });
 
     const restaurant = await newRestaurant.save();
     console.log(
-      `[BACKEND] 🏢 New restaurant profile created: ${name} (slug: ${slug}) by User ID: ${req.user.id} with tier: ${subscriptionTier || "Basic"}`,
+      `[BACKEND] 🏢 New restaurant profile created: ${name} (slug: ${slug}) by User ID: ${req.user.id} with tier: ${initialTier}`,
     );
     res.json(restaurant);
   } catch (err) {
@@ -215,7 +218,53 @@ router.put("/admin/upgrade/:id", auth, requireRole("admin", "super-admin"), asyn
       return res.status(404).json({ msg: "Restaurant not found" });
     }
 
-    const { subscriptionTier, clearPending } = req.body;
+    const { action, subscriptionTier, clearPending } = req.body;
+    let targetTier = subscriptionTier || restaurant.pendingTierRequest || "Platinum";
+
+    if (action === "approve") {
+      restaurant.subscriptionTier = targetTier;
+      restaurant.pendingTierRequest = "";
+      await restaurant.save();
+
+      try {
+        const congratsInquiry = new Inquiry({
+          name: "Super Admin Platform System",
+          email: "admin@bulebeti.com",
+          subject: "🎉 Subscription Upgrade Approved!",
+          message: `Congratulations! Your request to upgrade ${restaurant.name} to the ${targetTier} Plan has been APPROVED by the Super Admin team. All features of the ${targetTier} Plan are now fully unlocked for your hub!`,
+          status: "Resolved",
+          restaurantId: restaurant._id,
+        });
+        await congratsInquiry.save();
+      } catch (inqErr) {
+        console.error("Failed to create congratulatory inquiry:", inqErr.message);
+      }
+
+      console.log(`[BACKEND] 👑 Upgrade APPROVED for ${restaurant.name} to ${targetTier}`);
+      return res.json({ msg: `Successfully upgraded ${restaurant.name} to ${targetTier}!`, restaurant });
+    } else if (action === "reject") {
+      const requestedTier = restaurant.pendingTierRequest || "requested tier";
+      restaurant.pendingTierRequest = "";
+      await restaurant.save();
+
+      try {
+        const rejectionInquiry = new Inquiry({
+          name: "Super Admin Platform System",
+          email: "admin@bulebeti.com",
+          subject: "Subscription Upgrade Request Status",
+          message: `Your request to upgrade ${restaurant.name} to the ${requestedTier} Plan was reviewed by the Super Admin team and not approved at this time. Please contact support@bulebeti.com for further details.`,
+          status: "Resolved",
+          restaurantId: restaurant._id,
+        });
+        await rejectionInquiry.save();
+      } catch (inqErr) {
+        console.error("Failed to create rejection inquiry:", inqErr.message);
+      }
+
+      console.log(`[BACKEND] 👑 Upgrade REJECTED for ${restaurant.name}`);
+      return res.json({ msg: `Upgrade request for ${restaurant.name} has been rejected.`, restaurant });
+    }
+
     if (subscriptionTier) restaurant.subscriptionTier = subscriptionTier;
     if (clearPending) restaurant.pendingTierRequest = "";
 
@@ -223,7 +272,7 @@ router.put("/admin/upgrade/:id", auth, requireRole("admin", "super-admin"), asyn
     console.log(
       `[BACKEND] 👑 Admin updated restaurant ${restaurant.name} subscription tier to: ${restaurant.subscriptionTier}`,
     );
-    res.json(restaurant);
+    res.json({ msg: "Restaurant updated", restaurant });
   } catch (err) {
     console.error("[ADMIN UPGRADE ERROR]", err.message);
     res.status(500).json({ msg: "Server error" });

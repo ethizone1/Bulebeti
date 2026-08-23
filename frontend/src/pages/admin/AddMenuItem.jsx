@@ -1,7 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import config from "../../config";
+
+const DEFAULT_INGREDIENTS = [
+  "Injera",
+  "Berbere",
+  "Niter Kibbeh (Spiced Butter)",
+  "Garlic",
+  "Onion",
+  "Tomato",
+  "Rosemary",
+  "Green Chili / Jalapeño",
+  "Cardamom",
+  "Ginger",
+  "Beef",
+  "Chicken",
+  "Lamb",
+  "Fish",
+  "Lentils (Misir)",
+  "Shiro (Chickpea Flour)",
+  "Spinach (Gomen)",
+  "Cabbage",
+  "Carrots",
+  "Potatoes",
+  "Cheese (Ayib)",
+  "Olive Oil",
+];
+
+const DEFAULT_CONTAINS = [
+  "Dairy",
+  "Gluten",
+  "Nuts / Peanuts",
+  "Eggs",
+  "Soy",
+  "Sesame",
+  "Shellfish",
+  "Mustard",
+];
 
 const AddMenuItem = () => {
   const { t } = useLanguage();
@@ -31,6 +67,50 @@ const AddMenuItem = () => {
     showContains: true,
     image: null,
   });
+
+  useEffect(() => {
+    const fetchGlobalMenuData = async () => {
+      let ingNames = [...DEFAULT_INGREDIENTS];
+      let conNames = [...DEFAULT_CONTAINS];
+
+      try {
+        const res = await fetch(`${config.API_URL}/api/menu`);
+        if (res.ok) {
+          const globalItems = await res.json();
+          if (Array.isArray(globalItems)) {
+            globalItems.forEach((item) => {
+              if (Array.isArray(item.ingredients)) {
+                item.ingredients.forEach((ing) => {
+                  const n = typeof ing === "string" ? ing : ing?.name;
+                  if (n && !ingNames.includes(n)) {
+                    ingNames.push(n);
+                  }
+                });
+              }
+              if (Array.isArray(item.contains)) {
+                item.contains.forEach((con) => {
+                  const n = typeof con === "string" ? con : con?.name;
+                  if (n && !conNames.includes(n)) {
+                    conNames.push(n);
+                  }
+                });
+              }
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch global menu ingredients", err);
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        ingredients: ingNames.map((name) => ({ name, checked: false })),
+        contains: conNames.map((name) => ({ name, checked: false })),
+      }));
+    };
+
+    fetchGlobalMenuData();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -217,40 +297,43 @@ const AddMenuItem = () => {
             />
           </div>
 
+          {/* Ingredients */}
           <div className="col-12">
             <label className="form-label fw-bold small mb-1">
               {t("admin_item_lbl_ing")}
             </label>
-            <div className="bg-light border rounded p-3 d-flex flex-column gap-2">
-              {formData.ingredients.length === 0 && (
-                <div className="small text-muted fst-italic">
-                  {t("admin_item_no_ing")}
-                </div>
-              )}
-              {formData.ingredients.map((ing, idx) => (
-                <div key={idx} className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id={`ing-${idx}`}
-                    checked={ing.checked}
-                    onChange={(e) => {
-                      const newIngs = [...formData.ingredients];
-                      newIngs[idx].checked = e.target.checked;
-                      setFormData({ ...formData, ingredients: newIngs });
-                    }}
-                    style={{ cursor: "pointer" }}
-                  />
-                  <label
-                    className="form-check-label small"
-                    htmlFor={`ing-${idx}`}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {ing.name}
-                  </label>
-                </div>
-              ))}
-              <div className="d-flex gap-2 mt-2">
+            <div className="bg-light border rounded p-3">
+              <div
+                className="row g-2"
+                style={{ maxHeight: "220px", overflowY: "auto" }}
+              >
+                {formData.ingredients.map((ing, idx) => (
+                  <div key={ing.name || idx} className="col-6 col-sm-4 col-md-3">
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id={`ing-${idx}`}
+                        checked={Boolean(ing.checked)}
+                        onChange={(e) => {
+                          const newIngs = [...formData.ingredients];
+                          newIngs[idx].checked = e.target.checked;
+                          setFormData({ ...formData, ingredients: newIngs });
+                        }}
+                        style={{ cursor: "pointer" }}
+                      />
+                      <label
+                        className="form-check-label small fw-semibold"
+                        htmlFor={`ing-${idx}`}
+                        style={{ cursor: "pointer" }}
+                      >
+                        {ing.name}
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="d-flex gap-2 mt-3 pt-2 border-top">
                 <input
                   type="text"
                   placeholder={t("admin_item_ph_ing")}
@@ -258,14 +341,24 @@ const AddMenuItem = () => {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      if (e.target.value.trim()) {
-                        setFormData({
-                          ...formData,
-                          ingredients: [
-                            ...formData.ingredients,
-                            { name: e.target.value.trim(), checked: true },
-                          ],
-                        });
+                      const val = e.target.value.trim();
+                      if (val) {
+                        const existsIdx = formData.ingredients.findIndex(
+                          (i) => i.name.toLowerCase() === val.toLowerCase()
+                        );
+                        if (existsIdx >= 0) {
+                          const newIngs = [...formData.ingredients];
+                          newIngs[existsIdx].checked = true;
+                          setFormData({ ...formData, ingredients: newIngs });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            ingredients: [
+                              ...formData.ingredients,
+                              { name: val, checked: true },
+                            ],
+                          });
+                        }
                         e.target.value = "";
                       }
                     }
@@ -275,14 +368,24 @@ const AddMenuItem = () => {
                   type="button"
                   onClick={(e) => {
                     const input = e.target.previousSibling;
-                    if (input.value.trim()) {
-                      setFormData({
-                        ...formData,
-                        ingredients: [
-                          ...formData.ingredients,
-                          { name: input.value.trim(), checked: true },
-                        ],
-                      });
+                    const val = input.value.trim();
+                    if (val) {
+                      const existsIdx = formData.ingredients.findIndex(
+                        (i) => i.name.toLowerCase() === val.toLowerCase()
+                      );
+                      if (existsIdx >= 0) {
+                        const newIngs = [...formData.ingredients];
+                        newIngs[existsIdx].checked = true;
+                        setFormData({ ...formData, ingredients: newIngs });
+                      } else {
+                        setFormData({
+                          ...formData,
+                          ingredients: [
+                            ...formData.ingredients,
+                            { name: val, checked: true },
+                          ],
+                        });
+                      }
                       input.value = "";
                     }
                   }}
@@ -294,40 +397,46 @@ const AddMenuItem = () => {
             </div>
           </div>
 
+          {/* Contains / Allergens */}
           <div className="col-12">
             <label className="form-label fw-bold small mb-1">
               {t("admin_item_lbl_con")}
             </label>
-            <div className="bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded p-3 d-flex flex-column gap-2">
-              {formData.contains.length === 0 && (
-                <div className="small text-muted fst-italic">
-                  {t("admin_item_no_con")}
-                </div>
-              )}
-              {formData.contains.map((allergen, idx) => (
-                <div key={idx} className="form-check text-danger">
-                  <input
-                    className="form-check-input border-danger"
-                    type="checkbox"
-                    id={`allergen-${idx}`}
-                    checked={allergen.checked}
-                    onChange={(e) => {
-                      const newContains = [...formData.contains];
-                      newContains[idx].checked = e.target.checked;
-                      setFormData({ ...formData, contains: newContains });
-                    }}
-                    style={{ cursor: "pointer" }}
-                  />
-                  <label
-                    className="form-check-label small"
-                    htmlFor={`allergen-${idx}`}
-                    style={{ cursor: "pointer" }}
+            <div className="bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded p-3">
+              <div
+                className="row g-2"
+                style={{ maxHeight: "220px", overflowY: "auto" }}
+              >
+                {formData.contains.map((allergen, idx) => (
+                  <div
+                    key={allergen.name || idx}
+                    className="col-6 col-sm-4 col-md-3"
                   >
-                    {allergen.name}
-                  </label>
-                </div>
-              ))}
-              <div className="d-flex gap-2 mt-2">
+                    <div className="form-check text-danger">
+                      <input
+                        className="form-check-input border-danger"
+                        type="checkbox"
+                        id={`allergen-${idx}`}
+                        checked={Boolean(allergen.checked)}
+                        onChange={(e) => {
+                          const newContains = [...formData.contains];
+                          newContains[idx].checked = e.target.checked;
+                          setFormData({ ...formData, contains: newContains });
+                        }}
+                        style={{ cursor: "pointer" }}
+                      />
+                      <label
+                        className="form-check-label small fw-semibold"
+                        htmlFor={`allergen-${idx}`}
+                        style={{ cursor: "pointer" }}
+                      >
+                        {allergen.name}
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="d-flex gap-2 mt-3 pt-2 border-top border-danger border-opacity-25">
                 <input
                   type="text"
                   placeholder={t("admin_item_ph_con")}
@@ -335,14 +444,24 @@ const AddMenuItem = () => {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      if (e.target.value.trim()) {
-                        setFormData({
-                          ...formData,
-                          contains: [
-                            ...formData.contains,
-                            { name: e.target.value.trim(), checked: true },
-                          ],
-                        });
+                      const val = e.target.value.trim();
+                      if (val) {
+                        const existsIdx = formData.contains.findIndex(
+                          (c) => c.name.toLowerCase() === val.toLowerCase()
+                        );
+                        if (existsIdx >= 0) {
+                          const newContains = [...formData.contains];
+                          newContains[existsIdx].checked = true;
+                          setFormData({ ...formData, contains: newContains });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            contains: [
+                              ...formData.contains,
+                              { name: val, checked: true },
+                            ],
+                          });
+                        }
                         e.target.value = "";
                       }
                     }
@@ -352,14 +471,24 @@ const AddMenuItem = () => {
                   type="button"
                   onClick={(e) => {
                     const input = e.target.previousSibling;
-                    if (input.value.trim()) {
-                      setFormData({
-                        ...formData,
-                        contains: [
-                          ...formData.contains,
-                          { name: input.value.trim(), checked: true },
-                        ],
-                      });
+                    const val = input.value.trim();
+                    if (val) {
+                      const existsIdx = formData.contains.findIndex(
+                        (c) => c.name.toLowerCase() === val.toLowerCase()
+                      );
+                      if (existsIdx >= 0) {
+                        const newContains = [...formData.contains];
+                        newContains[existsIdx].checked = true;
+                        setFormData({ ...formData, contains: newContains });
+                      } else {
+                        setFormData({
+                          ...formData,
+                          contains: [
+                            ...formData.contains,
+                            { name: val, checked: true },
+                          ],
+                        });
+                      }
                       input.value = "";
                     }
                   }}

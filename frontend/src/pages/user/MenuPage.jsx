@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import config from "../../config";
 
@@ -53,7 +53,7 @@ const MenuPage = () => {
     : "all items";
 
   const [menuCategories, setMenuCategories] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const [_loading, setLoading] = React.useState(true);
   const [restaurantTier, setRestaurantTier] = React.useState("Platinum");
   const [globalImgPos, setGlobalImgPos] = React.useState("Left");
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAdmin } from '../../layouts/AdminLayout';
 import config from '../../config';
@@ -37,7 +37,7 @@ const TeamManagement = () => {
   const [currentUserPermissions, setCurrentUserPermissions] = useState([]);
   const [isOwnerFlag, setIsOwnerFlag] = useState(false);
 
-  const fetchTeam = async () => {
+  const fetchTeam = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
@@ -70,11 +70,11 @@ const TeamManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [restaurantName]);
 
   useEffect(() => {
     fetchTeam();
-  }, [restaurantName]);
+  }, [restaurantName, fetchTeam]);
 
   const [createdInvite, setCreatedInvite] = useState(null);
 

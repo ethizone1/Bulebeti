@@ -12,7 +12,7 @@ const EventsManager = () => {
   const isPremiumOrPlatinum = tier === "Premium" || tier === "Platinum";
 
   const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
 
   React.useEffect(() => {
     const fetchEvents = async () => {
@@ -42,8 +42,13 @@ const EventsManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this event?")) return;
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(`${config.API_URL}/api/events/${id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "x-auth-token": token } : {}),
+        },
       });
       if (!res.ok) throw new Error("Failed to delete event");
       setEvents(events.filter((e) => e._id !== id));
