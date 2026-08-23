@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
+import BuleBetLogo from "../../components/BuleBetLogo";
 import config from "../../config";
 
 const LoginPage = () => {
@@ -222,6 +223,9 @@ const LoginPage = () => {
           }}
         >
           <div className="card-body p-4 p-md-5 text-center">
+            <div className="mb-4">
+              <BuleBetLogo size={65} variant="full" linkTo="/" />
+            </div>
             <h2 className="mb-3">{t("login_welcome") || "Welcome Back"}</h2>
             <p className="text-muted mb-4">
               {useOtpMode

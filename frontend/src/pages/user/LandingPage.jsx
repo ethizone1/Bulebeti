@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
+import BuleBetLogo from "../../components/BuleBetLogo";
 import config from "../../config";
 
 // Haversine formula to compute distance in Km
@@ -156,6 +157,9 @@ const LandingPage = () => {
         }}
       >
         <div className="container">
+          <div className="mb-4 d-flex justify-content-center">
+            <BuleBetLogo size={85} variant="full" linkTo="/" />
+          </div>
           <h1 style={{ marginBottom: "var(--spacing-md)" }}>
             {t("landing_hero_title")}
           </h1>

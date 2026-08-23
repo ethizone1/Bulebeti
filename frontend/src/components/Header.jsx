@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import { setDynamicFavicon } from "../utils/favicon";
+import BuleBetLogo from "./BuleBetLogo";
 import config from "../config";
 
 const Header = () => {
@@ -142,94 +143,63 @@ const Header = () => {
         }}
       >
         {/* Left: Platform brand (customer only) + site/restaurant title */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-
-          <Link
-            to={isRestaurantPage ? `/${restaurantName}` : "/"}
-            style={{
-              textDecoration: "none",
-              color: "var(--primary)",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            {isRestaurantPage && restaurant ? (
-              <>
-                {restaurant.logoUrl ? (
-                  <div
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexShrink: 0 }}>
+          {isRestaurantPage && restaurant ? (
+            <Link
+              to={`/${restaurantName}`}
+              style={{
+                textDecoration: "none",
+                color: "var(--primary)",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              {restaurant.logoUrl ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <img
+                    src={restaurant.logoUrl}
+                    alt={restaurant.name}
                     style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      height: "36px",
+                      borderRadius: "4px",
+                      objectFit: "contain",
                     }}
-                  >
-                    <img
-                      src={restaurant.logoUrl}
-                      alt={restaurant.name}
-                      style={{
-                        height: "36px",
-                        borderRadius: "4px",
-                        objectFit: "contain",
-                      }}
-                    />
-                    <div
-                      style={{
-                        fontSize: "11px",
-                        fontWeight: "700",
-                        letterSpacing: "0.05em",
-                        color: "var(--primary)",
-                        marginTop: "2px",
-                      }}
-                    >
-                      {restaurant.name.toUpperCase()}
-                    </div>
-                  </div>
-                ) : (
+                  />
                   <div
                     style={{
-                      fontSize: "24px",
+                      fontSize: "11px",
                       fontWeight: "700",
                       letterSpacing: "0.05em",
+                      color: "var(--primary)",
+                      marginTop: "2px",
                     }}
                   >
                     {restaurant.name.toUpperCase()}
                   </div>
-                )}
-              </>
-            ) : (
-              <>
+                </div>
+              ) : (
                 <div
                   style={{
                     fontSize: "24px",
                     fontWeight: "700",
-                    letterSpacing: "0.1em",
+                    letterSpacing: "0.05em",
                   }}
                 >
-                  BULEBET
+                  {restaurant.name.toUpperCase()}
                 </div>
-                <div
-                  style={{
-                    width: "1px",
-                    height: "24px",
-                    backgroundColor: "var(--gold)",
-                  }}
-                  className="hide-on-mobile"
-                ></div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    color: "var(--gold)",
-                  }}
-                  className="hide-on-mobile"
-                >
-                  PREMIUM DINING
-                </div>
-              </>
-            )}
-          </Link>
+              )}
+            </Link>
+          ) : (
+            <BuleBetLogo size={42} variant="combo" linkTo="/" />
+          )}
         </div>
 
         {/* Desktop Nav */}
@@ -428,7 +398,7 @@ const Header = () => {
         </nav>
 
         {/* Right Actions (Language Toggle, Login, Hamburger - Always Visible) */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
           {/* Language Selector */}
           <button
             onClick={toggleLanguage}

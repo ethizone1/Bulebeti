@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
+import BuleBetLogo from "../../components/BuleBetLogo";
 import config from "../../config";
 
 const RegistrationPage = () => {
@@ -468,6 +469,9 @@ const RegistrationPage = () => {
       >
         <div className="container" style={{ maxWidth: "1200px" }}>
           <div style={{ textAlign: "center", marginBottom: "36px" }}>
+            <div className="mb-3">
+              <BuleBetLogo size={75} variant="full" linkTo="/" />
+            </div>
             <h2
               style={{
                 fontSize: "clamp(26px, 4vw, 36px)",

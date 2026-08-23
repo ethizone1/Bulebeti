@@ -128,8 +128,8 @@ const Footer = () => {
           className="footer-grid"
         >
           {/* Brand / Restaurant Info */}
-          <div style={{ maxWidth: "300px" }}>
-            {restaurant?.logoUrl && (
+          <div style={{ maxWidth: "320px" }}>
+            {isRestaurantPage && restaurant?.logoUrl ? (
               <img
                 src={restaurant.logoUrl}
                 alt={displayName}
@@ -140,17 +140,30 @@ const Footer = () => {
                   borderRadius: "6px",
                 }}
               />
+            ) : (
+              <img
+                src="/bulebet_title_logo.png"
+                alt="BuleBet Ethiopian Restaurant Hub"
+                style={{
+                  height: "56px",
+                  objectFit: "contain",
+                  marginBottom: "12px",
+                  borderRadius: "4px",
+                }}
+              />
             )}
-            <h2
-              style={{
-                color: "var(--gold)",
-                letterSpacing: "0.15em",
-                marginBottom: "10px",
-                fontSize: "20px",
-              }}
-            >
-              {displayName.toUpperCase()}
-            </h2>
+            {isRestaurantPage && (
+              <h2
+                style={{
+                  color: "var(--gold)",
+                  letterSpacing: "0.15em",
+                  marginBottom: "10px",
+                  fontSize: "20px",
+                }}
+              >
+                {displayName.toUpperCase()}
+              </h2>
+            )}
             <p
               style={{
                 color: "rgba(255,255,255,0.65)",

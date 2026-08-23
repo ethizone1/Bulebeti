@@ -3,6 +3,7 @@ import { NavLink, Link, useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import config from "../config";
 import PlansComparisonModal from "./PlansComparisonModal";
+import BuleBetLogo from "./BuleBetLogo";
 
 // Super-admin contact details (platform support)
 const SUPER_ADMIN_CONTACT = {
@@ -236,22 +237,28 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
           {/* bulebeti Hub → admin dashboard */}
           <Link
             to={`/bulebeti/${restaurantName}/admin`}
-            style={{ textDecoration: "none" }}
+            style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "10px" }}
           >
-            <h2
-              style={{
-                color: "var(--on-primary)",
-                margin: 0,
-                fontSize: "22px",
-                letterSpacing: "0.05em",
-                cursor: "pointer",
-                transition: "opacity 0.2s",
-              }}
-              onMouseOver={(e) => (e.currentTarget.style.opacity = "0.75")}
-              onMouseOut={(e) => (e.currentTarget.style.opacity = "1")}
-            >
-              BuleBet Hub
-            </h2>
+            <img
+              src="/bulebet_emblem.png"
+              alt="BuleBet Logo"
+              style={{ height: "36px", width: "36px", objectFit: "cover", borderRadius: "50%" }}
+            />
+            <div>
+              <h2
+                style={{
+                  color: "#ffffff",
+                  margin: 0,
+                  fontSize: "20px",
+                  fontWeight: "800",
+                  letterSpacing: "0.05em",
+                  fontFamily: "'Georgia', serif",
+                  lineHeight: 1,
+                }}
+              >
+                BuleBet <span style={{ color: "var(--gold)", fontSize: "14px", fontWeight: "700" }}>HUB</span>
+              </h2>
+            </div>
           </Link>
 
           {/* Restaurant name → customer main page */}
