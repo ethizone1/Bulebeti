@@ -142,15 +142,14 @@ const Footer = () => {
               />
             ) : (
               <img
-                src="/bulebet_logo.png"
+                src="/bulebet_footer_logo.png"
                 alt="BuleBet Ethiopian Restaurant Hub"
                 style={{
-                  height: "110px",
+                  height: "70px",
                   width: "auto",
                   objectFit: "contain",
-                  marginBottom: "16px",
-                  borderRadius: "8px",
-                  filter: "drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4))",
+                  marginBottom: "14px",
+                  borderRadius: "4px",
                 }}
               />
             )}

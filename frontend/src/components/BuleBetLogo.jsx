@@ -9,6 +9,32 @@ const BuleBetLogo = ({
   style = {},
   className = "",
 }) => {
+  if (variant === "footer") {
+    return (
+      <Link
+        to={linkTo}
+        style={{
+          textDecoration: "none",
+          display: "inline-flex",
+          alignItems: "center",
+          ...style,
+        }}
+        className={className}
+        aria-label="BuleBet Ethiopian Restaurant Hub"
+      >
+        <img
+          src="/bulebet_footer_logo.png"
+          alt="BuleBet Ethiopian Restaurant Hub Logo"
+          style={{
+            height: `${size}px`,
+            width: "auto",
+            objectFit: "contain",
+          }}
+        />
+      </Link>
+    );
+  }
+
   if (variant === "full" || variant === "title") {
     return (
       <Link
