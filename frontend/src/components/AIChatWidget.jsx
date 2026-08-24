@@ -100,7 +100,11 @@ const AIChatWidget = ({ role = 'customer', restaurantName = 'the restaurant' }) 
           onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
         >
-          ✨
+          <img
+            src="/bulebet_light_emblem.png"
+            alt="BuleBet AI"
+            style={{ width: '40px', height: '40px', objectFit: 'contain' }}
+          />
         </button>
       )}
 
@@ -129,8 +133,19 @@ const AIChatWidget = ({ role = 'customer', restaurantName = 'the restaurant' }) 
             justifyContent: 'space-between',
             alignItems: 'center'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ fontSize: '20px' }}>✨</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <img
+                src="/bulebet_light_emblem.png"
+                alt="BuleBet AI"
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  objectFit: 'contain',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(255,255,255,0.15)',
+                  padding: '2px',
+                }}
+              />
               <div>
                 <div style={{ fontWeight: '700', fontSize: '15px' }}>
                   {role === 'admin' ? `${restaurantName} Admin AI` : `${restaurantName} AI`}

@@ -130,15 +130,14 @@ const BuleBetLogo = ({
       aria-label="BuleBet Home"
     >
       <img
-        src="/bulebet_emblem.png"
+        src="/bulebet_light_emblem.png"
         alt="BuleBet Emblem"
         style={{
           height: `${size}px`,
           width: `${size}px`,
-          objectFit: "cover",
-          borderRadius: "50%",
+          objectFit: "contain",
           flexShrink: 0,
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+          filter: "drop-shadow(0 2px 6px rgba(212, 175, 55, 0.25))",
         }}
       />
       <div
