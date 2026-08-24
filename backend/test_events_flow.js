@@ -6,7 +6,8 @@ const User = require("./models/User");
 const Restaurant = require("./models/Restaurant");
 const Event = require("./models/Event");
 
-dotenv.config();
+const path = require("path");
+dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/bulebeti";
 const PORT = 5002;
