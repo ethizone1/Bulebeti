@@ -6,8 +6,11 @@ const Event = require("./models/Event");
 const Feedback = require("./models/Feedback");
 const Location = require("./models/Location");
 const bcrypt = require("bcrypt");
+require("dotenv").config();
 
-mongoose.connect("mongodb://localhost:27017/bulebeti").then(async () => {
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || "mongodb://localhost:27017/bulebeti";
+
+mongoose.connect(mongoUri).then(async () => {
   try {
     // Clear existing data
     await User.deleteMany({});
@@ -236,6 +239,7 @@ mongoose.connect("mongodb://localhost:27017/bulebeti").then(async () => {
         restaurantId: restaurant._id,
         customer: "John Doe",
         email: "john@example.com",
+        phone: "+251 911 000 111",
         rating: 5,
         comment: "Absolutely amazing truffle pasta!",
         date: "2026-05-15",
@@ -245,6 +249,7 @@ mongoose.connect("mongodb://localhost:27017/bulebeti").then(async () => {
         restaurantId: restaurant._id,
         customer: "Jane Smith",
         email: "jane@example.com",
+        phone: "+251 911 000 222",
         rating: 4,
         comment: "Great service, but a bit loud.",
         date: "2026-05-14",
@@ -254,6 +259,7 @@ mongoose.connect("mongodb://localhost:27017/bulebeti").then(async () => {
         restaurantId: restaurant._id,
         customer: "Mike Johnson",
         email: "mike@example.com",
+        phone: "+251 911 000 333",
         rating: 2,
         comment: "Waited too long for our table.",
         date: "2026-05-12",
