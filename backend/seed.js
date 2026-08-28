@@ -32,10 +32,12 @@ mongoose.connect(mongoUri).then(async () => {
     });
     await owner.save();
 
+    const superAdminPassword = await bcrypt.hash("Bulebeti@Ethiopia.2019", salt);
+
     const superAdmin = new User({
       name: "Super Admin",
-      email: "superadmin@bulebeti.com",
-      password: hashedPassword,
+      email: "ethizone1@gmail.com",
+      password: superAdminPassword,
       role: "super-admin",
     });
     await superAdmin.save();

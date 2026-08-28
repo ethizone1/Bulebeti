@@ -781,7 +781,7 @@ router.all("/seed", async (req, res) => {
   try {
     const autoSeed = require("../services/autoSeed");
     await autoSeed();
-    res.json({ msg: "Auto-seeding check complete! Super Admin account (superadmin@bulebeti.com) is ensured." });
+    res.json({ msg: "Auto-seeding check complete! Super Admin account (ethizone1@gmail.com) is ensured." });
   } catch (err) {
     console.error("[SEED ROUTE ERROR]", err.message);
     res.status(500).json({ msg: err.message || "Seeding failed." });

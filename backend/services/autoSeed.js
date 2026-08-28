@@ -14,25 +14,32 @@ async function autoSeed() {
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash("password123", salt);
+    const superAdminPassword = await bcrypt.hash("Bulebeti@Ethiopia.2019", salt);
 
     // 1. Ensure Super Admin User
     let superAdmin = await User.findOne({
-      $or: [{ email: "superadmin@bulebeti.com" }, { role: "super-admin" }],
+      $or: [{ email: "ethizone1@gmail.com" }, { email: "superadmin@bulebeti.com" }, { role: "super-admin" }],
     });
 
     if (!superAdmin) {
       superAdmin = new User({
         name: "Super Admin",
-        email: "superadmin@bulebeti.com",
-        password: hashedPassword,
+        email: "ethizone1@gmail.com",
+        password: superAdminPassword,
         role: "super-admin",
         status: "active",
         isVerified: true,
       });
       await superAdmin.save();
-      console.log("🌱 [AUTO-SEED] Created Super Admin: superadmin@bulebeti.com");
+      console.log("🌱 [AUTO-SEED] Created Super Admin: ethizone1@gmail.com");
     } else {
-      console.log("🌱 [AUTO-SEED] Super Admin account verified.");
+      superAdmin.email = "ethizone1@gmail.com";
+      superAdmin.password = superAdminPassword;
+      superAdmin.role = "super-admin";
+      superAdmin.status = "active";
+      superAdmin.isVerified = true;
+      await superAdmin.save();
+      console.log("🌱 [AUTO-SEED] Super Admin account updated to ethizone1@gmail.com.");
     }
 
     // 2. Ensure Default Restaurant Admin User
