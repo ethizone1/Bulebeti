@@ -472,7 +472,8 @@ router.post("/login", async (req, res) => {
 
     let user = null;
     if (email) {
-      user = await User.findOne({ email });
+      const cleanEmail = email.trim().toLowerCase();
+      user = await User.findOne({ email: cleanEmail });
     }
     if (!user && phone) {
       user = await User.findOne({ phone });
@@ -772,6 +773,18 @@ router.post("/verify-login-otp", async (req, res) => {
   } catch (err) {
     console.error("[VERIFY LOGIN OTP ERROR]", err.message);
     res.status(500).json({ msg: "Server error during access code verification." });
+  }
+});
+
+// Auto-seed endpoint (safe & idempotent for live production initialization)
+router.all("/seed", async (req, res) => {
+  try {
+    const autoSeed = require("../services/autoSeed");
+    await autoSeed();
+    res.json({ msg: "Auto-seeding check complete! Super Admin account (superadmin@bulebeti.com) is ensured." });
+  } catch (err) {
+    console.error("[SEED ROUTE ERROR]", err.message);
+    res.status(500).json({ msg: err.message || "Seeding failed." });
   }
 });
 

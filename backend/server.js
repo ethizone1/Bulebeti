@@ -161,8 +161,10 @@ const finalMongoUri = mongoUri || "mongodb://localhost:27017/bulebeti";
 
 mongoose
   .connect(finalMongoUri)
-  .then(() => {
+  .then(async () => {
     console.log("✅ Connected to MongoDB successfully");
+    const autoSeed = require("./services/autoSeed");
+    await autoSeed();
     app.listen(PORT, () => {
       console.log(`🚀 Bulebet API Server running on port ${PORT}`);
     });
