@@ -52,6 +52,7 @@ import RevenueTracking from "./pages/super-admin/RevenueTracking";
 import MenuReview from "./pages/super-admin/MenuReview";
 import SuperAdminSettings from "./pages/super-admin/SuperAdminSettings";
 import PlatformInquiries from "./pages/super-admin/PlatformInquiries";
+import UserManagement from "./pages/super-admin/UserManagement";
 import { useAdmin } from "./layouts/AdminLayout";
 
 const UpgradeRequiredScreen = ({ requiredTier, currentTier }) => {
@@ -551,6 +552,7 @@ function App() {
                     path="restaurants"
                     element={<RestaurantManagement />}
                   />
+                  <Route path="users" element={<UserManagement />} />
                   <Route path="revenue" element={<RevenueTracking />} />
                   <Route path="menus" element={<MenuReview />} />
                   <Route path="inquiries" element={<PlatformInquiries />} />

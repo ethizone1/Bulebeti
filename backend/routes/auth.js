@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const https = require("https");
 const { sendEmail } = require("../services/notifications");
+const auth = require("../middleware/auth");
 
 // Validation helper functions
 const isValidEmail = (email) => {
@@ -633,7 +634,6 @@ router.post("/google", async (req, res) => {
 });
 
 // Change Password
-const auth = require("../middleware/auth");
 router.post("/change-password", auth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
@@ -785,6 +785,136 @@ router.all("/seed", async (req, res) => {
   } catch (err) {
     console.error("[SEED ROUTE ERROR]", err.message);
     res.status(500).json({ msg: err.message || "Seeding failed." });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SUPER ADMIN USER MANAGEMENT ENDPOINTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// @route   GET /api/auth/users
+// @desc    Get list of all registered users (Super Admin only)
+// @access  Private (Super Admin)
+router.get("/users", auth, async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.user.id);
+    if (!currentUser || currentUser.role !== "super-admin") {
+      return res.status(403).json({ msg: "Access denied. Super Admin role required." });
+    }
+
+    const users = await User.find().select("-password").sort({ createdAt: -1 });
+    res.json(users);
+  } catch (err) {
+    console.error("[GET ALL USERS ERROR]", err.message);
+    res.status(500).json({ msg: "Server error fetching user directory." });
+  }
+});
+
+// @route   PATCH /api/auth/users/:userId/role
+// @desc    Update a user's role (Super Admin only)
+// @access  Private (Super Admin)
+router.patch("/users/:userId/role", auth, async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.user.id);
+    if (!currentUser || currentUser.role !== "super-admin") {
+      return res.status(403).json({ msg: "Access denied. Super Admin role required." });
+    }
+
+    const { role } = req.body;
+    const validRoles = ["super-admin", "admin", "staff", "customer"];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ msg: "Invalid user role specified." });
+    }
+
+    const targetUser = await User.findById(req.params.userId);
+    if (!targetUser) {
+      return res.status(404).json({ msg: "User not found." });
+    }
+
+    targetUser.role = role;
+    await targetUser.save();
+
+    res.json({
+      msg: `Role for ${targetUser.name || targetUser.email} updated to '${role}'.`,
+      user: {
+        id: targetUser._id,
+        name: targetUser.name,
+        email: targetUser.email,
+        role: targetUser.role,
+        status: targetUser.status,
+      },
+    });
+  } catch (err) {
+    console.error("[UPDATE USER ROLE ERROR]", err.message);
+    res.status(500).json({ msg: "Server error updating user role." });
+  }
+});
+
+// @route   PATCH /api/auth/users/:userId/status
+// @desc    Update a user's account status (Super Admin only)
+// @access  Private (Super Admin)
+router.patch("/users/:userId/status", auth, async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.user.id);
+    if (!currentUser || currentUser.role !== "super-admin") {
+      return res.status(403).json({ msg: "Access denied. Super Admin role required." });
+    }
+
+    const { status } = req.body;
+    const validStatuses = ["active", "suspended", "inactive"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ msg: "Invalid user status specified." });
+    }
+
+    const targetUser = await User.findById(req.params.userId);
+    if (!targetUser) {
+      return res.status(404).json({ msg: "User not found." });
+    }
+
+    targetUser.status = status;
+    await targetUser.save();
+
+    res.json({
+      msg: `Status for ${targetUser.name || targetUser.email} set to '${status}'.`,
+      user: {
+        id: targetUser._id,
+        name: targetUser.name,
+        email: targetUser.email,
+        role: targetUser.role,
+        status: targetUser.status,
+      },
+    });
+  } catch (err) {
+    console.error("[UPDATE USER STATUS ERROR]", err.message);
+    res.status(500).json({ msg: "Server error updating user status." });
+  }
+});
+
+// @route   DELETE /api/auth/users/:userId
+// @desc    Delete a user account (Super Admin only)
+// @access  Private (Super Admin)
+router.delete("/users/:userId", auth, async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.user.id);
+    if (!currentUser || currentUser.role !== "super-admin") {
+      return res.status(403).json({ msg: "Access denied. Super Admin role required." });
+    }
+
+    if (req.params.userId === req.user.id) {
+      return res.status(400).json({ msg: "You cannot delete your own Super Admin account." });
+    }
+
+    const targetUser = await User.findById(req.params.userId);
+    if (!targetUser) {
+      return res.status(404).json({ msg: "User not found." });
+    }
+
+    await User.findByIdAndDelete(req.params.userId);
+
+    res.json({ msg: `User account (${targetUser.email}) successfully deleted.` });
+  } catch (err) {
+    console.error("[DELETE USER ERROR]", err.message);
+    res.status(500).json({ msg: "Server error deleting user account." });
   }
 });
 

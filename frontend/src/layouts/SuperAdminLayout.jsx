@@ -18,6 +18,7 @@ const SuperAdminLayout = ({ children }) => {
   const navItems = [
     { name: "Platform Overview", path: "/super-admin", icon: "🌐" },
     { name: "Restaurants", path: "/super-admin/restaurants", icon: "🏢" },
+    { name: "All Users", path: "/super-admin/users", icon: "👥" },
     { name: "Global Menu Review", path: "/super-admin/menus", icon: "👨‍🍳" },
     { name: "Revenue & Subs", path: "/super-admin/revenue", icon: "💰" },
     { name: "Platform Inquiries", path: "/super-admin/inquiries", icon: "✉️" },
