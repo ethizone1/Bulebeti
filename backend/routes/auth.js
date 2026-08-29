@@ -115,8 +115,8 @@ router.post("/register", async (req, res) => {
     let finalName = name;
     let finalEmail = email ? email.trim().toLowerCase() : "";
     let finalPhone = phone ? phone.trim() : "";
-    let googleId = null;
-    let picture = null;
+    let googleId = undefined;
+    let picture = undefined;
 
     // Strict validation
     if (!finalEmail || !isValidEmail(finalEmail)) {
@@ -354,8 +354,14 @@ router.post("/register", async (req, res) => {
   } catch (err) {
     console.error("[AUTH REGISTER ERROR]", err);
     if (err.code === 11000) {
+      const dupField = Object.keys(err.keyPattern || err.keyValue || {})[0];
+      if (dupField === "email") {
+        return res.status(400).json({
+          msg: `The email address '${finalEmail}' is already registered on BuleBet. Please click 'Login' above to sign in or reset your password.`,
+        });
+      }
       return res.status(400).json({
-        msg: "An account with this email address or details already exists. Please sign in instead.",
+        msg: "Registration failed because an account with these details already exists. Please sign in.",
       });
     }
     if (err.name === "ValidationError") {
