@@ -47,7 +47,7 @@ const SuperAdminSettings = () => {
                 </label>
                 <input
                   type="email"
-                  defaultValue="support@bulebeti.com"
+                  defaultValue="ethizone1@gmail.com"
                   style={{
                     width: "100%",
                     padding: "12px",

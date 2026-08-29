@@ -8,9 +8,9 @@ import BuleBetLogo from "./BuleBetLogo";
 // Super-admin contact details (platform support)
 const SUPER_ADMIN_CONTACT = {
   name: "BuleBet Support",
-  phone: "+1 (800) 285-3238", // Replace with real support number
-  whatsapp: "+18002853238", // Replace with real WhatsApp number
-  email: "support@bulebeti.com", // Replace with real support email
+  phone: "+1 (240) 441-1075",
+  whatsapp: "+12404411075",
+  email: "ethizone1@gmail.com",
   hours: "Mon–Fri, 9am–6pm EAT",
 };
 
@@ -552,11 +552,14 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
             style={{
               backgroundColor: "white",
               borderRadius: "16px",
-              padding: "32px",
+              padding: "24px 20px",
               maxWidth: "420px",
-              width: "100%",
+              width: "92%",
               boxShadow: "0 25px 60px rgba(0,0,0,0.3)",
               position: "relative",
+              boxSizing: "border-box",
+              maxHeight: "90vh",
+              overflowY: "auto",
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -639,7 +642,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
                   >
                     📞
                   </div>
-                  <div>
+                  <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
                     <div
                       style={{
                         fontWeight: "700",
@@ -654,6 +657,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
                         fontSize: "15px",
                         fontWeight: "800",
                         color: "#166534",
+                        wordBreak: "break-word",
                       }}
                     >
                       {SUPER_ADMIN_CONTACT.phone}
@@ -708,7 +712,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
                   >
                     💬
                   </div>
-                  <div>
+                  <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
                     <div
                       style={{
                         fontWeight: "700",
@@ -723,6 +727,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
                         fontSize: "15px",
                         fontWeight: "800",
                         color: "#166534",
+                        wordBreak: "break-word",
                       }}
                     >
                       {SUPER_ADMIN_CONTACT.phone}
@@ -775,7 +780,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
                   >
                     📧
                   </div>
-                  <div>
+                  <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
                     <div
                       style={{
                         fontWeight: "700",
@@ -787,9 +792,12 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
                     </div>
                     <div
                       style={{
-                        fontSize: "14px",
+                        fontSize: "13px",
                         fontWeight: "800",
                         color: "#1e40af",
+                        wordBreak: "break-all",
+                        overflowWrap: "anywhere",
+                        whiteSpace: "normal",
                       }}
                     >
                       {SUPER_ADMIN_CONTACT.email}

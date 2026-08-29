@@ -49,7 +49,7 @@ const LegalPage = ({ title }) => {
   }
 
   const platformName = restaurant ? restaurant.name : "BuleBet";
-  const contactPhone = restaurant ? restaurant.phone : "+1 (800) 285-3238";
+  const contactPhone = restaurant ? restaurant.phone : "+1 (240) 441-1075";
   const contactAddress = restaurant ? restaurant.address : "BuleBet HQ";
 
   return (
