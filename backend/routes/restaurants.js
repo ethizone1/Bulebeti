@@ -90,6 +90,112 @@ router.get("/:slug", async (req, res) => {
   }
 });
 
+// Create a partner restaurant directly from Super Admin (bypasses 6-digit OTP code)
+router.post("/admin-create", auth, async (req, res) => {
+  try {
+    const User = require("../models/User");
+    const bcrypt = require("bcrypt");
+    const jwt = require("jsonwebtoken");
+
+    const currentUser = await User.findById(req.user.id);
+    if (!currentUser || currentUser.role !== "super-admin") {
+      return res.status(403).json({ msg: "Access denied. Super Admin role required." });
+    }
+
+    const {
+      restaurantName,
+      ownerName,
+      email,
+      password,
+      phone,
+      cuisineType,
+      subscriptionTier,
+      address,
+    } = req.body;
+
+    if (!restaurantName || !ownerName || !email) {
+      return res.status(400).json({ msg: "Restaurant name, owner name, and email are required." });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Check or Create Owner User
+    let owner = await User.findOne({ email: cleanEmail });
+    if (!owner) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password || "password123", salt);
+
+      owner = new User({
+        name: ownerName.trim(),
+        email: cleanEmail,
+        phone: phone ? phone.trim() : "",
+        password: hashedPassword,
+        role: "admin",
+        status: "active",
+        isVerified: true, // Bypass OTP requirement for Super Admin creation
+      });
+      await owner.save();
+    }
+
+    // 2. Generate Unique Slug
+    let baseSlug = restaurantName
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    if (!baseSlug) baseSlug = "partner";
+
+    let finalSlug = baseSlug;
+    const existingSlug = await Restaurant.findOne({ slug: finalSlug });
+    if (existingSlug) {
+      finalSlug = `${baseSlug}-${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+
+    // 3. Create Restaurant
+    const newRestaurant = new Restaurant({
+      name: restaurantName.trim(),
+      slug: finalSlug,
+      description: cuisineType ? `A ${cuisineType} dining experience.` : "Exquisite dining experience.",
+      address: address ? address.trim() : "",
+      phone: phone ? phone.trim() : "",
+      email: cleanEmail,
+      ownerId: owner._id,
+      subscriptionTier: subscriptionTier || "Gold",
+      status: "Active",
+    });
+
+    await newRestaurant.save();
+    console.log(`[SUPER ADMIN] 🚀 Partner created directly: ${restaurantName} (slug: ${finalSlug})`);
+
+    // Generate token for instant redirection
+    const payload = {
+      user: {
+        id: owner._id,
+        role: owner.role,
+      },
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "24h" });
+
+    res.json({
+      msg: "Partner and restaurant created successfully!",
+      slug: finalSlug,
+      restaurant: newRestaurant,
+      owner: {
+        id: owner._id,
+        name: owner.name,
+        email: owner.email,
+        role: owner.role,
+      },
+      token,
+    });
+  } catch (err) {
+    console.error("[ADMIN CREATE PARTNER ERROR]", err);
+    res.status(500).json({ msg: err.message || "Failed to create partner restaurant." });
+  }
+});
+
 // Create a restaurant (requires auth)
 router.post("/", auth, async (req, res) => {
   const {

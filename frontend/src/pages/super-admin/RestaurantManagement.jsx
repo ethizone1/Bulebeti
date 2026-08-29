@@ -14,6 +14,52 @@ const RestaurantManagement = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingRestaurant, setEditingRestaurant] = useState(null);
 
+  // Add Partner Modal State
+  const [addPartnerModalOpen, setAddPartnerModalOpen] = useState(false);
+  const [newPartnerForm, setNewPartnerForm] = useState({
+    restaurantName: "",
+    ownerName: "",
+    email: "",
+    password: "password123",
+    phone: "",
+    cuisineType: "Ethiopian",
+    subscriptionTier: "Gold",
+    address: "",
+  });
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState("");
+
+  const handleCreatePartner = async (e) => {
+    e.preventDefault();
+    setCreateLoading(true);
+    setCreateError("");
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${config.API_URL}/api/restaurants/admin-create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-auth-token": token,
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(newPartnerForm),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Failed to create partner restaurant.");
+
+      // Close modal & directly navigate to the new restaurant's admin page!
+      setAddPartnerModalOpen(false);
+      navigate(`/bulebeti/${data.slug}/admin`);
+    } catch (err) {
+      console.error("Create partner error:", err);
+      setCreateError(err.message);
+    } finally {
+      setCreateLoading(false);
+    }
+  };
+
   const fetchRestaurants = async () => {
     try {
       setLoading(true);
@@ -192,7 +238,7 @@ const RestaurantManagement = () => {
           </p>
         </div>
         <button
-          onClick={() => navigate("/register")}
+          onClick={() => setAddPartnerModalOpen(true)}
           className="btn btn-primary"
         >
           Add New Partner
@@ -706,6 +752,249 @@ const RestaurantManagement = () => {
                   style={{ padding: "10px 20px", borderRadius: "6px" }}
                 >
                   Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add New Partner Modal */}
+      {addPartnerModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1100,
+            padding: "20px",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "32px",
+              borderRadius: "16px",
+              width: "100%",
+              maxWidth: "560px",
+              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.15)",
+              maxHeight: "90vh",
+              overflowY: "auto",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "20px",
+                borderBottom: "1px solid #f3f4f6",
+                paddingBottom: "12px",
+              }}
+            >
+              <div>
+                <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "800", color: "#111827" }}>
+                  🏢 Add New Partner Restaurant
+                </h2>
+                <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "#6b7280" }}>
+                  Direct creation bypassing email OTP verification.
+                </p>
+              </div>
+              <button
+                onClick={() => setAddPartnerModalOpen(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "20px",
+                  cursor: "pointer",
+                  color: "#9ca3af",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {createError && (
+              <div
+                style={{
+                  backgroundColor: "#fde8e8",
+                  color: "#9b1c1c",
+                  padding: "10px 14px",
+                  borderRadius: "8px",
+                  marginBottom: "16px",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                }}
+              >
+                ⚠️ {createError}
+              </div>
+            )}
+
+            <form onSubmit={handleCreatePartner} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                    Restaurant Name *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Time Cafe"
+                    value={newPartnerForm.restaurantName}
+                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, restaurantName: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
+                    required
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                    Owner Name *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Hailu Gebreyohannes"
+                    value={newPartnerForm.ownerName}
+                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, ownerName: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                    Owner Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="hailu@example.com"
+                    value={newPartnerForm.email}
+                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, email: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
+                    required
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                    Initial Password *
+                  </label>
+                  <input
+                    type="text"
+                    value={newPartnerForm.password}
+                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, password: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="+251 911 000 000"
+                    value={newPartnerForm.phone}
+                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, phone: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                    Cuisine Type
+                  </label>
+                  <select
+                    value={newPartnerForm.cuisineType}
+                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, cuisineType: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px", backgroundColor: "white" }}
+                  >
+                    <option value="Ethiopian">Ethiopian</option>
+                    <option value="Fine Dining">Fine Dining</option>
+                    <option value="Cafe & Bakery">Cafe & Bakery</option>
+                    <option value="Fast Casual">Fast Casual</option>
+                    <option value="Italian">Italian</option>
+                    <option value="Bar & Grill">Bar & Grill</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                    Subscription Tier
+                  </label>
+                  <select
+                    value={newPartnerForm.subscriptionTier}
+                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, subscriptionTier: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px", backgroundColor: "white" }}
+                  >
+                    <option value="Basic">Basic</option>
+                    <option value="Silver">Silver</option>
+                    <option value="Gold">Gold</option>
+                    <option value="Platinum">Platinum</option>
+                    <option value="Premium">Premium</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                    Location / Address
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Bole, Addis Ababa"
+                    value={newPartnerForm.address}
+                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, address: e.target.value })}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
+                  />
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "12px",
+                  justifyContent: "flex-end",
+                  marginTop: "12px",
+                  paddingTop: "12px",
+                  borderTop: "1px solid #f3f4f6",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setAddPartnerModalOpen(false)}
+                  style={{
+                    padding: "10px 18px",
+                    borderRadius: "6px",
+                    border: "1px solid #d1d5db",
+                    backgroundColor: "white",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createLoading}
+                  style={{
+                    padding: "10px 20px",
+                    borderRadius: "6px",
+                    backgroundColor: "#10b981",
+                    color: "white",
+                    border: "none",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                  }}
+                >
+                  {createLoading ? "⏳ Launching Partner..." : "🚀 Create & Open Partner Dashboard"}
                 </button>
               </div>
             </form>
