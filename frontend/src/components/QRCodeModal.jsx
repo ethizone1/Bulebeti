@@ -29,19 +29,77 @@ const QRCodeModal = ({ isOpen, onClose, restaurantName, restaurantId }) => {
     }
   }, [isOpen, restaurantId, fetchLocations]);
 
-  const downloadQR = (id, filename) => {
+  // Generate high-resolution branded PNG image card including Restaurant Name, URL, and QR Code
+  const downloadQR = (id, filename, titleText, urlText) => {
     const svg = document.getElementById(id);
     if (!svg) return;
+
     const svgData = new XMLSerializer().serializeToString(svg);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
+
+    // High resolution card dimensions (800 x 950 for crystal clear quality)
+    const cardWidth = 800;
+    const cardHeight = 950;
+    canvas.width = cardWidth;
+    canvas.height = cardHeight;
+
     const img = new Image();
     img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
+      // 1. White Background
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, cardWidth, cardHeight);
+
+      // 2. Gold Top Accent Line
+      ctx.fillStyle = "#d97706";
+      ctx.fillRect(0, 0, cardWidth, 14);
+
+      // 3. Card Outer Border
+      ctx.strokeStyle = "#e5e7eb";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(16, 16, cardWidth - 32, cardHeight - 32);
+
+      // 4. Restaurant Title Name
+      ctx.textAlign = "center";
+      ctx.font = "bold 42px system-ui, -apple-system, sans-serif";
+      ctx.fillStyle = "#111827";
+      ctx.fillText(titleText || "Restaurant", cardWidth / 2, 100);
+
+      // 5. Public URL Text
+      ctx.font = "bold 24px system-ui, -apple-system, sans-serif";
+      ctx.fillStyle = "#d97706";
+      ctx.fillText(urlText || "", cardWidth / 2, 150);
+
+      // 6. QR Code Frame Box
+      const qrSize = 420;
+      const qrX = (cardWidth - qrSize) / 2;
+      const qrY = 190;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(qrX - 16, qrY - 16, qrSize + 32, qrSize + 32);
+      ctx.strokeStyle = "#d1d5db";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(qrX - 16, qrY - 16, qrSize + 32, qrSize + 32);
+
+      // 7. Draw QR SVG Image onto Canvas
+      ctx.drawImage(img, qrX, qrY, qrSize, qrSize);
+
+      // 8. Call to Action Text
+      ctx.font = "bold 24px system-ui, -apple-system, sans-serif";
+      ctx.fillStyle = "#374151";
+      ctx.fillText("Scan QR Code to View Menu & Order Online", cardWidth / 2, 700);
+
+      // 9. Sub-caption
+      ctx.font = "18px system-ui, -apple-system, sans-serif";
+      ctx.fillStyle = "#6b7280";
+      ctx.fillText("Touchless Digital Menu Access", cardWidth / 2, 740);
+
+      // 10. Footer Brand
+      ctx.font = "bold 16px system-ui, -apple-system, sans-serif";
+      ctx.fillStyle = "#9ca3af";
+      ctx.fillText("POWERED BY BULEBET PLATFORM", cardWidth / 2, 820);
+
+      // Export as PNG
       const pngFile = canvas.toDataURL("image/png");
       const downloadLink = document.createElement("a");
       const cleanFileName = (filename || "qr-code")
@@ -49,9 +107,10 @@ const QRCodeModal = ({ isOpen, onClose, restaurantName, restaurantId }) => {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");
       downloadLink.download = `${cleanFileName}.png`;
-      downloadLink.href = `${pngFile}`;
+      downloadLink.href = pngFile;
       downloadLink.click();
     };
+
     img.src =
       "data:image/svg+xml;base64," +
       btoa(unescape(encodeURIComponent(svgData)));
@@ -287,7 +346,7 @@ const QRCodeModal = ({ isOpen, onClose, restaurantName, restaurantId }) => {
                 }}
               >
                 <button
-                  onClick={() => downloadQR("qr-main", `${displayName}-QR`)}
+                  onClick={() => downloadQR("qr-main", `${displayName}-QR`, displayName, baseUrl)}
                   style={{
                     padding: "10px 20px",
                     border: "1px solid #d1d5db",
@@ -398,7 +457,7 @@ const QRCodeModal = ({ isOpen, onClose, restaurantName, restaurantId }) => {
                           }}
                         >
                           <button
-                            onClick={() => downloadQR(qrId, `${displayName}-${loc.name}-QR`)}
+                            onClick={() => downloadQR(qrId, `${displayName}-${loc.name}-QR`, locTitle, locUrl)}
                             style={{
                               padding: "8px 14px",
                               border: "1px solid #d1d5db",
