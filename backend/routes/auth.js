@@ -222,7 +222,46 @@ router.post("/register", async (req, res) => {
         );
       }
 
-      return res.status(400).json({ msg: "An account with this email address already exists." });
+      // If user is verified and provides matching password, log them in & return token to proceed with restaurant creation
+      if (user.isVerified && password && user.password) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+          const payload = {
+            user: {
+              id: user.id,
+              role: user.role,
+            },
+          };
+
+          const Restaurant = require("../models/Restaurant");
+          const restaurant = await Restaurant.findOne({ ownerId: user.id });
+          const adminOf = await Restaurant.findOne({ "admins.user": user.id });
+          let slug = restaurant ? restaurant.slug : adminOf ? adminOf.slug : null;
+
+          return jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: "24h" },
+            (err, token) => {
+              if (err) throw err;
+              return res.json({
+                token,
+                user: {
+                  id: user.id,
+                  name: user.name,
+                  email: user.email,
+                  role: user.role,
+                },
+                restaurantSlug: slug,
+              });
+            },
+          );
+        }
+      }
+
+      return res.status(400).json({
+        msg: `The email address '${finalEmail}' is already registered on BuleBet. Please enter your correct account password to attach this restaurant to your account, or click 'Login' above to sign in first.`,
+      });
     }
 
     let hashedPassword = null;

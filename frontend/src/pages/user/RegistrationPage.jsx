@@ -336,7 +336,15 @@ const RegistrationPage = () => {
     }
 
     try {
-      // 1. Register the user (Admin role)
+      // 0. If user is already logged in, create restaurant under current account directly
+      const existingToken = localStorage.getItem("token");
+      const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+      if (existingToken && storedUser && storedUser.email === formData.email.trim()) {
+        await finalizeRegistration(existingToken, storedUser);
+        return;
+      }
+
+      // 1. Register or authenticate user
       const authResponse = await fetch(`${config.API_URL}/api/auth/register`, {
         method: "POST",
         headers: {
@@ -365,7 +373,7 @@ const RegistrationPage = () => {
         return;
       }
 
-      // If already verified (e.g. Google Login)
+      // If already verified or authenticated with matching password
       await finalizeRegistration(authData.token, authData.user);
     } catch (err) {
       setError(err.message);
