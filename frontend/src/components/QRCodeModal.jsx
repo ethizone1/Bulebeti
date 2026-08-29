@@ -97,7 +97,7 @@ const QRCodeModal = ({ isOpen, onClose, restaurantName, restaurantId }) => {
       // 10. Footer Brand
       ctx.font = "bold 16px system-ui, -apple-system, sans-serif";
       ctx.fillStyle = "#9ca3af";
-      ctx.fillText("POWERED BY BULEBET PLATFORM", cardWidth / 2, 820);
+      ctx.fillText("POWERED BY WWW.ETHIZONE.COM", cardWidth / 2, 820);
 
       // Export as PNG
       const pngFile = canvas.toDataURL("image/png");
@@ -184,7 +184,7 @@ const QRCodeModal = ({ isOpen, onClose, restaurantName, restaurantId }) => {
             ${svgData}
           </div>
           <p class="instructions">Scan QR Code to View Menu & Order Online</p>
-          <p class="footer-brand">Powered by BuleBet Platform</p>
+          <p class="footer-brand">Powered by www.ethizone.com</p>
           <script>
             window.onload = () => {
               setTimeout(() => {
