@@ -206,11 +206,18 @@ const RestaurantManagement = () => {
       );
 
       if (res.ok) {
-        alert("Restaurant updated successfully!");
+        alert("🎉 Restaurant updated successfully!");
         setEditModalOpen(false);
         fetchRestaurants(); // Refresh data
       } else {
         const errorData = await res.json();
+        if (res.status === 401) {
+          alert("⚠️ Your Super Admin session has expired. Redirecting to login page...");
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          window.location.href = "/bulebeti/login";
+          return;
+        }
         alert(
           `Failed to update restaurant: ${errorData.msg || "Unknown error"}`,
         );
