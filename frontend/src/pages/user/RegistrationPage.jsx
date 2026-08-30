@@ -70,7 +70,15 @@ const RegistrationPage = () => {
       }
     }
 
-    const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+    let storedUser = null;
+    try {
+      const rawUser = localStorage.getItem("user");
+      if (rawUser && rawUser !== "undefined") {
+        storedUser = JSON.parse(rawUser);
+      }
+    } catch {
+      storedUser = null;
+    }
     const loadRestAndSet = async () => {
       let filledCount = 0;
       const targetSlug =
