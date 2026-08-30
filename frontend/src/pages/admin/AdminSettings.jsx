@@ -935,7 +935,7 @@ const AdminSettings = () => {
           <div className="d-flex flex-row flex-md-column gap-2 overflow-auto pb-2 pb-md-0">
             {(() => {
               const TIER_LEVELS = {
-                Silver: 0,
+                Basic: 0,
                 Gold: 1,
                 Platinum: 2,
                 Premium: 3,

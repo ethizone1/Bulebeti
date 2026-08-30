@@ -5,7 +5,7 @@ import { useLanguage } from "../context/LanguageContext";
 const PlansComparisonModal = ({
   isOpen,
   onClose,
-  currentTier = "Silver",
+  currentTier = "Basic",
   restaurantSlug = "",
 }) => {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const PlansComparisonModal = ({
       price: t("landing_free") || "Free",
       period: t("landing_year") || "/year",
       regPrice: t("landing_basic_reg") || "Regular $99/year (Save $99)",
-      tierKey: "Silver",
+      tierKey: "Basic",
       badge: null,
       isDark: false,
       titleColor: "var(--primary)",
@@ -201,8 +201,7 @@ const PlansComparisonModal = ({
         >
           {plans.map((plan) => {
             const isCurrent =
-              currentTier.toLowerCase() === plan.tierKey.toLowerCase() ||
-              (currentTier === "Basic" && plan.tierKey === "Silver");
+              currentTier.toLowerCase() === plan.tierKey.toLowerCase();
 
             return (
               <div

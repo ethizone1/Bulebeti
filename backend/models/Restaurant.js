@@ -43,12 +43,12 @@ const restaurantSchema = new mongoose.Schema({
   },
   subscriptionTier: {
     type: String,
-    enum: ['Basic', 'Premium', 'Platinum', 'Silver', 'Gold'],
+    enum: ['Basic', 'Gold', 'Platinum', 'Premium'],
     default: 'Basic'
   },
   pendingTierRequest: {
     type: String,
-    enum: ['', 'Silver', 'Gold', 'Platinum', 'Premium'],
+    enum: ['', 'Basic', 'Gold', 'Platinum', 'Premium'],
     default: ''
   },
   status: {

@@ -123,11 +123,7 @@ const MenuPage = () => {
         );
         if (!restRes.ok) throw new Error("Restaurant not found");
         const restaurant = await restRes.json();
-        setRestaurantTier(
-          restaurant.subscriptionTier === "Basic"
-            ? "Silver"
-            : restaurant.subscriptionTier || "Platinum",
-        );
+        setRestaurantTier(restaurant.subscriptionTier || "Basic");
 
         let layoutMap = {
           "image-left": "Left",
@@ -207,7 +203,7 @@ const MenuPage = () => {
   return (
     <div className="menu-page" style={{ backgroundColor: "var(--surface)" }}>
       {/* Signature Section - Featured at Top of User Page */}
-      {restaurantTier !== "Silver" &&
+      {restaurantTier !== "Basic" &&
         (activeFilter === "all items" || activeFilter === "our signature") && (
           <section
             id="signature"
@@ -401,7 +397,7 @@ const MenuPage = () => {
             </p>
 
             {/* Menu Category Dropdown Filter */}
-            {restaurantTier !== "Silver" && (
+            {restaurantTier !== "Basic" && (
               <div style={{ display: "inline-block", position: "relative" }}>
                 <select
                   value={activeFilter}

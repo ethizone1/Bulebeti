@@ -4,7 +4,7 @@ import { useAdmin } from '../../layouts/AdminLayout';
 import config from '../../config';
 
 const AVAILABLE_PERMISSIONS = [
-  { id: 'manage_menu', label: 'Menu & Gallery', minTier: 'Silver' },
+  { id: 'manage_menu', label: 'Menu & Gallery', minTier: 'Basic' },
   { id: 'manage_reservations', label: 'Reservations', minTier: 'Gold' },
   { id: 'manage_catering', label: 'Catering', minTier: 'Platinum' },
   { id: 'manage_locations', label: 'Locations', minTier: 'Platinum' },
@@ -13,7 +13,7 @@ const AVAILABLE_PERMISSIONS = [
   { id: 'manage_team', label: 'Team Management', minTier: 'Gold' }
 ];
 
-const TIER_LEVELS = { Silver: 0, Gold: 1, Platinum: 2, Premium: 3 };
+const TIER_LEVELS = { Basic: 0, Gold: 1, Platinum: 2, Premium: 3 };
 
 const TeamManagement = () => {
   const { restaurantName } = useParams();
@@ -49,7 +49,7 @@ const TeamManagement = () => {
       setOwner(data.owner);
       setTeam(data.admins);
       if (data.subscriptionTier) {
-        setRestaurantTier(data.subscriptionTier === 'Basic' ? 'Silver' : data.subscriptionTier);
+        setRestaurantTier(data.subscriptionTier || 'Basic');
       }
 
       const storedUser = JSON.parse(localStorage.getItem('user') || '{}');

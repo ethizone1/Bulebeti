@@ -150,11 +150,11 @@ const UpgradeRequiredScreen = ({ requiredTier, currentTier }) => {
 const AdminPage = ({ element: Element, minTier }) => {
   const { tier, restaurant } = useAdmin();
 
-  const tierImportance = { Silver: 0, Gold: 1, Platinum: 2, Premium: 3 };
+  const tierImportance = { Basic: 0, Gold: 1, Platinum: 2, Premium: 3 };
   const currentTierImportance =
     tierImportance[tier] !== undefined ? tierImportance[tier] : 2; // Default to Platinum
   const requiredTierImportance =
-    tierImportance[minTier] !== undefined ? tierImportance[minTier] : 0; // Default to Silver
+    tierImportance[minTier] !== undefined ? tierImportance[minTier] : 0; // Default to Basic
 
   if (currentTierImportance < requiredTierImportance) {
     return <UpgradeRequiredScreen requiredTier={minTier} currentTier={tier} />;
@@ -342,13 +342,13 @@ function App() {
                       <Route
                         index
                         element={
-                          <AdminPage element={AdminDashboard} minTier="Silver" />
+                          <AdminPage element={AdminDashboard} minTier="Basic" />
                         }
                       />
                       <Route
                         path="dashboard"
                         element={
-                          <AdminPage element={AdminDashboard} minTier="Silver" />
+                          <AdminPage element={AdminDashboard} minTier="Basic" />
                         }
                       />
                       <Route
@@ -372,19 +372,19 @@ function App() {
                       <Route
                         path="menu"
                         element={
-                          <AdminPage element={MenuManagement} minTier="Silver" />
+                          <AdminPage element={MenuManagement} minTier="Basic" />
                         }
                       />
                       <Route
                         path="menu/add"
                         element={
-                          <AdminPage element={AddMenuItem} minTier="Silver" />
+                          <AdminPage element={AddMenuItem} minTier="Basic" />
                         }
                       />
                       <Route
                         path="menu/edit/:itemId"
                         element={
-                          <AdminPage element={EditMenuItem} minTier="Silver" />
+                          <AdminPage element={EditMenuItem} minTier="Basic" />
                         }
                       />
                       <Route
@@ -408,7 +408,7 @@ function App() {
                       <Route
                         path="gallery"
                         element={
-                          <AdminPage element={GalleryManager} minTier="Silver" />
+                          <AdminPage element={GalleryManager} minTier="Basic" />
                         }
                       />
                       <Route
@@ -453,13 +453,13 @@ function App() {
                       <Route
                         path="support"
                         element={
-                          <AdminPage element={SupportForm} minTier="Silver" />
+                          <AdminPage element={SupportForm} minTier="Basic" />
                         }
                       />
                       <Route
                         path="settings"
                         element={
-                          <AdminPage element={AdminSettings} minTier="Silver" />
+                          <AdminPage element={AdminSettings} minTier="Basic" />
                         }
                       />
                     </Routes>

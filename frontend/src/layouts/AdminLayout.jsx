@@ -60,11 +60,7 @@ const AdminLayout = ({ children }) => {
           document.title = `BuleBet | ${data.name} Admin`;
           setDynamicFavicon(data.name, data.logoUrl);
           if (data.subscriptionTier) {
-            const mappedTier =
-              data.subscriptionTier === "Basic"
-                ? "Silver"
-                : data.subscriptionTier;
-            setTier(mappedTier);
+            setTier(data.subscriptionTier);
           }
         }
       } catch (err) {

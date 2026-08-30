@@ -69,14 +69,11 @@ const Header = () => {
     }
   }, [isRestaurantPage, restaurantName]);
 
-  const tierImportance = { Silver: 0, Gold: 1, Platinum: 2, Premium: 3 };
+  const tierImportance = { Basic: 0, Gold: 1, Platinum: 2, Premium: 3 };
   const getTierImportance = (t) =>
     tierImportance[t] !== undefined ? tierImportance[t] : 2; // Default to Platinum
 
-  const currentTier =
-    restaurant?.subscriptionTier === "Basic"
-      ? "Silver"
-      : restaurant?.subscriptionTier || "Platinum";
+  const currentTier = restaurant?.subscriptionTier || "Basic";
   const currentTierImp = getTierImportance(currentTier);
 
   const allNavLinks = [
@@ -84,7 +81,7 @@ const Header = () => {
       name: t("nav_menu") || "Menu",
       path: `/${restaurantName}/menu`,
       originalName: "Menu",
-      minTier: "Silver",
+      minTier: "Basic",
     },
     {
       name: t("nav_reservations") || "Reservations",
@@ -295,7 +292,7 @@ const Header = () => {
                   >
                     {link.name}
                   </Link>
-                  {link.originalName === "Menu" && currentTier !== "Silver" && (
+                  {link.originalName === "Menu" && currentTier !== "Basic" && (
                     <div
                       className="menu-dropdown"
                       style={{

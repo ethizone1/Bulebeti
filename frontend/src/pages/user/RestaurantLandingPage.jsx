@@ -128,11 +128,8 @@ const RestaurantLandingPage = () => {
   const displayName =
     restaurant.name ||
     restaurantName.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  const TIER_LEVELS = { Silver: 0, Gold: 1, Platinum: 2, Premium: 3 };
-  const currentTier =
-    restaurant.subscriptionTier === "Basic"
-      ? "Silver"
-      : restaurant.subscriptionTier || "Platinum";
+  const TIER_LEVELS = { Basic: 0, Gold: 1, Platinum: 2, Premium: 3 };
+  const currentTier = restaurant.subscriptionTier || "Basic";
   const tierLevel = TIER_LEVELS[currentTier] || 0;
 
   const categories = [

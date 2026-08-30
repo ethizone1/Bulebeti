@@ -113,7 +113,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
       name: t("admin_overview"),
       path: `/bulebeti/${restaurantName}/admin`,
       icon: "📊",
-      minTier: "Silver",
+      minTier: "Basic",
       requiredPermission: "none",
     },
     {
@@ -134,7 +134,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
       name: t("admin_menu"),
       path: `/bulebeti/${restaurantName}/admin/menu`,
       icon: "📜",
-      minTier: "Silver",
+      minTier: "Basic",
       requiredPermission: "manage_menu",
     },
     {
@@ -183,20 +183,20 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
       name: "Help & Support",
       path: `/bulebeti/${restaurantName}/admin/support`,
       icon: "❓",
-      minTier: "Silver",
+      minTier: "Basic",
       requiredPermission: "none",
     },
     {
       name: t("admin_settings"),
       path: `/bulebeti/${restaurantName}/admin/settings`,
       icon: "⚙️",
-      minTier: "Silver",
+      minTier: "Basic",
       requiredPermission: "all",
     },
   ];
 
-  const _tiers = ["Silver", "Gold", "Platinum", "Premium"];
-  const tierImportance = { Silver: 0, Gold: 1, Platinum: 2, Premium: 3 };
+  const _tiers = ["Basic", "Gold", "Platinum", "Premium"];
+  const tierImportance = { Basic: 0, Gold: 1, Platinum: 2, Premium: 3 };
   const filteredItems = allMenuItems.filter(
     (item) =>
       tierImportance[currentTier] >= tierImportance[item.minTier] &&

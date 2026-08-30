@@ -725,7 +725,6 @@ const RestaurantManagement = () => {
                   }}
                 >
                   <option value="Basic">Basic</option>
-                  <option value="Silver">Silver</option>
                   <option value="Gold">Gold</option>
                   <option value="Platinum">Platinum</option>
                   <option value="Premium">Premium</option>
@@ -944,7 +943,6 @@ const RestaurantManagement = () => {
                     style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px", backgroundColor: "white" }}
                   >
                     <option value="Basic">Basic</option>
-                    <option value="Silver">Silver</option>
                     <option value="Gold">Gold</option>
                     <option value="Platinum">Platinum</option>
                     <option value="Premium">Premium</option>

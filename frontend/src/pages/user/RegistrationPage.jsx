@@ -64,9 +64,9 @@ const RegistrationPage = () => {
       const formatted =
         paramTier.charAt(0).toUpperCase() + paramTier.slice(1).toLowerCase();
       if (
-        ["Silver", "Gold", "Platinum", "Premium", "Basic"].includes(formatted)
+        ["Basic", "Gold", "Platinum", "Premium"].includes(formatted)
       ) {
-        chosenTier = formatted === "Basic" ? "Silver" : formatted;
+        chosenTier = formatted;
       }
     }
 
@@ -521,13 +521,12 @@ const RegistrationPage = () => {
           >
             {/* Basic Plan */}
             <div
-              onClick={() => handleSelectTier("Silver")}
+              onClick={() => handleSelectTier("Basic")}
               style={{
                 padding: "28px 20px",
                 borderRadius: "16px",
                 backgroundColor: "white",
                 border:
-                  formData.subscriptionTier === "Silver" ||
                   formData.subscriptionTier === "Basic"
                     ? "3px solid var(--gold)"
                     : "1px solid var(--platinum)",
@@ -538,12 +537,10 @@ const RegistrationPage = () => {
                 cursor: "pointer",
                 transition: "all 0.2s ease-in-out",
                 boxShadow:
-                  formData.subscriptionTier === "Silver" ||
                   formData.subscriptionTier === "Basic"
                     ? "0 8px 25px rgba(212, 175, 55, 0.25)"
                     : "0 2px 8px rgba(0,0,0,0.04)",
                 transform:
-                  formData.subscriptionTier === "Silver" ||
                   formData.subscriptionTier === "Basic"
                     ? "translateY(-4px)"
                     : "none",
@@ -610,15 +607,13 @@ const RegistrationPage = () => {
               <button
                 type="button"
                 className={
-                  formData.subscriptionTier === "Silver" ||
                   formData.subscriptionTier === "Basic"
                     ? "btn btn-primary"
                     : "btn btn-outline"
                 }
                 style={{ width: "100%", marginTop: "auto" }}
               >
-                {formData.subscriptionTier === "Silver" ||
-                formData.subscriptionTier === "Basic"
+                {formData.subscriptionTier === "Basic"
                   ? "Selected ✨"
                   : t("landing_select_silver") || "Select Basic"}
               </button>

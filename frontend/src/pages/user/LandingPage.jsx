@@ -471,7 +471,7 @@ const LandingPage = () => {
                         color: "#b28900",
                         border: "1px solid rgba(212, 175, 55, 0.3)",
                       };
-                    case "Silver":
+                    case "Basic":
                       return {
                         bg: "#f8fafc",
                         color: "#64748b",

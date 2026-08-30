@@ -283,10 +283,9 @@ const Footer = () => {
               {(() => {
                 const tierImportance = {
                   Basic: 1,
-                  Silver: 2,
-                  Gold: 3,
-                  Platinum: 4,
-                  Premium: 5,
+                  Gold: 2,
+                  Platinum: 3,
+                  Premium: 4,
                 };
                 const currentTierImp =
                   tierImportance[restaurant?.subscriptionTier] || 1;
@@ -301,7 +300,7 @@ const Footer = () => {
                       {
                         name: t("footer_sister_rest") || "Sister Restaurants",
                         path: `/${restaurantName}/sister-restaurants`,
-                        minTier: "Silver",
+                        minTier: "Basic",
                       },
                       {
                         name: t("footer_catering") || "Catering",

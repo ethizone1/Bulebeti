@@ -212,7 +212,7 @@ const AdminDashboard = () => {
     return isNaN(date.getTime()) ? "" : date.toLocaleDateString();
   };
 
-  const tierImportance = { Silver: 0, Gold: 1, Platinum: 2, Premium: 3 };
+  const tierImportance = { Basic: 0, Gold: 1, Platinum: 2, Premium: 3 };
   const getTierImportance = (t) =>
     tierImportance[t] !== undefined ? tierImportance[t] : 2;
   const currentTierImp = getTierImportance(currentTier);
@@ -674,7 +674,7 @@ const AdminDashboard = () => {
                 {
                   label: t("admin_sys_acc"),
                   value:
-                    currentTier === "Silver"
+                    currentTier === "Basic"
                       ? t("admin_cap_1admin")
                       : currentTier === "Gold"
                         ? t("admin_cap_up3")
@@ -683,7 +683,7 @@ const AdminDashboard = () => {
                 {
                   label: t("admin_sys_menu"),
                   value:
-                    currentTier === "Silver"
+                    currentTier === "Basic"
                       ? t("admin_cap_edit")
                       : t("admin_cap_editadd"),
                 },
@@ -699,7 +699,7 @@ const AdminDashboard = () => {
                 {
                   label: t("admin_sys_comm"),
                   value:
-                    currentTier === "Silver"
+                    currentTier === "Basic"
                       ? t("admin_cap_none")
                       : currentTier === "Gold"
                         ? t("admin_cap_res")
