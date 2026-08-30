@@ -37,7 +37,7 @@ const PlansComparisonModal = ({
         { text: t("landing_silver_f1") || "✓ 1 Admin", included: true },
         { text: t("landing_silver_f2") || "✓ Up to 20 Menu Items", included: true },
         { text: t("landing_silver_f3") || "✗ Add New Menu Categories", included: false },
-        { text: t("landing_silver_f4") || "✗ SMS Notifications", included: false },
+        { text: t("landing_silver_f4") || "✗ Online Ordering", included: false },
       ],
     },
     {
@@ -58,6 +58,7 @@ const PlansComparisonModal = ({
           included: true,
         },
         { text: t("landing_gold_f3") || "✓ Reservation SMS Alerts", included: true },
+        { text: "✗ Online Ordering (Requires Platinum)", included: false },
       ],
     },
     {
@@ -70,6 +71,7 @@ const PlansComparisonModal = ({
       isDark: false,
       titleColor: "var(--primary)",
       features: [
+        { text: "✓ Online Ordering System", included: true },
         { text: t("landing_plat_f1") || "✓ Up to 7 Admins", included: true },
         {
           text: t("landing_plat_f2") || "✓ Reservation & Catering SMS",
@@ -92,6 +94,7 @@ const PlansComparisonModal = ({
       titleColor: "var(--gold)",
       features: [
         { text: t("landing_prem_f1") || "✓ Everything in Platinum", included: true },
+        { text: "✓ Online Ordering System", included: true },
         { text: t("landing_prem_f2") || "✓ Edit/Delete Comments", included: true },
         { text: t("landing_prem_f3") || "✓ Unlimited Locations", included: true },
         { text: t("landing_prem_f4") || "✓ Layout Customization", included: true },

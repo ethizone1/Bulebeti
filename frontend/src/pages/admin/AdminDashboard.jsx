@@ -261,6 +261,21 @@ const AdminDashboard = () => {
         stats.catering.pending > 0,
     },
     {
+      title: "Online Ordering",
+      value:
+        currentTierImp < getTierImportance("Platinum")
+          ? "🔒"
+          : "ACTIVE",
+      sub:
+        currentTierImp < getTierImportance("Platinum")
+          ? "Requires Platinum Plan"
+          : "Dine-In, Takeout & Delivery Enabled",
+      icon: "🛍️",
+      color: "#10b981",
+      path: "menu",
+      highlight: currentTierImp >= getTierImportance("Platinum"),
+    },
+    {
       title: "Menu Items",
       value: loading ? "…" : stats.menu.total,
       sub: loading ? "" : `${stats.menu.visible} visible to customers`,

@@ -57,6 +57,60 @@ const MenuPage = () => {
   const [restaurantTier, setRestaurantTier] = React.useState("Platinum");
   const [globalImgPos, setGlobalImgPos] = React.useState("Left");
 
+  const isPlatinumOrAbove = restaurantTier === "Platinum" || restaurantTier === "Premium";
+
+  // Online Order Cart & Checkout State (Platinum & Premium feature)
+  const [cart, setCart] = React.useState([]);
+  const [isCheckoutOpen, setIsCheckoutOpen] = React.useState(false);
+  const [orderForm, setOrderForm] = React.useState({
+    customerName: "",
+    phone: "",
+    email: "",
+    orderType: "Takeout",
+    tableNumber: "",
+    deliveryAddress: "",
+    specialInstructions: "",
+  });
+  const [orderSubmitting, setOrderSubmitting] = React.useState(false);
+  const [orderSuccess, setOrderSuccess] = React.useState(false);
+
+  const addToCart = (item) => {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.id === item.id);
+      if (existing) {
+        return prev.map((i) => (i.id === item.id ? { ...i, qty: i.qty + 1 } : i));
+      }
+      const numericPrice = parseFloat(item.price.replace(/[^0-9.]/g, "")) || 0;
+      return [...prev, { ...item, numericPrice, qty: 1 }];
+    });
+  };
+
+  const updateCartQty = (itemId, delta) => {
+    setCart((prev) =>
+      prev
+        .map((item) => {
+          if (item.id === itemId) {
+            const newQty = item.qty + delta;
+            return newQty > 0 ? { ...item, qty: newQty } : null;
+          }
+          return item;
+        })
+        .filter(Boolean),
+    );
+  };
+
+  const totalCartPrice = cart.reduce((sum, item) => sum + item.numericPrice * item.qty, 0);
+  const totalCartItems = cart.reduce((sum, item) => sum + item.qty, 0);
+
+  const handlePlaceOrder = (e) => {
+    e.preventDefault();
+    setOrderSubmitting(true);
+    setTimeout(() => {
+      setOrderSubmitting(false);
+      setOrderSuccess(true);
+    }, 1000);
+  };
+
   React.useEffect(() => {
     let intervalId;
 
@@ -412,31 +466,109 @@ const MenuPage = () => {
             )}
           </div>
 
-          {menuCategories.map((category) => {
-            let visibleItems = category.items.filter((item) => item.visible);
+          {/* Online Ordering Status Banner (Platinum & Premium feature) */}
+          <div style={{ maxWidth: "1200px", margin: "0 auto 28px auto", padding: "0 var(--spacing-lg)" }}>
+            {isPlatinumOrAbove ? (
+              <div
+                style={{
+                  backgroundColor: "#f0fdf4",
+                  border: "1.5px solid #86efac",
+                  borderRadius: "14px",
+                  padding: "16px 22px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "14px",
+                  flexWrap: "wrap",
+                  boxShadow: "0 4px 12px rgba(22, 101, 52, 0.08)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <span style={{ fontSize: "24px" }}>🛍️</span>
+                  <div>
+                    <strong style={{ color: "#166534", fontSize: "16px" }}>Online Ordering Active</strong>
+                    <p style={{ margin: "2px 0 0 0", fontSize: "13px", color: "#15803d" }}>
+                      Select items below to place your order online for Dine-In, Takeout, or Delivery!
+                    </p>
+                  </div>
+                </div>
+                <span
+                  style={{
+                    backgroundColor: "#166534",
+                    color: "white",
+                    padding: "6px 14px",
+                    borderRadius: "20px",
+                    fontSize: "12px",
+                    fontWeight: "700",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Platinum Feature
+                </span>
+              </div>
+            ) : (
+              <div
+                style={{
+                  backgroundColor: "#fffbe6",
+                  border: "1px solid #ffe58f",
+                  borderRadius: "14px",
+                  padding: "14px 20px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "12px",
+                  fontSize: "13px",
+                  color: "#856404",
+                  flexWrap: "wrap",
+                }}
+              >
+                <div>
+                  <strong>📖 Digital Menu (View Only)</strong>
+                  <span style={{ marginLeft: "8px" }}>
+                    Online Ordering is enabled on <strong>Platinum</strong> &amp; <strong>Premium</strong> plans.
+                  </span>
+                </div>
+                <button
+                  onClick={() => navigate("/register")}
+                  style={{
+                    backgroundColor: "#d97706",
+                    color: "white",
+                    border: "none",
+                    padding: "6px 14px",
+                    borderRadius: "6px",
+                    fontSize: "12px",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                  }}
+                >
+                  Upgrade to Platinum
+                </button>
+              </div>
+            )}
+          </div>
 
-            if (
-              activeFilter !== "all items" &&
-              activeFilter !== "our signature"
-            ) {
-              if (category.name.toLowerCase() !== activeFilter) {
+          <div className="container" style={{ paddingBottom: "var(--spacing-xxl)" }}>
+            {menuCategories.map((category) => {
+              let visibleItems = category.items.filter((item) => item.visible);
+
+              if (
+                activeFilter !== "all items" &&
+                activeFilter !== "our signature"
+              ) {
+                if (category.name.toLowerCase() !== activeFilter) {
+                  return null;
+                }
+              } else if (activeFilter === "our signature") {
                 return null;
               }
-            } else if (activeFilter === "our signature") {
-              // In a real app we would filter by item.isSignature
-              // For now we just return null because the signature section handles it,
-              // or we could show all items. Let's hide the list if 'our signature' is selected
-              // and just let the top section shine.
-              return null;
-            }
 
-            if (visibleItems.length === 0) return null;
+              if (visibleItems.length === 0) return null;
 
-            return (
-              <div
-                key={category.name}
-                style={{ marginBottom: "var(--spacing-xxl)" }}
-              >
+              return (
+                <div
+                  key={category.name}
+                  style={{ marginBottom: "var(--spacing-xxl)" }}
+                >
                 <h2
                   style={{
                     textAlign: "center",
@@ -566,6 +698,93 @@ const MenuPage = () => {
                             {item.price}
                           </div>
                         )}
+
+                        {/* Platinum & Premium Online Order Button */}
+                        {isPlatinumOrAbove && (
+                          <div style={{ marginTop: "14px" }}>
+                            {cart.find((c) => c.id === item.id) ? (
+                              <div
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                  backgroundColor: "#f0fdf4",
+                                  border: "1px solid #86efac",
+                                  borderRadius: "8px",
+                                  padding: "4px 10px",
+                                }}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => updateCartQty(item.id, -1)}
+                                  style={{
+                                    width: "26px",
+                                    height: "26px",
+                                    borderRadius: "50%",
+                                    border: "1px solid #166534",
+                                    backgroundColor: "white",
+                                    color: "#166534",
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                    fontSize: "14px",
+                                  }}
+                                >
+                                  -
+                                </button>
+                                <span
+                                  style={{
+                                    fontWeight: "800",
+                                    fontSize: "14px",
+                                    color: "#166534",
+                                    minWidth: "20px",
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  {cart.find((c) => c.id === item.id).qty}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateCartQty(item.id, 1)}
+                                  style={{
+                                    width: "26px",
+                                    height: "26px",
+                                    borderRadius: "50%",
+                                    border: "1px solid #166534",
+                                    backgroundColor: "#166534",
+                                    color: "white",
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                    fontSize: "14px",
+                                  }}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => addToCart(item)}
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                  padding: "8px 16px",
+                                  borderRadius: "8px",
+                                  backgroundColor: "#10b981",
+                                  color: "white",
+                                  border: "none",
+                                  fontSize: "13px",
+                                  fontWeight: "700",
+                                  cursor: "pointer",
+                                  boxShadow: "0 2px 6px rgba(16,185,129,0.3)",
+                                  transition: "all 0.2s",
+                                }}
+                              >
+                                🛒 Order Online
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                       <div
@@ -681,8 +900,249 @@ const MenuPage = () => {
           </section>
         </div>
       </div>
+    </div>
 
-      <style>{`
+      {/* Floating View Order Cart Button (Platinum & Premium) */}
+      {isPlatinumOrAbove && totalCartItems > 0 && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "24px",
+            right: "24px",
+            zIndex: 1000,
+          }}
+        >
+          <button
+            onClick={() => {
+              setOrderSuccess(false);
+              setIsCheckoutOpen(true);
+            }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              padding: "14px 24px",
+              borderRadius: "30px",
+              backgroundColor: "#10b981",
+              color: "white",
+              border: "none",
+              fontSize: "15px",
+              fontWeight: "800",
+              cursor: "pointer",
+              boxShadow: "0 10px 25px rgba(16,185,129,0.45)",
+              transition: "all 0.2s",
+            }}
+          >
+            <span>🛍️ View Order ({totalCartItems})</span>
+            <span style={{ backgroundColor: "rgba(255,255,255,0.25)", padding: "4px 10px", borderRadius: "14px" }}>
+              ${totalCartPrice.toFixed(2)}
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* Online Order Checkout Modal */}
+      {isCheckoutOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.6)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1100,
+            padding: "16px",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "28px",
+              borderRadius: "16px",
+              width: "100%",
+              maxWidth: "520px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              boxShadow: "0 20px 25px -5px rgba(0,0,0,0.15)",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px", borderBottom: "1px solid #f3f4f6", paddingBottom: "12px" }}>
+              <h3 style={{ margin: 0, fontSize: "20px", fontWeight: "800", color: "#111827" }}>
+                🛍️ Online Order — {displayName}
+              </h3>
+              <button
+                onClick={() => setIsCheckoutOpen(false)}
+                style={{ background: "none", border: "none", fontSize: "22px", cursor: "pointer", color: "#9ca3af" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {orderSuccess ? (
+              <div style={{ textAlign: "center", padding: "24px 12px" }}>
+                <div style={{ fontSize: "56px", marginBottom: "12px" }}>🎉</div>
+                <h3 style={{ color: "#10b981", margin: "0 0 8px 0" }}>Order Placed Successfully!</h3>
+                <p style={{ color: "#4b5563", fontSize: "14px", marginBottom: "20px" }}>
+                  Thank you! Your order has been sent to <strong>{displayName}</strong>. The restaurant team will prepare your order shortly.
+                </p>
+                <button
+                  onClick={() => {
+                    setCart([]);
+                    setIsCheckoutOpen(false);
+                    setOrderSuccess(false);
+                  }}
+                  style={{
+                    backgroundColor: "#10b981",
+                    color: "white",
+                    border: "none",
+                    padding: "10px 24px",
+                    borderRadius: "8px",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                  }}
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handlePlaceOrder} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                {/* Order Items List */}
+                <div style={{ backgroundColor: "#fafafa", borderRadius: "10px", padding: "14px", border: "1px solid #f3f4f6" }}>
+                  <h4 style={{ margin: "0 0 10px 0", fontSize: "14px", fontWeight: "700", color: "#374151" }}>Your Order Items</h4>
+                  {cart.map((item) => (
+                    <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px", fontSize: "13px" }}>
+                      <div>
+                        <strong>{item.name}</strong> × {item.qty}
+                      </div>
+                      <div style={{ fontWeight: "700", color: "#111827" }}>
+                        ${(item.numericPrice * item.qty).toFixed(2)}
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #e5e7eb", paddingTop: "8px", marginTop: "8px", fontWeight: "800", fontSize: "15px", color: "#111827" }}>
+                    <span>Total Amount:</span>
+                    <span style={{ color: "#10b981" }}>${totalCartPrice.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {/* Order Type Selector */}
+                <div>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: "700", marginBottom: "6px" }}>Order Option *</label>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
+                    {["Dine-In", "Takeout", "Delivery"].map((type) => (
+                      <button
+                        type="button"
+                        key={type}
+                        onClick={() => setOrderForm({ ...orderForm, orderType: type })}
+                        style={{
+                          padding: "8px",
+                          borderRadius: "6px",
+                          border: orderForm.orderType === type ? "2px solid #10b981" : "1px solid #d1d5db",
+                          backgroundColor: orderForm.orderType === type ? "#ecfdf5" : "white",
+                          color: orderForm.orderType === type ? "#065f46" : "#374151",
+                          fontWeight: "700",
+                          fontSize: "12px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {type === "Dine-In" ? "🍽️ Dine-In" : type === "Takeout" ? "🛍️ Takeout" : "🛵 Delivery"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Contact Inputs */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Your Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Samuel Alemu"
+                      value={orderForm.customerName}
+                      onChange={(e) => setOrderForm({ ...orderForm, customerName: e.target.value })}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Phone Number *</label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="+251 911 000 000"
+                      value={orderForm.phone}
+                      onChange={(e) => setOrderForm({ ...orderForm, phone: e.target.value })}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                    />
+                  </div>
+                </div>
+
+                {orderForm.orderType === "Dine-In" && (
+                  <div>
+                    <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Table Number (optional)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Table 5"
+                      value={orderForm.tableNumber}
+                      onChange={(e) => setOrderForm({ ...orderForm, tableNumber: e.target.value })}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                    />
+                  </div>
+                )}
+
+                {orderForm.orderType === "Delivery" && (
+                  <div>
+                    <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Delivery Address *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Bole Road, Addis Ababa"
+                      value={orderForm.deliveryAddress}
+                      onChange={(e) => setOrderForm({ ...orderForm, deliveryAddress: e.target.value })}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Special Notes (optional)</label>
+                  <textarea
+                    rows="2"
+                    placeholder="e.g. Extra sauce on the side..."
+                    value={orderForm.specialInstructions}
+                    onChange={(e) => setOrderForm({ ...orderForm, specialInstructions: e.target.value })}
+                    style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                  />
+                </div>
+
+                <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #f3f4f6" }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsCheckoutOpen(false)}
+                    style={{ padding: "8px 16px", borderRadius: "6px", border: "1px solid #d1d5db", backgroundColor: "white", cursor: "pointer" }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={orderSubmitting}
+                    style={{ padding: "10px 20px", borderRadius: "6px", backgroundColor: "#10b981", color: "white", border: "none", fontWeight: "700", cursor: "pointer" }}
+                  >
+                    {orderSubmitting ? "⏳ Placing Order..." : "🚀 Place Order ($" + totalCartPrice.toFixed(2) + ")"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      <style>
+        {`
         @media (max-width: 768px) {
           .menu-item-row {
             flex-direction: column !important;
@@ -691,14 +1151,12 @@ const MenuPage = () => {
           .menu-item-row > div {
             min-width: 100% !important;
           }
-          .menu-item-row div[style*="justifyContent"] {
-            justify-content: center !important;
-          }
           .menu-item-row img {
             max-width: 100% !important;
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
