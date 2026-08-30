@@ -84,6 +84,12 @@ const Header = () => {
       minTier: "Basic",
     },
     {
+      name: "🛍️ Online Order",
+      path: `/${restaurantName}/menu#all-items`,
+      originalName: "Online Order",
+      minTier: "Platinum",
+    },
+    {
       name: t("nav_reservations") || "Reservations",
       path: `/${restaurantName}/reservations`,
       originalName: "Reservations",

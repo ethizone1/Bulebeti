@@ -55,6 +55,7 @@ const MenuPage = () => {
   const [menuCategories, setMenuCategories] = React.useState([]);
   const [_loading, setLoading] = React.useState(true);
   const [restaurantTier, setRestaurantTier] = React.useState("Platinum");
+  const [restaurantPhone, setRestaurantPhone] = React.useState("+1 (240) 441-1075");
   const [globalImgPos, setGlobalImgPos] = React.useState("Left");
 
   const isPlatinumOrAbove = restaurantTier === "Platinum" || restaurantTier === "Premium";
@@ -124,6 +125,7 @@ const MenuPage = () => {
         if (!restRes.ok) throw new Error("Restaurant not found");
         const restaurant = await restRes.json();
         setRestaurantTier(restaurant.subscriptionTier || "Basic");
+        if (restaurant.phone) setRestaurantPhone(restaurant.phone);
 
         let layoutMap = {
           "image-left": "Left",
@@ -169,7 +171,7 @@ const MenuPage = () => {
                   item.contains && item.contains.length > 0
                     ? item.contains
                     : "Ask server",
-                visible: item.isAvailable,
+                visible: item.isAvailable !== false,
                 img:
                   item.imageUrl ||
                   "https://images.unsplash.com/photo-1541529086526-db283c563270?w=400&q=80",
@@ -479,7 +481,7 @@ const MenuPage = () => {
                   boxShadow: "0 4px 12px rgba(22, 101, 52, 0.08)",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
                   <span style={{ fontSize: "24px" }}>🛍️</span>
                   <div>
                     <strong style={{ color: "#166534", fontSize: "16px" }}>Online Ordering Active</strong>
@@ -488,19 +490,58 @@ const MenuPage = () => {
                     </p>
                   </div>
                 </div>
-                <span
-                  style={{
-                    backgroundColor: "#166534",
-                    color: "white",
-                    padding: "6px 14px",
-                    borderRadius: "20px",
-                    fontSize: "12px",
-                    fontWeight: "700",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  Platinum Feature
-                </span>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                  <a
+                    href={`tel:${restaurantPhone}`}
+                    style={{
+                      backgroundColor: "#2563eb",
+                      color: "white",
+                      padding: "8px 14px",
+                      borderRadius: "8px",
+                      fontSize: "13px",
+                      fontWeight: "700",
+                      textDecoration: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      boxShadow: "0 2px 6px rgba(37, 99, 235, 0.25)",
+                    }}
+                  >
+                    📞 Call Restaurant
+                  </a>
+                  <a
+                    href={`sms:${restaurantPhone}`}
+                    style={{
+                      backgroundColor: "#059669",
+                      color: "white",
+                      padding: "8px 14px",
+                      borderRadius: "8px",
+                      fontSize: "13px",
+                      fontWeight: "700",
+                      textDecoration: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      boxShadow: "0 2px 6px rgba(5, 150, 105, 0.25)",
+                    }}
+                  >
+                    💬 Text / SMS Owner
+                  </a>
+                  <span
+                    style={{
+                      backgroundColor: "#166534",
+                      color: "white",
+                      padding: "6px 14px",
+                      borderRadius: "20px",
+                      fontSize: "12px",
+                      fontWeight: "700",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Platinum Feature
+                  </span>
+                </div>
               </div>
             ) : (
               <div
@@ -545,7 +586,7 @@ const MenuPage = () => {
 
           <div className="container" style={{ paddingBottom: "var(--spacing-xxl)" }}>
             {menuCategories.map((category) => {
-              let visibleItems = category.items.filter((item) => item.visible);
+              let visibleItems = category.items.filter((item) => item.visible !== false);
 
               if (
                 activeFilter !== "all items" &&
@@ -976,6 +1017,56 @@ const MenuPage = () => {
               >
                 ✕
               </button>
+            </div>
+
+            {/* Direct Call or SMS to Owner Bar */}
+            <div
+              style={{
+                backgroundColor: "#f0fdf4",
+                border: "1px solid #bbf7d0",
+                borderRadius: "10px",
+                padding: "10px 14px",
+                marginBottom: "16px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "10px",
+                flexWrap: "wrap",
+              }}
+            >
+              <div style={{ fontSize: "12px", color: "#166534", fontWeight: "600" }}>
+                📞 Call or Text Owner Direct: <strong>{restaurantPhone}</strong>
+              </div>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <a
+                  href={`tel:${restaurantPhone}`}
+                  style={{
+                    backgroundColor: "#2563eb",
+                    color: "white",
+                    padding: "6px 12px",
+                    borderRadius: "6px",
+                    fontSize: "12px",
+                    fontWeight: "700",
+                    textDecoration: "none",
+                  }}
+                >
+                  📞 Call
+                </a>
+                <a
+                  href={`sms:${restaurantPhone}`}
+                  style={{
+                    backgroundColor: "#059669",
+                    color: "white",
+                    padding: "6px 12px",
+                    borderRadius: "6px",
+                    fontSize: "12px",
+                    fontWeight: "700",
+                    textDecoration: "none",
+                  }}
+                >
+                  💬 SMS
+                </a>
+              </div>
             </div>
 
             {orderSuccess ? (
