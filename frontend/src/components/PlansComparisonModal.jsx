@@ -288,8 +288,20 @@ const PlansComparisonModal = ({
           }}
         >
           {plans.map((plan) => {
-            const isCurrent =
-              currentTier.toLowerCase() === plan.tierKey.toLowerCase();
+            const tierWeights = { Basic: 0, Gold: 1, Platinum: 2, Premium: 3 };
+            const currentWeight = tierWeights[currentTier] ?? 0;
+            const targetWeight = tierWeights[plan.tierKey] ?? 0;
+            const isCurrent = currentWeight === targetWeight;
+            const isDowngrade = targetWeight < currentWeight;
+
+            let btnText = `Upgrade to ${plan.name}`;
+            if (submittingTier === plan.tierKey) {
+              btnText = "Submitting Alert...";
+            } else if (isCurrent) {
+              btnText = "Current Plan ✨";
+            } else if (isDowngrade) {
+              btnText = `Downgrade to ${plan.name}`;
+            }
 
             return (
               <div
@@ -413,31 +425,35 @@ const PlansComparisonModal = ({
                 <button
                   type="button"
                   onClick={() => handleSelectPlan(plan.tierKey)}
-                  disabled={submittingTier === plan.tierKey}
+                  disabled={submittingTier === plan.tierKey || isCurrent}
                   style={{
                     width: "100%",
                     marginTop: "auto",
                     padding: "12px",
                     borderRadius: "8px",
-                    fontWeight: "700",
+                    fontWeight: "800",
                     fontSize: "14px",
-                    border: "none",
-                    cursor: submittingTier === plan.tierKey ? "wait" : "pointer",
+                    border: isCurrent
+                      ? "none"
+                      : isDowngrade
+                      ? "1px solid #d1d5db"
+                      : "1.5px solid #D4AF37",
+                    cursor: submittingTier === plan.tierKey || isCurrent ? "default" : "pointer",
                     backgroundColor: isCurrent
-                      ? "var(--gold)"
-                      : plan.isDark
-                      ? "var(--gold)"
-                      : "var(--primary)",
-                    color: plan.isDark || isCurrent ? "#000000" : "#ffffff",
+                      ? "#D4AF37"
+                      : isDowngrade
+                      ? "#ffffff"
+                      : "#000000",
+                    color: isCurrent
+                      ? "#000000"
+                      : isDowngrade
+                      ? "#374151"
+                      : "#D4AF37",
                     transition: "all 0.2s",
                     opacity: submittingTier === plan.tierKey ? 0.7 : 1,
                   }}
                 >
-                  {submittingTier === plan.tierKey
-                    ? "Submitting Alert..."
-                    : isCurrent
-                    ? "Selected ✨"
-                    : `Select ${plan.name}`}
+                  {btnText}
                 </button>
               </div>
             );

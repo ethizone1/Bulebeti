@@ -661,7 +661,7 @@ const AdminDashboard = () => {
 
       {/* ── System capabilities + Upgrade ────────────────────── */}
       <div className="row g-4 stack-on-mobile">
-        <div className="col-lg-8">
+        <div className={currentTier === "Premium" ? "col-lg-12" : "col-lg-8"}>
           <div className="card h-100 border-0 shadow-sm rounded-4 p-4">
             <h3 className="mb-3 fs-6 d-flex justify-content-between align-items-center fw-bold">
               {t("admin_sys_cap")}
@@ -719,21 +719,53 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="col-lg-4">
-          <div className="card h-100 border-0 shadow-sm rounded-4 p-4 text-center text-white bg-primary d-flex flex-column justify-content-center align-items-center gap-3">
-            <div className="display-4 text-warning">✦</div>
-            <h3 className="text-warning m-0 fs-6 fw-bold">
-              {t("admin_upgrade_title")}
-            </h3>
-            <p className="small m-0 text-white-50">{t("admin_upgrade_desc")}</p>
-            <button
-              className="btn btn-warning w-100 fw-bold mt-2"
-              onClick={() => setIsPlansModalOpen(true)}
+        {currentTier !== "Premium" && (
+          <div className="col-lg-4">
+            <div
+              style={{
+                backgroundColor: "#0d1117",
+                border: "2px solid #D4AF37",
+                borderRadius: "16px",
+                padding: "24px",
+                textAlign: "center",
+                color: "#ffffff",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "14px",
+                height: "100%",
+                boxShadow: "0 8px 24px rgba(212, 175, 55, 0.15)",
+              }}
             >
-              {t("admin_view_plans")}
-            </button>
+              <div style={{ fontSize: "36px", color: "#D4AF37" }}>✦</div>
+              <h3 style={{ color: "#D4AF37", margin: 0, fontSize: "18px", fontWeight: "800" }}>
+                {t("admin_upgrade_title") || "Upgrade Hub"}
+              </h3>
+              <p style={{ margin: 0, fontSize: "13px", color: "rgba(255, 255, 255, 0.8)", lineHeight: "1.5" }}>
+                {t("admin_upgrade_desc") || "Unlock advanced catering management, unlimited locations, and automated SMS alerts."}
+              </p>
+              <button
+                style={{
+                  backgroundColor: "#D4AF37",
+                  color: "#000000",
+                  border: "none",
+                  padding: "12px 20px",
+                  borderRadius: "10px",
+                  fontWeight: "800",
+                  fontSize: "14px",
+                  width: "100%",
+                  cursor: "pointer",
+                  marginTop: "8px",
+                  boxShadow: "0 4px 12px rgba(212, 175, 55, 0.3)",
+                }}
+                onClick={() => setIsPlansModalOpen(true)}
+              >
+                {t("admin_view_plans") || "View Plans"}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* ── Quick action links ────────────────────────────────── */}
