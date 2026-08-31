@@ -201,6 +201,36 @@ const notifyAdminAndCustomer = async (
 
     customerSms = `[${details.restaurantName}]: Your catering inquiry for your ${details.eventType} event has been received. Our team will contact you soon.`;
     adminSms = `[${details.restaurantName}] Admin Alert: New Catering Inquiry for a ${details.eventType} (${details.guestCount} guests). Name: ${details.name}. Check Dashboard.`;
+  } else if (type === "Order") {
+    customerSubject = `[${details.restaurantName}] - Order Confirmed #${details.orderId || "ONLINE"}`;
+    adminSubject = `[${details.restaurantName}] Admin Alert - New Online Order #${details.orderId || "ONLINE"} from ${details.customerName}`;
+
+    customerHtml = `
+      <h2>Hi ${details.customerName},</h2>
+      <p>Thank you for your order at <strong>${details.restaurantName}</strong>!</p>
+      <ul>
+        <li><strong>Order Type:</strong> ${details.orderType}</li>
+        <li><strong>Total Amount:</strong> $${details.totalPrice}</li>
+        <li><strong>Items:</strong> ${details.itemsSummary}</li>
+        <li><strong>Contact Phone:</strong> ${customerPhone}</li>
+      </ul>
+      <p>Both you and the restaurant owner have received this notification. The restaurant will prepare your order shortly.</p>
+    `;
+
+    adminHtml = `
+      <h2>New Online Order Alert!</h2>
+      <p><strong>Customer:</strong> ${details.customerName} (${customerEmail} | ${customerPhone})</p>
+      <ul>
+        <li><strong>Order Type:</strong> ${details.orderType}</li>
+        <li><strong>Total Amount:</strong> $${details.totalPrice}</li>
+        <li><strong>Items:</strong> ${details.itemsSummary}</li>
+        <li><strong>Notes / Details:</strong> ${details.notes || "None"}</li>
+      </ul>
+      <p>Please review and confirm this order with the customer.</p>
+    `;
+
+    customerSms = `[${details.restaurantName}]: Your ${details.orderType} order ($${details.totalPrice}) has been submitted! Both you and the owner received this confirmation.`;
+    adminSms = `[${details.restaurantName}] Admin Alert: New ${details.orderType} Order ($${details.totalPrice}) from ${details.customerName} (${customerPhone}). Items: ${details.itemsSummary}`;
   }
 
   // 1. Notify Customer
