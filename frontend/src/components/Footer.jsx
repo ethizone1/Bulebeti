@@ -325,7 +325,7 @@ const Footer = () => {
                     ]
                   : [
                       {
-                        name: "Platform Home",
+                        name: "Home",
                         path: "/",
                         minTier: "Basic",
                       },
@@ -335,7 +335,7 @@ const Footer = () => {
                         minTier: "Basic",
                       },
                       {
-                        name: "For Restaurants",
+                        name: "Register Restaurant",
                         path: "/register",
                         minTier: "Basic",
                       },

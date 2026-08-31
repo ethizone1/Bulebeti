@@ -375,7 +375,7 @@ const Header = () => {
                   padding: "10px 0",
                 }}
               >
-                Platform Home
+                Home
               </Link>
               <Link
                 to="/register"
@@ -394,7 +394,7 @@ const Header = () => {
                   padding: "10px 0",
                 }}
               >
-                For Restaurants
+                Register Restaurant
               </Link>
             </div>
           )}
@@ -554,7 +554,7 @@ const Header = () => {
                   borderRadius: "4px",
                 }}
               >
-                Platform Home
+                Home
               </Link>
               <Link
                 to="/register"
@@ -581,7 +581,7 @@ const Header = () => {
                   borderRadius: "4px",
                 }}
               >
-                For Restaurants
+                Register Restaurant
               </Link>
             </>
           )}
