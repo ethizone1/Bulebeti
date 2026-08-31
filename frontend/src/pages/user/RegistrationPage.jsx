@@ -90,7 +90,7 @@ const RegistrationPage = () => {
             `${config.API_URL}/api/restaurants/${targetSlug}`
           );
           if (res.ok) {
-            restData = await res.json();
+            restData = await res.json().catch(() => ({}));
           }
         } catch (err) {
           console.error("Auto-fill restaurant error:", err);
@@ -368,10 +368,10 @@ const RegistrationPage = () => {
         }),
       });
 
-      const authData = await authResponse.json();
+      const authData = await authResponse.json().catch(() => ({}));
 
       if (!authResponse.ok) {
-        throw new Error(authData.msg || "Registration failed");
+        throw new Error(authData.msg || "Registration failed. Please check your details or login.");
       }
 
       if (authData.requiresVerification) {
@@ -410,7 +410,7 @@ const RegistrationPage = () => {
         }),
       });
 
-      const verifyData = await verifyResponse.json();
+      const verifyData = await verifyResponse.json().catch(() => ({}));
 
       if (!verifyResponse.ok) {
         throw new Error(verifyData.msg || "Verification failed. Please try again.");
@@ -434,7 +434,7 @@ const RegistrationPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: pendingEmail || formData.email.trim() }),
       });
-      const data = await resendResp.json();
+      const data = await resendResp.json().catch(() => ({}));
       if (!resendResp.ok) throw new Error(data.msg || "Failed to resend code");
       setResendStatus(data.msg || "A new 6-digit code has been sent!");
     } catch (err) {
