@@ -491,60 +491,84 @@ const MenuPage = () => {
               <div
                 style={{
                   backgroundColor: "#f0fdf4",
-                  border: "1.5px solid #86efac",
-                  borderRadius: "14px",
-                  padding: "16px 22px",
+                  border: "2px solid #86efac",
+                  borderRadius: "16px",
+                  padding: "24px 28px",
                   display: "flex",
+                  flexDirection: "column",
                   alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "14px",
-                  flexWrap: "wrap",
-                  boxShadow: "0 4px 12px rgba(22, 101, 52, 0.08)",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  gap: "16px",
+                  boxShadow: "0 6px 18px rgba(22, 101, 52, 0.08)",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-                  <span style={{ fontSize: "24px" }}>🛍️</span>
-                  <div>
-                    <strong style={{ color: "#166534", fontSize: "16px" }}>Online Ordering Active</strong>
-                    <p style={{ margin: "2px 0 0 0", fontSize: "13px", color: "#15803d" }}>
-                      Select items below to place your order online for Dine-In, Takeout, or Delivery!
-                    </p>
-                  </div>
+                <div>
+                  <div style={{ fontSize: "32px", marginBottom: "6px" }}>🛍️</div>
+                  <strong style={{ color: "#166534", fontSize: "20px", display: "block" }}>Online Ordering Active</strong>
+                  <p style={{ margin: "4px 0 0 0", fontSize: "14px", color: "#15803d", maxWidth: "600px" }}>
+                    Select items from the menu below or click to open the Online Order &amp; Reservation form for Dine-In, Takeout, or Delivery!
+                  </p>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
+                  <button
+                    onClick={() => {
+                      setOrderSuccess(false);
+                      setIsCheckoutOpen(true);
+                    }}
+                    style={{
+                      backgroundColor: "#166534",
+                      color: "white",
+                      border: "none",
+                      padding: "12px 24px",
+                      borderRadius: "10px",
+                      fontSize: "15px",
+                      fontWeight: "800",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      boxShadow: "0 4px 14px rgba(22, 101, 52, 0.3)",
+                      transition: "all 0.2s ease-in-out",
+                    }}
+                  >
+                    🛍️ Open Online Order Form
+                  </button>
+
                   <a
                     href={`tel:${restaurantPhone}`}
                     style={{
                       backgroundColor: "#2563eb",
                       color: "white",
-                      padding: "8px 14px",
-                      borderRadius: "8px",
-                      fontSize: "13px",
+                      padding: "12px 20px",
+                      borderRadius: "10px",
+                      fontSize: "14px",
                       fontWeight: "700",
                       textDecoration: "none",
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "6px",
-                      boxShadow: "0 2px 6px rgba(37, 99, 235, 0.25)",
+                      boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)",
                     }}
                   >
                     📞 Call Restaurant
                   </a>
+
                   <a
                     href={`sms:${restaurantPhone}`}
                     style={{
                       backgroundColor: "#059669",
                       color: "white",
-                      padding: "8px 14px",
-                      borderRadius: "8px",
-                      fontSize: "13px",
+                      padding: "12px 20px",
+                      borderRadius: "10px",
+                      fontSize: "14px",
                       fontWeight: "700",
                       textDecoration: "none",
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "6px",
-                      boxShadow: "0 2px 6px rgba(5, 150, 105, 0.25)",
+                      boxShadow: "0 4px 12px rgba(5, 150, 105, 0.25)",
                     }}
                   >
                     💬 Text / SMS Owner
