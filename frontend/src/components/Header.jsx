@@ -14,6 +14,54 @@ const Header = () => {
   const [restaurant, setRestaurant] = useState(null);
   const [categories, setCategories] = useState([]);
 
+  // Search state & live autocomplete
+  const [headerSearch, setHeaderSearch] = useState("");
+  const [searchRestaurants, setSearchRestaurants] = useState([]);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+
+  React.useEffect(() => {
+    const fetchSearchRestaurants = async () => {
+      try {
+        const res = await fetch(`${config.API_URL}/api/restaurants`);
+        if (res.ok) {
+          const data = await res.json();
+          setSearchRestaurants(data.filter((r) => r.status === "Active"));
+        }
+      } catch (err) {
+        console.error("Search fetch error:", err);
+      }
+    };
+    fetchSearchRestaurants();
+  }, []);
+
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (!headerSearch.trim()) return;
+    setShowSearchDropdown(false);
+
+    if (isRestaurantPage) {
+      navigate(`/${restaurantName}/menu#${encodeURIComponent(headerSearch.trim().toLowerCase())}`);
+    } else {
+      navigate(`/?search=${encodeURIComponent(headerSearch.trim())}`);
+      setTimeout(() => {
+        const target = document.getElementById("restaurants");
+        if (target) target.scrollIntoView({ behavior: "smooth" });
+      }, 150);
+    }
+  };
+
+  const matchingRestaurants = React.useMemo(() => {
+    if (!headerSearch.trim()) return [];
+    const q = headerSearch.toLowerCase().trim();
+    return searchRestaurants.filter(
+      (r) =>
+        r.name?.toLowerCase().includes(q) ||
+        r.slug?.toLowerCase().includes(q) ||
+        r.description?.toLowerCase().includes(q) ||
+        r.address?.toLowerCase().includes(q)
+    );
+  }, [headerSearch, searchRestaurants]);
+
   // Context-aware navigation links
   const isRestaurantPage =
     Boolean(restaurantName) &&
@@ -214,8 +262,9 @@ const Header = () => {
           }}
           className="hide-on-mobile header-desktop-nav"
         >
-          {/* AI Search Engine */}
-          <div
+          {/* AI Search Engine with Live Autocomplete */}
+          <form
+            onSubmit={handleSearchSubmit}
             style={{
               position: "relative",
               display: "flex",
@@ -223,40 +272,119 @@ const Header = () => {
             }}
           >
             <span
+              onClick={handleSearchSubmit}
+              title="Click to search"
               style={{
                 position: "absolute",
                 left: "12px",
                 color: "#9ca3af",
                 fontSize: "14px",
+                cursor: "pointer",
+                zIndex: 2,
               }}
             >
               🔍
             </span>
             <input
               type="text"
-              placeholder="Search..."
+              placeholder={isRestaurantPage ? "Search menu..." : "Search restaurants..."}
+              value={headerSearch}
+              onChange={(e) => {
+                setHeaderSearch(e.target.value);
+                setShowSearchDropdown(true);
+              }}
+              onFocus={() => setShowSearchDropdown(true)}
+              onBlur={() => setTimeout(() => setShowSearchDropdown(false), 250)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearchSubmit(e);
+              }}
               style={{
-                width: "180px",
-                padding: "8px 12px 8px 32px",
+                width: "200px",
+                padding: "8px 12px 8px 34px",
                 borderRadius: "20px",
-                border: "1px solid var(--platinum)",
+                border: "1.5px solid var(--platinum)",
                 backgroundColor: "rgba(0, 0, 0, 0.05)",
                 outline: "none",
                 fontSize: "14px",
                 transition: "all 0.3s",
               }}
-              onFocus={(e) => {
-                e.target.style.borderColor = "var(--gold)";
-                e.target.style.boxShadow = "0 0 0 2px rgba(212, 175, 55, 0.2)";
-                e.target.style.width = "220px";
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = "var(--platinum)";
-                e.target.style.boxShadow = "none";
-                e.target.style.width = "180px";
-              }}
             />
-          </div>
+
+            {/* Live Search Autocomplete Popup */}
+            {showSearchDropdown && headerSearch.trim().length > 0 && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  marginTop: "8px",
+                  width: "280px",
+                  backgroundColor: "white",
+                  borderRadius: "12px",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+                  border: "1px solid var(--platinum)",
+                  overflow: "hidden",
+                  zIndex: 2000,
+                  maxHeight: "320px",
+                  overflowY: "auto",
+                }}
+              >
+                {matchingRestaurants.length > 0 ? (
+                  matchingRestaurants.map((r) => (
+                    <div
+                      key={r._id || r.slug}
+                      onClick={() => {
+                        setShowSearchDropdown(false);
+                        setHeaderSearch("");
+                        navigate(`/${r.slug}`);
+                      }}
+                      style={{
+                        padding: "10px 14px",
+                        borderBottom: "1px solid #f3f4f6",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        transition: "background-color 0.15s",
+                      }}
+                      onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f9fafb")}
+                      onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "white")}
+                    >
+                      <div
+                        style={{
+                          width: "32px",
+                          height: "32px",
+                          borderRadius: "50%",
+                          backgroundColor: "#D4AF37",
+                          color: "white",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontWeight: "bold",
+                          fontSize: "14px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {r.name?.charAt(0) || "🍽️"}
+                      </div>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <strong style={{ display: "block", fontSize: "14px", color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {r.name}
+                        </strong>
+                        <span style={{ fontSize: "12px", color: "#6b7280" }}>
+                          {r.subscriptionTier || "Basic"} • {r.address || "Addis Ababa"}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ padding: "14px", fontSize: "13px", color: "#6b7280", textAlign: "center" }}>
+                    No matching restaurants found
+                  </div>
+                )}
+              </div>
+            )}
+          </form>
 
           {isRestaurantPage ? (
             navLinks.map((link) => {

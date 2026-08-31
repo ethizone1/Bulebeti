@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import BuleBetLogo from "../../components/BuleBetLogo";
 import config from "../../config";
@@ -143,6 +143,21 @@ const LandingPage = () => {
       (a, b) => (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity)
     );
   }, [restaurants, userCoords]);
+
+  const [searchParams] = useSearchParams();
+  const searchQuery = (searchParams.get("search") || "").toLowerCase().trim();
+
+  const filteredRestaurants = React.useMemo(() => {
+    if (!sortedRestaurants) return [];
+    if (!searchQuery) return sortedRestaurants;
+    return sortedRestaurants.filter(
+      (r) =>
+        r.name?.toLowerCase().includes(searchQuery) ||
+        r.slug?.toLowerCase().includes(searchQuery) ||
+        r.description?.toLowerCase().includes(searchQuery) ||
+        r.address?.toLowerCase().includes(searchQuery)
+    );
+  }, [sortedRestaurants, searchQuery]);
 
   return (
     <div className="landing-page">
@@ -369,7 +384,7 @@ const LandingPage = () => {
                 }
               `}</style>
             </div>
-          ) : sortedRestaurants.length === 0 ? (
+          ) : filteredRestaurants.length === 0 ? (
             <div
               style={{
                 textAlign: "center",
@@ -422,7 +437,7 @@ const LandingPage = () => {
                 padding: "10px 0",
               }}
             >
-              {sortedRestaurants.map((restaurant, index) => {
+              {filteredRestaurants.map((restaurant, index) => {
                 // Determine a nice fallback gradient based on the restaurant's name
                 const gradients = [
                   "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
