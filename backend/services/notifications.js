@@ -545,7 +545,8 @@ const notifyStatusUpdate = async (
 
   // Send to owner/admin
   if (subject && adminEmail) {
-    const adminSubject = `[Admin Alert] Status Updated to ${newStatus}: ${details.guestName || details.name}`;
+    const custName = details.customerName || details.guestName || details.name || "Customer";
+    const adminSubject = `[Admin Alert] Status Updated to ${newStatus}: ${custName}`;
     const adminHtml = `
       <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-family: sans-serif; font-size: 13px; color: #1e3a8a;">
         <strong>Notice for Restaurant Owner:</strong> This is a copy of the automated notification sent to the guest regarding their request status update.
@@ -561,7 +562,8 @@ const notifyStatusUpdate = async (
   }
 
   if (sms && adminPhone && adminPhone !== "N/A") {
-    const adminSms = `[${details.restaurantName}] Admin Alert: Request for ${details.guestName || details.name} updated to ${newStatus}.`;
+    const custName = details.customerName || details.guestName || details.name || "Customer";
+    const adminSms = `[${details.restaurantName}] Admin Alert: Request for ${custName} updated to ${newStatus}.`;
     await sendSMS(adminPhone, adminSms, details.restaurantName);
   }
 };
