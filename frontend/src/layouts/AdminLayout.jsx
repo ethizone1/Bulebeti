@@ -101,7 +101,13 @@ const AdminLayout = ({ children }) => {
     }
   };
 
-  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  let storedUser = {};
+  try {
+    const rawU = localStorage.getItem("user");
+    if (rawU && rawU !== "undefined") storedUser = JSON.parse(rawU);
+  } catch {
+    storedUser = {};
+  }
   const storedUserId = String(storedUser._id || storedUser.id || "");
   const ownerIdStr = String(restaurant?.ownerId?._id || restaurant?.ownerId || "");
   const isOwner =

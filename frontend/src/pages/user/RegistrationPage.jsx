@@ -37,17 +37,21 @@ const RegistrationPage = () => {
   const [verificationLoading, setVerificationLoading] = useState(false);
   const [verificationError, setVerificationError] = useState("");
   const [resendStatus, setResendStatus] = useState("");
-  const [pendingEmail, setPendingEmail] = useState("");
+  const safeGetJson = (key) => {
+    try {
+      const val = localStorage.getItem(key);
+      if (!val || val === "undefined" || val === "null") return null;
+      return JSON.parse(val);
+    } catch {
+      return null;
+    }
+  };
 
   const targetRestaurantSlug =
     searchParams.get("restaurant") ||
     (() => {
-      try {
-        const u = JSON.parse(localStorage.getItem("user") || "null");
-        return u?.restaurantSlug || "";
-      } catch {
-        return "";
-      }
+      const u = safeGetJson("user");
+      return u?.restaurantSlug || "";
     })();
 
   const isUpgradeMode = Boolean(
@@ -70,15 +74,7 @@ const RegistrationPage = () => {
       }
     }
 
-    let storedUser = null;
-    try {
-      const rawUser = localStorage.getItem("user");
-      if (rawUser && rawUser !== "undefined") {
-        storedUser = JSON.parse(rawUser);
-      }
-    } catch {
-      storedUser = null;
-    }
+    let storedUser = safeGetJson("user");
     const loadRestAndSet = async () => {
       let filledCount = 0;
       const targetSlug =
@@ -273,8 +269,10 @@ const RegistrationPage = () => {
 
 
   const finalizeRegistration = async (token, userObj) => {
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(userObj));
+    if (token && token !== "undefined") localStorage.setItem("token", token);
+    if (userObj && userObj !== "undefined") {
+      localStorage.setItem("user", JSON.stringify(userObj));
+    }
 
     const slug = formData.restaurantName
       .toLowerCase()
@@ -344,9 +342,13 @@ const RegistrationPage = () => {
     }
 
     try {
-      // 0. If user is already logged in, create restaurant under current account directly
+      // 0. Clean corrupted LocalStorage keys if present
+      if (localStorage.getItem("user") === "undefined") localStorage.removeItem("user");
+      if (localStorage.getItem("token") === "undefined") localStorage.removeItem("token");
+
+      // 1. If user is already logged in, create restaurant under current account directly
       const existingToken = localStorage.getItem("token");
-      const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+      const storedUser = safeGetJson("user");
       if (existingToken && storedUser && storedUser.email === formData.email.trim()) {
         await finalizeRegistration(existingToken, storedUser);
         return;
