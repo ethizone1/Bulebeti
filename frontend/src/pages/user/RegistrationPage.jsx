@@ -37,6 +37,7 @@ const RegistrationPage = () => {
   const [verificationLoading, setVerificationLoading] = useState(false);
   const [verificationError, setVerificationError] = useState("");
   const [resendStatus, setResendStatus] = useState("");
+  const [pendingEmail, setPendingEmail] = useState("");
   const safeGetJson = (key) => {
     try {
       const val = localStorage.getItem(key);
