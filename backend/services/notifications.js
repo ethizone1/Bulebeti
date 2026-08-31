@@ -86,6 +86,55 @@ const sendEmail = async (
 };
 
 const sendSMS = async (toPhone, textMessage, senderName = "bulebeti") => {
+  // 1. Try Twilio if credentials are set in .env
+  if (
+    process.env.TWILIO_ACCOUNT_SID &&
+    process.env.TWILIO_AUTH_TOKEN &&
+    process.env.TWILIO_PHONE_NUMBER
+  ) {
+    try {
+      const sid = process.env.TWILIO_ACCOUNT_SID;
+      const auth = Buffer.from(
+        `${sid}:${process.env.TWILIO_AUTH_TOKEN}`
+      ).toString("base64");
+
+      const digits = cleanPhone(toPhone);
+      const formattedPhone = toPhone.startsWith("+")
+        ? toPhone
+        : digits.length === 10
+        ? `+1${digits}`
+        : `+${digits}`;
+
+      const params = new URLSearchParams();
+      params.append("To", formattedPhone);
+      params.append("From", process.env.TWILIO_PHONE_NUMBER);
+      params.append("Body", textMessage);
+
+      const twilioRes = await fetch(
+        `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${auth}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: params.toString(),
+        }
+      );
+
+      if (twilioRes.ok) {
+        console.log(`✅ Twilio Direct SMS delivered → ${formattedPhone}`);
+        return true;
+      } else {
+        const errData = await twilioRes.json().catch(() => ({}));
+        console.error("❌ Twilio SMS error:", errData.message || twilioRes.statusText);
+      }
+    } catch (twErr) {
+      console.error("❌ Twilio API request failed:", twErr.message);
+    }
+  }
+
+  // 2. Fallback to Carrier Email-to-SMS Gateway
   const transporter = getTransporter();
   const gateway = process.env.DEFAULT_SMS_GATEWAY;
 
@@ -103,9 +152,10 @@ const sendSMS = async (toPhone, textMessage, senderName = "bulebeti") => {
     return false;
   }
 
+  const primaryGateways = ["txt.att.net", "tmomail.net", "vtext.com"];
   const gatewaysToUse =
     gateway.toLowerCase() === "all"
-      ? Object.values(CARRIER_GATEWAYS)
+      ? primaryGateways
       : [gateway];
 
   let sent = false;
