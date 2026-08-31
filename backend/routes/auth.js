@@ -173,8 +173,9 @@ router.post("/register", async (req, res) => {
             <p style="font-size: 13px; color: #6b7280;">This code will expire in 15 minutes.</p>
           </div>
         `;
-        await sendEmail(finalEmail, subject, htmlContent, "BuleBet Platform");
-        console.log(`[BACKEND] 🔑 Resent verification code to unverified user ${finalEmail}: ${verificationCode}`);
+        sendEmail(finalEmail, subject, htmlContent, "BuleBet Platform")
+          .then(() => console.log(`[BACKEND] 🔑 Resent verification code to unverified user ${finalEmail}: ${verificationCode}`))
+          .catch((e) => console.error(`[BACKEND] ❌ Resend email failed to ${finalEmail}:`, e.message));
 
         return res.json({
           requiresVerification: true,
@@ -343,8 +344,9 @@ router.post("/register", async (req, res) => {
         <p style="font-size: 13px; color: #6b7280;">This verification code will expire in 15 minutes.</p>
       </div>
     `;
-    await sendEmail(finalEmail, subject, htmlContent, "BuleBet Platform");
-    console.log(`[BACKEND] 🔑 Generated verification code for ${finalEmail}: ${verificationCode}`);
+    sendEmail(finalEmail, subject, htmlContent, "BuleBet Platform")
+      .then(() => console.log(`[BACKEND] 🔑 Generated & dispatched verification code for ${finalEmail}: ${verificationCode}`))
+      .catch((e) => console.error(`[BACKEND] ❌ Dispatch email failed to ${finalEmail}:`, e.message));
 
     res.json({
       requiresVerification: true,
