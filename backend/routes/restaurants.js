@@ -4,6 +4,8 @@ const auth = require("../middleware/auth");
 const { requireRole } = require("../middleware/ownership");
 const Restaurant = require("../models/Restaurant");
 const Inquiry = require("../models/Inquiry");
+const User = require("../models/User");
+const { sendEmail, sendSMS } = require("../services/notifications");
 
 // Get all restaurants
 router.get("/", async (req, res) => {
@@ -301,24 +303,71 @@ router.put("/:slug/request-upgrade", auth, async (req, res) => {
       return res.status(404).json({ msg: "Restaurant not found" });
     }
 
-    // Verify owner
-    if (restaurant.ownerId.toString() !== req.user.id) {
+    // Verify owner or sub-admin
+    const isOwner = restaurant.ownerId.toString() === req.user.id;
+    const isAdmin = restaurant.admins?.some((a) => a.user.toString() === req.user.id);
+    if (!isOwner && !isAdmin) {
       return res.status(403).json({ msg: "Forbidden: You are not authorized for this restaurant" });
     }
 
     const { tier } = req.body;
-    if (!["Silver", "Gold", "Platinum", "Premium"].includes(tier)) {
+    const validTiers = ["Basic", "Gold", "Platinum", "Premium"];
+    const formattedTier = tier ? (tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase()) : "";
+    if (!validTiers.includes(formattedTier)) {
       return res
         .status(400)
         .json({ msg: "Invalid subscription tier requested" });
     }
 
-    restaurant.pendingTierRequest = tier;
+    restaurant.pendingTierRequest = formattedTier;
     await restaurant.save();
+
+    // Look up owner details
+    const owner = await User.findById(restaurant.ownerId);
+    const ownerEmail = owner ? owner.email : (restaurant.email || "");
+    const ownerPhone = owner ? (owner.phone || restaurant.phone) : (restaurant.phone || "");
+
+    const superAdminEmail = "ethizone1@gmail.com";
+    const superAdminPhone = "+12404411075";
+
+    // 1. Email & SMS to Super Admin
+    const superAdminSubject = `[bulebeti Alert] 🎫 Plan Upgrade Requested: ${restaurant.name} (${formattedTier})`;
+    const superAdminHtml = `
+      <h2>Plan Upgrade Request Alert!</h2>
+      <p>Restaurant <strong>${restaurant.name}</strong> (${restaurant.slug}) has requested an upgrade to the <strong>${formattedTier} Plan</strong>.</p>
+      <ul>
+        <li><strong>Owner Name:</strong> ${owner ? owner.name : "N/A"}</li>
+        <li><strong>Owner Email:</strong> ${ownerEmail}</li>
+        <li><strong>Owner Phone:</strong> ${ownerPhone}</li>
+        <li><strong>Current Tier:</strong> ${restaurant.subscriptionTier || "Basic"}</li>
+        <li><strong>Requested Tier:</strong> ${formattedTier}</li>
+      </ul>
+      <p>Log in to Super Admin Dashboard to approve or manage this request.</p>
+    `;
+    const superAdminSms = `[bulebeti Alert]: Restaurant ${restaurant.name} (Owner: ${owner ? owner.name : 'Owner'}, Phone: ${ownerPhone}) requested ${formattedTier} plan upgrade. Check Super Admin dashboard.`;
+
+    sendEmail(superAdminEmail, superAdminSubject, superAdminHtml, "bulebeti Platform");
+    sendSMS(superAdminPhone, superAdminSms, "bulebeti Platform");
+
+    // 2. Email & SMS to Restaurant Owner
+    if (ownerEmail) {
+      const ownerSubject = `[bulebeti] Upgrade Request Received: ${formattedTier} Plan for ${restaurant.name}`;
+      const ownerHtml = `
+        <h2>Hi ${owner ? owner.name : 'Restaurant Owner'},</h2>
+        <p>Your request to upgrade <strong>${restaurant.name}</strong> to the <strong>${formattedTier} Plan</strong> has been received!</p>
+        <p>Our Super Admin team has been notified via Email and SMS. Your upgrade will be activated shortly.</p>
+      `;
+      sendEmail(ownerEmail, ownerSubject, ownerHtml, restaurant.name);
+    }
+    if (ownerPhone && ownerPhone !== "N/A") {
+      const ownerSms = `[bulebeti]: Your upgrade request to ${formattedTier} plan for ${restaurant.name} has been received! Super Admin has been notified and will activate it shortly.`;
+      sendSMS(ownerPhone, ownerSms, restaurant.name);
+    }
+
     console.log(
-      `[BACKEND] 🎫 Upgrade to ${tier} requested for restaurant: ${restaurant.name}`,
+      `[BACKEND] 🎫 Upgrade to ${formattedTier} requested & notifications sent for: ${restaurant.name}`,
     );
-    res.json(restaurant);
+    res.json({ msg: `Upgrade request to ${formattedTier} submitted successfully! Notifications sent to Super Admin and Owner.`, restaurant });
   } catch (err) {
     console.error("[REQUEST UPGRADE ERROR]", err.message);
     res.status(500).json({ msg: err.message || "Failed to request upgrade." });

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
+import config from "../config";
 
 const PlansComparisonModal = ({
   isOpen,
@@ -11,16 +12,53 @@ const PlansComparisonModal = ({
   const navigate = useNavigate();
   const { t } = useLanguage();
 
+  const [submittingTier, setSubmittingTier] = useState("");
+  const [successInfo, setSuccessInfo] = useState(null);
+  const [errorInfo, setErrorInfo] = useState("");
+
   if (!isOpen) return null;
 
-  const handleSelectPlan = (tierKey) => {
-    onClose();
-    const query = new URLSearchParams();
-    query.set("plan", tierKey);
-    if (restaurantSlug) {
-      query.set("restaurant", restaurantSlug);
+  const handleSelectPlan = async (tierKey) => {
+    const token = localStorage.getItem("token");
+    if (restaurantSlug && token) {
+      setSubmittingTier(tierKey);
+      setErrorInfo("");
+      try {
+        const res = await fetch(
+          `${config.API_URL}/api/restaurants/${restaurantSlug}/request-upgrade`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "x-auth-token": token,
+            },
+            body: JSON.stringify({ tier: tierKey }),
+          }
+        );
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.msg || "Failed to submit plan upgrade request");
+        }
+
+        setSuccessInfo({
+          tier: tierKey,
+          msg: data.msg || `Upgrade request to ${tierKey} plan submitted successfully!`,
+        });
+      } catch (err) {
+        setErrorInfo(err.message);
+      } finally {
+        setSubmittingTier("");
+      }
+    } else {
+      onClose();
+      const query = new URLSearchParams();
+      query.set("plan", tierKey);
+      if (restaurantSlug) {
+        query.set("restaurant", restaurantSlug);
+      }
+      navigate(`/register?${query.toString()}`);
     }
-    navigate(`/register?${query.toString()}`);
   };
 
   const plans = [
@@ -142,7 +180,11 @@ const PlansComparisonModal = ({
       >
         {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={() => {
+            setSuccessInfo(null);
+            setErrorInfo("");
+            onClose();
+          }}
           style={{
             position: "absolute",
             top: "20px",
@@ -165,6 +207,52 @@ const PlansComparisonModal = ({
         >
           ✕
         </button>
+
+        {successInfo ? (
+          <div style={{ textAlign: "center", padding: "36px 16px" }}>
+            <div style={{ fontSize: "56px", marginBottom: "12px" }}>🎉</div>
+            <h3 style={{ fontSize: "26px", fontWeight: "800", color: "#166534", marginBottom: "12px" }}>
+              {successInfo.tier} Plan Upgrade Requested!
+            </h3>
+            <p style={{ fontSize: "15px", color: "#374151", maxWidth: "560px", margin: "0 auto 20px auto", lineHeight: "1.6" }}>
+              An automated <strong>Email Notification</strong> and <strong>SMS Text Alert</strong> have been sent to both the <strong>Super Admin</strong> and <strong>your registered contact details</strong>!
+            </p>
+            <div style={{ backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "14px", padding: "18px", textAlign: "left", maxWidth: "520px", margin: "0 auto 26px auto", fontSize: "13px" }}>
+              <div style={{ color: "#166534", marginBottom: "8px" }}>
+                <strong>👑 Super Admin Alert:</strong> Sent to ethizone1@gmail.com &amp; +1 (240) 441-1075
+              </div>
+              <div style={{ color: "#166534" }}>
+                <strong>🏢 Restaurant Owner Alert:</strong> Sent to your registered email &amp; phone
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setSuccessInfo(null);
+                setErrorInfo("");
+                onClose();
+              }}
+              style={{
+                backgroundColor: "#166534",
+                color: "white",
+                border: "none",
+                padding: "14px 36px",
+                borderRadius: "10px",
+                fontWeight: "800",
+                fontSize: "15px",
+                cursor: "pointer",
+                boxShadow: "0 4px 14px rgba(22, 101, 52, 0.3)",
+              }}
+            >
+              Done
+            </button>
+          </div>
+        ) : (
+          <>
+            {errorInfo && (
+              <div style={{ backgroundColor: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", padding: "12px 16px", borderRadius: "8px", marginBottom: "20px", fontSize: "14px", textAlign: "center" }}>
+                {errorInfo}
+              </div>
+            )}
 
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "36px" }}>
@@ -324,6 +412,8 @@ const PlansComparisonModal = ({
 
                 <button
                   type="button"
+                  onClick={() => handleSelectPlan(plan.tierKey)}
+                  disabled={submittingTier === plan.tierKey}
                   style={{
                     width: "100%",
                     marginTop: "auto",
@@ -332,7 +422,7 @@ const PlansComparisonModal = ({
                     fontWeight: "700",
                     fontSize: "14px",
                     border: "none",
-                    cursor: "pointer",
+                    cursor: submittingTier === plan.tierKey ? "wait" : "pointer",
                     backgroundColor: isCurrent
                       ? "var(--gold)"
                       : plan.isDark
@@ -340,9 +430,12 @@ const PlansComparisonModal = ({
                       : "var(--primary)",
                     color: plan.isDark || isCurrent ? "#000000" : "#ffffff",
                     transition: "all 0.2s",
+                    opacity: submittingTier === plan.tierKey ? 0.7 : 1,
                   }}
                 >
-                  {isCurrent
+                  {submittingTier === plan.tierKey
+                    ? "Submitting Alert..."
+                    : isCurrent
                     ? "Selected ✨"
                     : `Select ${plan.name}`}
                 </button>
@@ -350,6 +443,8 @@ const PlansComparisonModal = ({
             );
           })}
         </div>
+        </>
+        )}
       </div>
     </div>
   );
