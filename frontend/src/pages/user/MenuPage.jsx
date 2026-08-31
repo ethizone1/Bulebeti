@@ -74,6 +74,19 @@ const MenuPage = () => {
   });
   const [orderSubmitting, setOrderSubmitting] = React.useState(false);
   const [orderSuccess, setOrderSuccess] = React.useState(false);
+  const [showQuickMenuPicker, setShowQuickMenuPicker] = React.useState(true);
+
+  const allMenuItems = React.useMemo(() => {
+    const items = [];
+    menuCategories.forEach((cat) => {
+      cat.items.forEach((item) => {
+        if (!items.some((i) => i.id === item.id) && item.visible !== false) {
+          items.push(item);
+        }
+      });
+    });
+    return items;
+  }, [menuCategories]);
 
   const addToCart = (item) => {
     setCart((prev) => {
@@ -1020,22 +1033,106 @@ const MenuPage = () => {
               </div>
             ) : (
               <form onSubmit={handlePlaceOrder} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-                {/* Order Items List */}
-                <div style={{ backgroundColor: "#fafafa", borderRadius: "10px", padding: "14px", border: "1px solid #f3f4f6" }}>
-                  <h4 style={{ margin: "0 0 10px 0", fontSize: "14px", fontWeight: "700", color: "#374151" }}>Your Order Items</h4>
-                  {cart.map((item) => (
-                    <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px", fontSize: "13px" }}>
-                      <div>
-                        <strong>{item.name}</strong> × {item.qty}
-                      </div>
-                      <div style={{ fontWeight: "700", color: "#111827" }}>
-                        ${(item.numericPrice * item.qty).toFixed(2)}
-                      </div>
+                {/* Order Items List & In-Modal Menu Picker */}
+                <div style={{ backgroundColor: "#fafafa", borderRadius: "10px", padding: "14px", border: "1px solid #e2e8f0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                    <h4 style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#1e293b" }}>Your Order Items</h4>
+                    <button
+                      type="button"
+                      onClick={() => setShowQuickMenuPicker(!showQuickMenuPicker)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#2563eb",
+                        fontSize: "12px",
+                        fontWeight: "700",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {showQuickMenuPicker ? "▲ Hide Menu Picker" : "➕ Add Items from Menu"}
+                    </button>
+                  </div>
+
+                  {cart.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "12px 10px", backgroundColor: "#f8fafc", borderRadius: "8px", border: "1px dashed #cbd5e1", marginBottom: "10px" }}>
+                      <p style={{ margin: "0 0 6px 0", fontSize: "13px", color: "#64748b", fontWeight: "600" }}>
+                        Your cart is empty! Select items below to place your order:
+                      </p>
                     </div>
-                  ))}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #e5e7eb", paddingTop: "8px", marginTop: "8px", fontWeight: "800", fontSize: "15px", color: "#111827" }}>
+                  ) : (
+                    cart.map((item) => (
+                      <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px", fontSize: "13px", padding: "6px 10px", backgroundColor: "white", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                        <div>
+                          <strong>{item.name}</strong> <span style={{ color: "#64748b" }}>(${item.price})</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <button
+                            type="button"
+                            onClick={() => updateCartQty(item.id, -1)}
+                            style={{ width: "22px", height: "22px", borderRadius: "4px", border: "1px solid #cbd5e1", background: "#f8fafc", cursor: "pointer", fontWeight: "bold" }}
+                          >
+                            -
+                          </button>
+                          <span style={{ fontWeight: "700" }}>{item.qty}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateCartQty(item.id, 1)}
+                            style={{ width: "22px", height: "22px", borderRadius: "4px", border: "1px solid #cbd5e1", background: "#f8fafc", cursor: "pointer", fontWeight: "bold" }}
+                          >
+                            +
+                          </button>
+                          <strong style={{ marginLeft: "6px", color: "#0f172a" }}>
+                            ${(item.numericPrice * item.qty).toFixed(2)}
+                          </strong>
+                        </div>
+                      </div>
+                    ))
+                  )}
+
+                  {/* Expandable Quick Menu Picker List inside Modal */}
+                  {showQuickMenuPicker && (
+                    <div style={{ marginTop: "10px", borderTop: "1px solid #e2e8f0", paddingTop: "10px", maxHeight: "200px", overflowY: "auto" }}>
+                      <strong style={{ fontSize: "11px", color: "#64748b", display: "block", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                        🍽️ Select Dishes &amp; Drinks to Add:
+                      </strong>
+                      {allMenuItems.length > 0 ? (
+                        allMenuItems.map((item) => {
+                          const inCart = cart.find((c) => c.id === item.id);
+                          return (
+                            <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 8px", marginBottom: "6px", backgroundColor: "white", borderRadius: "6px", border: "1px solid #e2e8f0", fontSize: "13px" }}>
+                              <div style={{ minWidth: 0, flex: 1, paddingRight: "8px" }}>
+                                <strong style={{ color: "#0f172a", display: "block" }}>{item.name}</strong>
+                                <span style={{ color: "#166534", fontWeight: "700", fontSize: "12px" }}>{item.price}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => addToCart(item)}
+                                style={{
+                                  backgroundColor: inCart ? "#166534" : "#2563eb",
+                                  color: "white",
+                                  border: "none",
+                                  padding: "5px 12px",
+                                  borderRadius: "6px",
+                                  fontSize: "12px",
+                                  fontWeight: "700",
+                                  cursor: "pointer",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {inCart ? `+ Add More (${inCart.qty})` : "+ Add"}
+                              </button>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div style={{ fontSize: "12px", color: "#64748b" }}>No menu items found.</div>
+                      )}
+                    </div>
+                  )}
+
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #e2e8f0", paddingTop: "10px", marginTop: "10px", fontWeight: "800", fontSize: "15px", color: "#0f172a" }}>
                     <span>Total Amount:</span>
-                    <span style={{ color: "#10b981" }}>${totalCartPrice.toFixed(2)}</span>
+                    <span style={{ color: "#166534", fontSize: "18px" }}>${totalCartPrice.toFixed(2)}</span>
                   </div>
                 </div>
 
