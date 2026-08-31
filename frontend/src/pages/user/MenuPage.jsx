@@ -133,6 +133,13 @@ const MenuPage = () => {
   };
 
   React.useEffect(() => {
+    if (location.hash === "#online-order") {
+      setOrderSuccess(false);
+      setIsCheckoutOpen(true);
+    }
+  }, [location.hash]);
+
+  React.useEffect(() => {
     let intervalId;
 
     const fetchMenu = async (isBackground = false) => {
@@ -485,136 +492,6 @@ const MenuPage = () => {
             )}
           </div>
 
-          {/* Online Ordering Status Banner (Platinum & Premium feature) */}
-          <div style={{ maxWidth: "1200px", margin: "0 auto 28px auto", padding: "0 var(--spacing-lg)" }}>
-            {isPlatinumOrAbove ? (
-              <div
-                style={{
-                  backgroundColor: "#f0fdf4",
-                  border: "2px solid #86efac",
-                  borderRadius: "16px",
-                  padding: "24px 28px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  textAlign: "center",
-                  gap: "16px",
-                  boxShadow: "0 6px 18px rgba(22, 101, 52, 0.08)",
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: "32px", marginBottom: "6px" }}>🛍️</div>
-                  <strong style={{ color: "#166534", fontSize: "20px", display: "block" }}>Online Ordering Active</strong>
-                  <p style={{ margin: "4px 0 0 0", fontSize: "14px", color: "#15803d", maxWidth: "600px" }}>
-                    Select items from the menu below or click to open the Online Order &amp; Reservation form for Dine-In, Takeout, or Delivery!
-                  </p>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
-                  <button
-                    onClick={() => {
-                      setOrderSuccess(false);
-                      setIsCheckoutOpen(true);
-                    }}
-                    style={{
-                      backgroundColor: "#166534",
-                      color: "white",
-                      border: "none",
-                      padding: "12px 24px",
-                      borderRadius: "10px",
-                      fontSize: "15px",
-                      fontWeight: "800",
-                      cursor: "pointer",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      boxShadow: "0 4px 14px rgba(22, 101, 52, 0.3)",
-                      transition: "all 0.2s ease-in-out",
-                    }}
-                  >
-                    🛍️ Open Online Order Form
-                  </button>
-
-                  <a
-                    href={`tel:${restaurantPhone}`}
-                    style={{
-                      backgroundColor: "#2563eb",
-                      color: "white",
-                      padding: "12px 20px",
-                      borderRadius: "10px",
-                      fontSize: "14px",
-                      fontWeight: "700",
-                      textDecoration: "none",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)",
-                    }}
-                  >
-                    📞 Call Restaurant
-                  </a>
-
-                  <a
-                    href={`sms:${restaurantPhone}`}
-                    style={{
-                      backgroundColor: "#059669",
-                      color: "white",
-                      padding: "12px 20px",
-                      borderRadius: "10px",
-                      fontSize: "14px",
-                      fontWeight: "700",
-                      textDecoration: "none",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      boxShadow: "0 4px 12px rgba(5, 150, 105, 0.25)",
-                    }}
-                  >
-                    💬 Text / SMS Owner
-                  </a>
-                </div>
-              </div>
-            ) : (
-              <div
-                style={{
-                  backgroundColor: "#fffbe6",
-                  border: "1px solid #ffe58f",
-                  borderRadius: "14px",
-                  padding: "14px 20px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "12px",
-                  fontSize: "13px",
-                  color: "#856404",
-                  flexWrap: "wrap",
-                }}
-              >
-                <div>
-                  <strong>📖 Digital Menu (View Only)</strong>
-                  <span style={{ marginLeft: "8px" }}>
-                    Online Ordering is enabled on <strong>Platinum</strong> &amp; <strong>Premium</strong> plans.
-                  </span>
-                </div>
-                <button
-                  onClick={() => navigate("/register")}
-                  style={{
-                    backgroundColor: "#d97706",
-                    color: "white",
-                    border: "none",
-                    padding: "6px 14px",
-                    borderRadius: "6px",
-                    fontSize: "12px",
-                    fontWeight: "700",
-                    cursor: "pointer",
-                  }}
-                >
-                  Upgrade to Platinum
-                </button>
-              </div>
-            )}
-          </div>
 
           <div className="container" style={{ paddingBottom: "var(--spacing-xxl)" }}>
             {menuCategories.map((category) => {

@@ -133,7 +133,7 @@ const Header = () => {
     },
     {
       name: "🛍️ Online Order",
-      path: `/${restaurantName}/menu#all-items`,
+      path: `/${restaurantName}/menu#online-order`,
       originalName: "Online Order",
       minTier: "Platinum",
     },
