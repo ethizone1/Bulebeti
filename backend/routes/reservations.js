@@ -125,14 +125,14 @@ router.get("/restaurant/:restaurantSlug", auth, async (req, res) => {
   }
 });
 
-// PUT to update reservation status (Requires Auth & Ownership)
-router.put("/:id", auth, async (req, res) => {
+// PUT to update reservation or order status (Requires Auth & Ownership)
+const updateReservationStatusHandler = async (req, res) => {
   try {
     const { status } = req.body;
 
     let reservation = await Reservation.findById(req.params.id);
     if (!reservation) {
-      return res.status(404).json({ msg: "Reservation not found" });
+      return res.status(404).json({ msg: "Reservation / Order not found" });
     }
 
     const authorized = await canManageRestaurant(req.user.id, req.user.role, reservation.restaurantId);
@@ -147,8 +147,11 @@ router.put("/:id", auth, async (req, res) => {
     // Fire notification only when status actually changed
     if (status !== previousStatus) {
       const restaurant = await Restaurant.findById(reservation.restaurantId);
+      const isOrder = (reservation.specialRequests || "").toUpperCase().includes("ONLINE ORDER");
+      const type = isOrder ? "Order" : "Reservation";
+
       notifyStatusUpdate(
-        "Reservation",
+        type,
         status,
         reservation.email,
         reservation.phone,
@@ -156,6 +159,7 @@ router.put("/:id", auth, async (req, res) => {
           restaurantId: reservation.restaurantId,
           restaurantName: restaurant ? restaurant.name : "bulebeti Partner",
           guestName: reservation.guestName,
+          customerName: reservation.guestName,
           date: reservation.date,
           time: reservation.time,
           guests: reservation.guests,
@@ -169,6 +173,9 @@ router.put("/:id", auth, async (req, res) => {
     console.error("[RESERVATION PUT ERROR]", err.message);
     res.status(500).json({ msg: "Server error" });
   }
-});
+};
+
+router.put("/:id", auth, updateReservationStatusHandler);
+router.put("/:id/status", auth, updateReservationStatusHandler);
 
 module.exports = router;

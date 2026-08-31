@@ -395,6 +395,73 @@ const notifyStatusUpdate = async (
       </div>
     `;
     sms = msg.smsText;
+  } else if (type === "Order") {
+    const restaurantName = details.restaurantName || "bulebeti Partner";
+    const customerName = details.customerName || details.guestName || "Customer";
+    const itemsSummary = details.specialRequests || details.itemsSummary || "Your Order Items";
+
+    const messages = {
+      Confirmed: {
+        headline: `Order Confirmed! ✅`,
+        body: `Hi <strong>${customerName}</strong>! Your order with <strong>${restaurantName}</strong> has been <strong>confirmed</strong>.`,
+        note: "The kitchen is getting your order ready.",
+        smsText: `[${restaurantName}] ✅ Your order has been CONFIRMED by the restaurant!`,
+      },
+      Preparing: {
+        headline: `Your Order is Being Prepared! 🍳`,
+        body: `Hi <strong>${customerName}</strong>! The kitchen at <strong>${restaurantName}</strong> is now <strong>preparing</strong> your order!`,
+        note: "It will be ready shortly.",
+        smsText: `[${restaurantName}] 🍳 Your order is currently being PREPARED in the kitchen!`,
+      },
+      Ready: {
+        headline: `Your Order is Ready! 📦`,
+        body: `Great news, <strong>${customerName}</strong>! Your order with <strong>${restaurantName}</strong> is <strong>ready</strong> for pickup / delivery!`,
+        note: "Please bring your confirmation when collecting your order.",
+        smsText: `[${restaurantName}] 📦 Your order is READY for pickup / delivery!`,
+      },
+      Completed: {
+        headline: `Order Completed! 🎉`,
+        body: `Hi <strong>${customerName}</strong>, your order with <strong>${restaurantName}</strong> has been marked as <strong>completed</strong>.`,
+        note: "Thank you for ordering with us. Enjoy your meal!",
+        smsText: `[${restaurantName}] 🎉 Your order is completed. Thank you for ordering with us!`,
+      },
+      Cancelled: {
+        headline: `Order Cancelled ❌`,
+        body: `Hi <strong>${customerName}</strong>, we're sorry to inform you that your order with <strong>${restaurantName}</strong> was <strong>cancelled</strong>.`,
+        note: "If you have questions, please contact the restaurant directly.",
+        smsText: `[${restaurantName}] ❌ Your order has been cancelled. Please contact the restaurant for details.`,
+      },
+    };
+
+    const msg = messages[newStatus] || {
+      headline: `Order Status Update: ${newStatus} ℹ️`,
+      body: `Hi <strong>${customerName}</strong>, your order status at <strong>${restaurantName}</strong> is now <strong>${newStatus}</strong>.`,
+      note: "Thank you for ordering with us.",
+      smsText: `[${restaurantName}] ℹ️ Order status updated to: ${newStatus}`,
+    };
+
+    subject = `[${restaurantName}] Order Status Update: ${newStatus}`;
+    html = `
+      <div style="font-family: sans-serif; max-width: 560px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+        <div style="background: #1f2937; padding: 24px; text-align: center;">
+          <h2 style="color: #D4AF37; margin: 0;">${restaurantName}</h2>
+          <p style="color: #9ca3af; margin: 4px 0 0; font-size: 13px;">Powered by bulebeti</p>
+        </div>
+        <div style="padding: 28px;">
+          <h3 style="margin-top: 0; color: #111827;">${msg.headline}</h3>
+          <p>${msg.body}</p>
+          <div style="background: #f9fafb; border-left: 4px solid #D4AF37; padding: 16px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 4px 0;"><strong>🛍️ Order Details:</strong> ${itemsSummary}</p>
+            <p style="margin: 4px 0;"><strong>📌 Current Status:</strong> ${newStatus}</p>
+          </div>
+          <p style="color: #6b7280; font-size: 13px;">${msg.note}</p>
+        </div>
+        <div style="background: #f3f4f6; padding: 14px; text-align: center; font-size: 12px; color: #9ca3af;">
+          © bulebeti Platform — This is an automated message.
+        </div>
+      </div>
+    `;
+    sms = msg.smsText;
   }
 
   // Send to customer
