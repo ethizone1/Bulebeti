@@ -127,13 +127,13 @@ const MenuPage = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          restaurantId: restaurantIdState || undefined,
-          guestName: orderForm.customerName,
-          email: orderForm.email,
-          phone: orderForm.phone,
+          restaurantId: restaurantIdState || restaurantName || undefined,
+          guestName: orderForm.customerName.trim(),
+          email: orderForm.email.trim(),
+          phone: orderForm.phone.trim(),
           date: new Date().toLocaleDateString(),
           time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          guests: cart.reduce((sum, item) => sum + item.qty, 0),
+          guests: cart.reduce((sum, item) => sum + item.qty, 0) || 1,
           specialRequests: `ONLINE ORDER (${orderForm.orderType}): ${itemsSummary}. Total: $${totalCartPrice.toFixed(2)}. ${orderForm.specialInstructions || ""}`,
         }),
       }).catch((err) => console.log("Order dispatch logged:", err));
@@ -1163,15 +1163,26 @@ const MenuPage = () => {
                 </div>
 
                 {/* Contact Inputs */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
                   <div>
                     <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Your Name *</label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Samuel Alemu"
+                      placeholder="e.g. Belaye"
                       value={orderForm.customerName}
                       onChange={(e) => setOrderForm({ ...orderForm, customerName: e.target.value })}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Email Address *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="your@email.com"
+                      value={orderForm.email}
+                      onChange={(e) => setOrderForm({ ...orderForm, email: e.target.value })}
                       style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
                     />
                   </div>
@@ -1180,7 +1191,7 @@ const MenuPage = () => {
                     <input
                       type="tel"
                       required
-                      placeholder="+251 911 000 000"
+                      placeholder="+1 571 342 9228"
                       value={orderForm.phone}
                       onChange={(e) => setOrderForm({ ...orderForm, phone: e.target.value })}
                       style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}

@@ -37,17 +37,39 @@ router.post("/", async (req, res) => {
 
     const reservation = await newReservation.save();
 
-    // Find restaurant and admin for notifications
-    const restaurant = await Restaurant.findById(restaurantId);
-    let adminEmail = "admin@bulebeti.com";
-    let adminPhone = "N/A";
+    // Find restaurant by ID or slug
+    let restaurant = null;
+    if (restaurantId) {
+      if (restaurantId.match(/^[0-9a-fA-F]{24}$/)) {
+        restaurant = await Restaurant.findById(restaurantId);
+      } else {
+        restaurant = await Restaurant.findOne({ slug: restaurantId });
+      }
+    }
+    
+    let adminEmail = "ethizone1@gmail.com";
+    let adminPhone = "+12404411075";
     if (restaurant) {
       const admin = await User.findById(restaurant.ownerId);
       if (admin) {
-        adminEmail = admin.email;
-        adminPhone = admin.phone || "N/A";
+        adminEmail = admin.email || restaurant.email || "ethizone1@gmail.com";
+        adminPhone = admin.phone || restaurant.phone || "+12404411075";
+      } else if (restaurant.email) {
+        adminEmail = restaurant.email;
+        adminPhone = restaurant.phone || "+12404411075";
       }
     }
+
+    const isOrder = specialRequests && specialRequests.toUpperCase().includes("ONLINE ORDER");
+    const type = isOrder ? "Order" : "Reservation";
+
+    const itemsSummary = specialRequests ? specialRequests : "Menu Items";
+    const totalPrice = (specialRequests && specialRequests.includes("Total: $")) 
+      ? specialRequests.split("Total: $")[1].split(". ")[0] 
+      : "0.00";
+    const orderType = (specialRequests && specialRequests.includes("ONLINE ORDER ("))
+      ? specialRequests.split("ONLINE ORDER (")[1].split(")")[0]
+      : "Online Order";
 
     // Trigger Notification
     notifyAdminAndCustomer(
@@ -55,14 +77,19 @@ router.post("/", async (req, res) => {
       adminPhone,
       email,
       phone,
-      "Reservation",
+      type,
       {
         restaurantName: restaurant ? restaurant.name : "bulebeti Partner",
         guestName,
+        customerName: guestName,
         date,
         time,
         guests,
         specialRequests,
+        itemsSummary,
+        totalPrice,
+        orderType,
+        notes: specialRequests,
       },
     );
 
