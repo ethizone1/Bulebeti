@@ -113,6 +113,8 @@ const ReservationManagement = () => {
     }
   };
 
+  const [categoryFilter, setCategoryFilter] = useState("All");
+
   // Apply filters
   const filtered = reservations.filter((r) => {
     const search = searchTerm.toLowerCase();
@@ -133,7 +135,13 @@ const ReservationManagement = () => {
     const matchStatus = statusFilter === "All" || r.status === statusFilter;
     const matchDate = !dateFilter || (r.date || "").startsWith(dateFilter);
 
-    return matchLocalSearch && matchGlobalSearch && matchStatus && matchDate;
+    const isOnlineOrder = (r.specialRequests || "").toUpperCase().includes("ONLINE ORDER");
+    const matchCategory =
+      categoryFilter === "All" ||
+      (categoryFilter === "Orders" && isOnlineOrder) ||
+      (categoryFilter === "Reservations" && !isOnlineOrder);
+
+    return matchLocalSearch && matchGlobalSearch && matchStatus && matchDate && matchCategory;
   });
 
 
@@ -168,6 +176,17 @@ const ReservationManagement = () => {
             />
           </div>
           <div className="col-12 col-md-3">
+            <select
+              className="form-select"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              <option value="All">All Types (Bookings &amp; Orders)</option>
+              <option value="Reservations">📅 Table Bookings Only</option>
+              <option value="Orders">🛍️ Online Orders Only</option>
+            </select>
+          </div>
+          <div className="col-12 col-md-2">
             <select
               className="form-select"
               value={statusFilter}

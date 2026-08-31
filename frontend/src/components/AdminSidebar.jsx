@@ -124,6 +124,13 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
       requiredPermission: "manage_reservations",
     },
     {
+      name: "Online Orders",
+      path: `/bulebeti/${restaurantName}/admin/orders`,
+      icon: "🛍️",
+      minTier: "Platinum",
+      requiredPermission: "manage_reservations",
+    },
+    {
       name: t("admin_catering"),
       path: `/bulebeti/${restaurantName}/admin/catering`,
       icon: "🚛",

@@ -29,6 +29,7 @@ import { PrivacyPolicy, TermsOfService } from "./pages/user/LegalPages";
 // Admin Pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import ReservationManagement from "./pages/admin/ReservationManagement";
+import AdminOnlineOrders from "./pages/admin/AdminOnlineOrders";
 import CateringManagement from "./pages/admin/CateringManagement";
 import MenuManagement from "./pages/admin/MenuManagement";
 import FeedbackManager from "./pages/admin/FeedbackManager";
@@ -357,6 +358,15 @@ function App() {
                           <AdminPage
                             element={ReservationManagement}
                             minTier="Gold"
+                          />
+                        }
+                      />
+                      <Route
+                        path="orders"
+                        element={
+                          <AdminPage
+                            element={AdminOnlineOrders}
+                            minTier="Platinum"
                           />
                         }
                       />
