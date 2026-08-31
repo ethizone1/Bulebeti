@@ -171,7 +171,7 @@ const updateReservationStatusHandler = async (req, res) => {
     res.json(reservation);
   } catch (err) {
     console.error("[RESERVATION PUT ERROR]", err.message);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: err.message || "Server error" });
   }
 };
 

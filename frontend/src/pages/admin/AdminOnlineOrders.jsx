@@ -78,7 +78,8 @@ const AdminOnlineOrders = () => {
           prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
         );
       } else {
-        alert("Failed to update order status");
+        const data = await res.json().catch(() => ({}));
+        alert(data.msg || "Failed to update order status");
       }
     } catch (err) {
       console.error(err);
