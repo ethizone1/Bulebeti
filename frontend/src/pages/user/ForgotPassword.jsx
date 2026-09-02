@@ -11,7 +11,7 @@ const ForgotPassword = () => {
         alignItems: "center",
       }}
     >
-      <div className="container" style={{ maxWidth: "450px" }}>
+      <div className="container" style={{ maxWidth: "clamp(440px, 90vw, 560px)", width: "100%" }}>
         <div
           style={{
             backgroundColor: "var(--surface)",

@@ -217,7 +217,7 @@ const LoginPage = () => {
       className="py-5 d-flex align-items-center justify-content-center"
       style={{ minHeight: "75vh", backgroundColor: "var(--background, #f8f9fa)" }}
     >
-      <div className="container" style={{ maxWidth: "450px" }}>
+      <div className="container" style={{ maxWidth: "clamp(440px, 90vw, 560px)", width: "100%" }}>
         <div
           className="card border text-start"
           style={{

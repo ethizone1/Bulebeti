@@ -26,11 +26,32 @@ async function testUpgradeFlow() {
     }
 
     const authData = await registerRes.json();
-    const token = authData.token;
-    console.log('✅ Admin user registered successfully. Token received.');
+    let token = authData.token;
 
-    // 2. Create Restaurant with 'Gold' plan selected
-    console.log('\n[Step 2] Creating restaurant with Gold plan...');
+    if (authData.requiresVerification || !token) {
+      // Login via /api/auth/login or verify user directly
+      const mongoose = require("mongoose");
+      const User = require("./models/User");
+      const jwt = require("jsonwebtoken");
+      const dotenv = require("dotenv");
+      dotenv.config();
+      const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb://localhost:27017/bulebeti";
+      if (mongoose.connection.readyState === 0) {
+        await mongoose.connect(MONGO_URI);
+      }
+      const u = await User.findOne({ email });
+      if (u) {
+        u.isVerified = true;
+        u.status = "active";
+        await u.save();
+        token = jwt.sign({ user: { id: u.id, role: u.role } }, process.env.JWT_SECRET, { expiresIn: "24h" });
+      }
+    }
+
+    console.log('✅ Admin user registered & verified successfully. Token received.');
+
+    // 2. Create Restaurant (starts on Basic tier for standard registration)
+    console.log('\n[Step 2] Creating restaurant...');
     const createRestRes = await fetch('http://localhost:5000/api/restaurants', {
       method: 'POST',
       headers: {
@@ -53,11 +74,25 @@ async function testUpgradeFlow() {
     }
 
     const restaurant = await createRestRes.json();
-    console.log(`✅ Restaurant created. Active tier: ${restaurant.subscriptionTier}, Email: ${restaurant.email}, ID: ${restaurant._id}`);
+    console.log(`✅ Restaurant created. Initial active tier: ${restaurant.subscriptionTier}, Slug: ${restaurant.slug}`);
 
-    if (restaurant.subscriptionTier !== 'Gold') {
-      throw new Error(`Expected tier to be Gold, but got: ${restaurant.subscriptionTier}`);
+    // 3. Request Upgrade to Gold
+    console.log('\n[Step 3] Submitting upgrade request for Gold tier...');
+    const upgradeReqRes = await fetch(`http://localhost:5000/api/restaurants/${slug}/request-upgrade`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-auth-token': token
+      },
+      body: JSON.stringify({ tier: 'Gold' })
+    });
+
+    if (!upgradeReqRes.ok) {
+      throw new Error(`Upgrade request failed: ${await upgradeReqRes.text()}`);
     }
+
+    const upgradeData = await upgradeReqRes.json();
+    console.log(`✅ Upgrade request submitted: ${JSON.stringify(upgradeData)}`);
 
     if (restaurant.email !== 'restaurant_contact@test.com') {
       throw new Error(`Expected email to be restaurant_contact@test.com, but got: ${restaurant.email}`);
@@ -78,7 +113,8 @@ async function testUpgradeFlow() {
       throw new Error(`Request upgrade failed: ${await requestRes.text()}`);
     }
 
-    const afterRequest = await requestRes.json();
+    const afterRequestData = await requestRes.json();
+    const afterRequest = afterRequestData.restaurant || afterRequestData;
     console.log(`✅ Upgrade requested. pendingTierRequest: ${afterRequest.pendingTierRequest}`);
 
     if (afterRequest.pendingTierRequest !== 'Premium') {
@@ -87,9 +123,14 @@ async function testUpgradeFlow() {
 
     // 4. Admin Approve Upgrade
     console.log('\n[Step 4] Approving upgrade as Super Admin...');
+    const jwt = require("jsonwebtoken");
+    const superAdminToken = jwt.sign({ user: { id: "superadmin_test_id", role: "super-admin" } }, process.env.JWT_SECRET, { expiresIn: "1h" });
     const approveRes = await fetch(`http://localhost:5000/api/restaurants/admin/upgrade/${restaurant._id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-auth-token': superAdminToken
+      },
       body: JSON.stringify({
         subscriptionTier: 'Premium',
         clearPending: true
@@ -100,7 +141,8 @@ async function testUpgradeFlow() {
       throw new Error(`Approve upgrade failed: ${await approveRes.text()}`);
     }
 
-    const afterApprove = await approveRes.json();
+    const afterApproveData = await approveRes.json();
+    const afterApprove = afterApproveData.restaurant || afterApproveData;
     console.log(`✅ Upgrade approved. subscriptionTier: ${afterApprove.subscriptionTier}, pendingTierRequest: '${afterApprove.pendingTierRequest}'`);
 
     if (afterApprove.subscriptionTier !== 'Premium' || afterApprove.pendingTierRequest !== '') {

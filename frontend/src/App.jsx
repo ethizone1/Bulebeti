@@ -259,6 +259,68 @@ function App() {
             }
           />
 
+          {/* Platform Static & Public Pages */}
+          {["/contact-us", "/bulebeti/contact-us"].map((p) => (
+            <Route key={p} path={p} element={<CustomerLayout><ContactPage /></CustomerLayout>} />
+          ))}
+          {["/gallery", "/bulebeti/gallery"].map((p) => (
+            <Route key={p} path={p} element={<CustomerLayout><GalleryPage /></CustomerLayout>} />
+          ))}
+          {["/testimonials", "/bulebeti/testimonials"].map((p) => (
+            <Route key={p} path={p} element={<CustomerLayout><TestimonialsPage /></CustomerLayout>} />
+          ))}
+          {["/sister-restaurants", "/bulebeti/sister-restaurants"].map((p) => (
+            <Route key={p} path={p} element={<CustomerLayout><SisterRestaurantsPage /></CustomerLayout>} />
+          ))}
+          {["/events", "/bulebeti/events"].map((p) => (
+            <Route key={p} path={p} element={<CustomerLayout><EventsPage /></CustomerLayout>} />
+          ))}
+          {["/events/truffle-festival", "/bulebeti/events/truffle-festival"].map((p) => (
+            <Route key={p} path={p} element={<CustomerLayout><EventLandingPage /></CustomerLayout>} />
+          ))}
+          {["/privacy", "/bulebeti/privacy"].map((p) => (
+            <Route key={p} path={p} element={<CustomerLayout><PrivacyPolicy /></CustomerLayout>} />
+          ))}
+          {["/terms", "/bulebeti/terms"].map((p) => (
+            <Route key={p} path={p} element={<CustomerLayout><TermsOfService /></CustomerLayout>} />
+          ))}
+
+          {/* Super Admin Routes (Must be before dynamic /:restaurantName catch-all routes) */}
+          {["/super-admin/*", "/bulebeti/super-admin/*"].map((pathPattern) => (
+            <Route
+              key={pathPattern}
+              path={pathPattern}
+              element={
+                <SuperAdminLayout>
+                  <Routes>
+                    <Route index element={<SuperAdminDashboard />} />
+                    <Route
+                      path="restaurants"
+                      element={<RestaurantManagement />}
+                    />
+                    <Route path="users" element={<UserManagement />} />
+                    <Route path="revenue" element={<RevenueTracking />} />
+                    <Route path="menus" element={<MenuReview />} />
+                    <Route path="inquiries" element={<PlatformInquiries />} />
+                    <Route path="settings" element={<SuperAdminSettings />} />
+                    <Route
+                      path="*"
+                      element={
+                        <div style={{ textAlign: "center", padding: "40px" }}>
+                          <h2>Super Admin Module Coming Soon</h2>
+                          <p>
+                            This platform-level management module is currently
+                            under development.
+                          </p>
+                        </div>
+                      }
+                    />
+                  </Routes>
+                </SuperAdminLayout>
+              }
+            />
+          ))}
+
           {/* Public & Admin Restaurant Pages (Supports clean domain URLs like /injera-world and /bulebeti/injera-world) */}
           {["/:restaurantName", "/bulebeti/:restaurantName"].map((pattern) => (
             <Route key={pattern} path={pattern}>
@@ -504,110 +566,9 @@ function App() {
             </Route>
           ))}
 
-          <Route
-            path="/contact-us"
-            element={
-              <CustomerLayout>
-                <ContactPage />
-              </CustomerLayout>
-            }
-          />
 
-          <Route
-            path="/gallery"
-            element={
-              <CustomerLayout>
-                <GalleryPage />
-              </CustomerLayout>
-            }
-          />
 
-          <Route
-            path="/testimonials"
-            element={
-              <CustomerLayout>
-                <TestimonialsPage />
-              </CustomerLayout>
-            }
-          />
 
-          <Route
-            path="/sister-restaurants"
-            element={
-              <CustomerLayout>
-                <SisterRestaurantsPage />
-              </CustomerLayout>
-            }
-          />
-
-          <Route
-            path="/events"
-            element={
-              <CustomerLayout>
-                <EventsPage />
-              </CustomerLayout>
-            }
-          />
-
-          <Route
-            path="/events/truffle-festival"
-            element={
-              <CustomerLayout>
-                <EventLandingPage />
-              </CustomerLayout>
-            }
-          />
-
-          <Route
-            path="/privacy"
-            element={
-              <CustomerLayout>
-                <PrivacyPolicy />
-              </CustomerLayout>
-            }
-          />
-
-          <Route
-            path="/terms"
-            element={
-              <CustomerLayout>
-                <TermsOfService />
-              </CustomerLayout>
-            }
-          />
-
-          {/* Super Admin Routes */}
-          <Route
-            path="/super-admin/*"
-            element={
-              <SuperAdminLayout>
-                <Routes>
-                  <Route index element={<SuperAdminDashboard />} />
-                  <Route
-                    path="restaurants"
-                    element={<RestaurantManagement />}
-                  />
-                  <Route path="users" element={<UserManagement />} />
-                  <Route path="revenue" element={<RevenueTracking />} />
-                  <Route path="menus" element={<MenuReview />} />
-                  <Route path="inquiries" element={<PlatformInquiries />} />
-                  <Route path="settings" element={<SuperAdminSettings />} />
-                  <Route
-                    path="*"
-                    element={
-                      <div style={{ textAlign: "center", padding: "40px" }}>
-                        <h2>Super Admin Module Coming Soon</h2>
-                        <p>
-                          This platform-level management module is currently
-                          under development.
-                        </p>
-                      </div>
-                    }
-                  />
-                </Routes>
-              </SuperAdminLayout>
-            }
-          />
 
           {/* Global 404 */}
           <Route
