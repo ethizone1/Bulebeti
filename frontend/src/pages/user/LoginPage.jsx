@@ -213,13 +213,18 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="py-5 min-vh-100 d-flex align-items-center">
+    <div
+      className="py-5 d-flex align-items-center justify-content-center"
+      style={{ minHeight: "75vh", backgroundColor: "var(--background, #f8f9fa)" }}
+    >
       <div className="container" style={{ maxWidth: "450px" }}>
         <div
-          className="card shadow-sm border-0 text-start"
+          className="card border text-start"
           style={{
-            borderRadius: "var(--radius-lg)",
-            backgroundColor: "var(--surface)",
+            borderRadius: "16px",
+            backgroundColor: "var(--surface, #ffffff)",
+            border: "1px solid var(--platinum, #e2e8f0)",
+            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.08)",
           }}
         >
           <div className="card-body p-4 p-md-5 text-center">

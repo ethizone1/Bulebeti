@@ -188,6 +188,14 @@ function App() {
               </CustomerLayout>
             }
           />
+          <Route
+            path="/bulebeti/register"
+            element={
+              <CustomerLayout>
+                <RegistrationPage />
+              </CustomerLayout>
+            }
+          />
 
           <Route
             path="/activate"
@@ -208,6 +216,15 @@ function App() {
           />
 
           <Route
+            path="/login"
+            element={
+              <CustomerLayout>
+                <LoginPage />
+              </CustomerLayout>
+            }
+          />
+
+          <Route
             path="/bulebeti/login"
             element={
               <CustomerLayout>
@@ -218,6 +235,14 @@ function App() {
 
           <Route
             path="/forgot-password"
+            element={
+              <CustomerLayout>
+                <ForgotPassword />
+              </CustomerLayout>
+            }
+          />
+          <Route
+            path="/bulebeti/forgot-password"
             element={
               <CustomerLayout>
                 <ForgotPassword />

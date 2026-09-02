@@ -55,10 +55,7 @@ const RegistrationPage = () => {
       return u?.restaurantSlug || "";
     })();
 
-  const isUpgradeMode = Boolean(
-    searchParams.get("restaurant") ||
-      (localStorage.getItem("token") && searchParams.get("plan"))
-  );
+  const isUpgradeMode = Boolean(searchParams.get("restaurant"));
 
   useEffect(() => {
     const paramTier = searchParams.get("tier") || searchParams.get("plan");
@@ -77,9 +74,7 @@ const RegistrationPage = () => {
 
     let storedUser = safeGetJson("user");
     const loadRestAndSet = async () => {
-      let filledCount = 0;
-      const targetSlug =
-        paramRestSlug || (storedUser ? storedUser.restaurantSlug : "");
+      const targetSlug = paramRestSlug || "";
       let restData = null;
       if (targetSlug) {
         try {
@@ -99,25 +94,20 @@ const RegistrationPage = () => {
         if (storedUser) {
           if (storedUser.name) {
             updated.ownerName = storedUser.name;
-            filledCount++;
           }
           if (storedUser.email) {
             updated.email = storedUser.email;
-            filledCount++;
           }
           if (storedUser.phone) {
             updated.phone = storedUser.phone;
-            filledCount++;
           }
         }
         if (restData) {
           if (restData.name) {
             updated.restaurantName = restData.name;
-            filledCount++;
           }
           if (restData.address) {
             updated.location = restData.address;
-            filledCount++;
           }
           if (restData.phone && !updated.phone) {
             updated.phone = restData.phone;
@@ -135,7 +125,7 @@ const RegistrationPage = () => {
 
         setUnfilledFields(missing);
 
-        if (paramTier || paramRestSlug || filledCount > 0) {
+        if (isUpgradeMode && paramRestSlug) {
           setPrefilledAlert(
             `✦ Upgrading / Selected Plan: ${chosenTier}. Your existing restaurant details are loaded below.`
           );
@@ -145,6 +135,8 @@ const RegistrationPage = () => {
               formElement.scrollIntoView({ behavior: "smooth" });
             }
           }, 350);
+        } else {
+          setPrefilledAlert("");
         }
 
         return updated;
