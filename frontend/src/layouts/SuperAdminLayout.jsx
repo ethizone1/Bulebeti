@@ -143,12 +143,14 @@ const SuperAdminLayout = ({ children }) => {
           display: "flex",
           flexDirection: "column",
           position: "fixed",
+          top: 0,
+          bottom: 0,
+          left: 0,
           height: "100vh",
           zIndex: 1002,
-          transform: isSidebarOpen ? "translateX(0)" : "translateX(-100%)",
           transition: "transform 0.3s ease",
         }}
-        className="super-admin-sidebar"
+        className={`super-admin-sidebar ${isSidebarOpen ? "sidebar-open" : ""}`}
       >
         <div
           style={{
@@ -304,6 +306,26 @@ const SuperAdminLayout = ({ children }) => {
       </aside>
 
       <style>{`
+        .super-admin-sidebar {
+          transform: translateX(0);
+        }
+        @media (max-width: 1024px) {
+          .super-admin-sidebar {
+            transform: translateX(-100%);
+          }
+          .super-admin-sidebar.sidebar-open {
+            transform: translateX(0) !important;
+          }
+          .super-admin-mobile-header {
+            display: flex !important;
+          }
+          .super-admin-main {
+            margin-left: 0 !important;
+            padding-top: 80px !important;
+            padding-left: 20px !important;
+            padding-right: 20px !important;
+          }
+        }
         @media (min-width: 1025px) {
           .super-admin-sidebar {
             transform: translateX(0) !important;
@@ -317,17 +339,6 @@ const SuperAdminLayout = ({ children }) => {
           .super-admin-main {
             margin-left: 280px !important;
             padding-top: 40px !important;
-          }
-        }
-        @media (max-width: 1024px) {
-          .super-admin-mobile-header {
-            display: flex !important;
-          }
-          .super-admin-main {
-            margin-left: 0 !important;
-            padding-top: 80px !important;
-            padding-left: 20px !important;
-            padding-right: 20px !important;
           }
         }
       `}</style>
