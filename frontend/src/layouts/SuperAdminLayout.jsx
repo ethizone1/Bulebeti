@@ -6,14 +6,55 @@ const SuperAdminLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
+    let storedUser = null;
+    try {
+      storedUser = JSON.parse(localStorage.getItem("user") || "null");
+    } catch (e) {
+      storedUser = null;
+    }
+
+    if (!token || !storedUser || storedUser.role !== "super-admin") {
       navigate("/bulebeti/login", { replace: true });
+    } else {
+      setIsAuthorized(true);
     }
   }, [navigate]);
+
   const { language, toggleLanguage } = useLanguage();
+
+  if (!isAuthorized) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          backgroundColor: "#f0f2f5",
+          color: "var(--primary, #0f172a)",
+        }}
+      >
+        <div
+          style={{
+            width: "40px",
+            height: "40px",
+            border: "4px solid var(--gold, #d4af37)",
+            borderTopColor: "transparent",
+            borderRadius: "50%",
+            animation: "spin 0.8s linear infinite",
+            marginBottom: "16px",
+          }}
+        />
+        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+        <div style={{ fontWeight: "600", fontSize: "14px" }}>Verifying Super Admin Access...</div>
+      </div>
+    );
+  }
 
   const navItems = [
     { name: "Platform Overview", path: "/super-admin", icon: "🌐" },
