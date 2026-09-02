@@ -11,10 +11,10 @@ const MenuReview = () => {
       try {
         setLoading(true);
         const res = await fetch(`${config.API_URL}/api/menu`);
-        if (!res.ok) throw new Error("Failed to fetch menus");
         const data = await res.json();
+        const safeData = Array.isArray(data) ? data : [];
 
-        const mappedData = data.map((item) => ({
+        const mappedData = safeData.map((item) => ({
           id: item._id,
           restaurant: item.restaurantId
             ? item.restaurantId.name

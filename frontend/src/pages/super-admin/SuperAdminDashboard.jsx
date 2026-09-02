@@ -11,17 +11,20 @@ const SuperAdminDashboard = () => {
     fetch(`${config.API_URL}/api/restaurants`)
       .then(res => res.json())
       .then(data => {
-        setRestaurants(data);
+        setRestaurants(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch(err => {
         console.error('Error fetching restaurants', err);
+        setRestaurants([]);
         setLoading(false);
       });
   }, []);
 
+  const safeRestaurants = Array.isArray(restaurants) ? restaurants : [];
+
   const stats = [
-    { title: 'Total Restaurants', value: restaurants.length.toString(), change: 'Registered Partners' },
+    { title: 'Total Restaurants', value: safeRestaurants.length.toString(), change: 'Registered Partners' },
     { title: 'Active Reservations', value: 'System', change: 'Live' },
     { title: 'Platform Revenue', value: 'Calculating', change: 'Monthly Recurring' },
     { title: 'Server Status', value: 'Optimal', change: '99.9% Uptime' },
@@ -71,7 +74,7 @@ const SuperAdminDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {restaurants.slice(0, 5).map((row, idx) => (
+            {safeRestaurants.slice(0, 5).map((row, idx) => (
               <tr key={idx} style={{ borderBottom: '1px solid #f3f4f6' }}>
                 <td style={{ padding: '16px 8px', fontWeight: '600' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -95,7 +98,7 @@ const SuperAdminDashboard = () => {
                 </td>
               </tr>
             ))}
-            {restaurants.length === 0 && (
+            {safeRestaurants.length === 0 && (
               <tr>
                 <td colSpan="4" style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>No restaurants registered yet.</td>
               </tr>

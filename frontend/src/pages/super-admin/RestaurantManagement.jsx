@@ -64,10 +64,10 @@ const RestaurantManagement = () => {
     try {
       setLoading(true);
       const res = await fetch(`${config.API_URL}/api/restaurants`);
-      if (!res.ok) throw new Error("Failed to fetch restaurants");
       const data = await res.json();
+      const safeData = Array.isArray(data) ? data : [];
 
-      const mappedRestaurants = data.map((rest) => ({
+      const mappedRestaurants = safeData.map((rest) => ({
         id: rest._id,
         name: rest.name,
         slug: rest.slug,
