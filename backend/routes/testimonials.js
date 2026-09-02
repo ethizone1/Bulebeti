@@ -99,12 +99,16 @@ router.put('/:id', auth, async (req, res) => {
 
     const updateFields = {};
     if (status !== undefined) updateFields.status = status;
-    if (rating !== undefined) updateFields.rating = rating;
-    if (text !== undefined) updateFields.text = text;
-    if (name !== undefined) updateFields.name = name;
-    if (role !== undefined) updateFields.role = role;
-    if (mediaUrl !== undefined) updateFields.mediaUrl = mediaUrl;
-    if (mediaType !== undefined) updateFields.mediaType = mediaType;
+    
+    // Super-admin can moderate text/rating if needed, but venue owners can only change status (Approve/Reject/Hide)
+    if (req.user.role === "super-admin") {
+      if (rating !== undefined) updateFields.rating = rating;
+      if (text !== undefined) updateFields.text = text;
+      if (name !== undefined) updateFields.name = name;
+      if (role !== undefined) updateFields.role = role;
+      if (mediaUrl !== undefined) updateFields.mediaUrl = mediaUrl;
+      if (mediaType !== undefined) updateFields.mediaType = mediaType;
+    }
 
     testimonial = await Testimonial.findByIdAndUpdate(
       req.params.id,
