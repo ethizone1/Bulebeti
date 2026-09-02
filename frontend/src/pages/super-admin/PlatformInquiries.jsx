@@ -14,10 +14,8 @@ const PlatformInquiries = () => {
           ...(token ? { 'x-auth-token': token } : {})
         }
       });
-      if (res.ok) {
         const data = await res.json();
-        setInquiries(data);
-      }
+        setInquiries(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch inquiries', err);
     } finally {
@@ -52,6 +50,8 @@ const PlatformInquiries = () => {
 
   if (loading) return <div style={{ padding: '40px' }}>Loading inquiries...</div>;
 
+  const safeInquiries = Array.isArray(inquiries) ? inquiries : [];
+
   return (
     <div>
       <div style={{ marginBottom: 'var(--spacing-xl)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -60,12 +60,12 @@ const PlatformInquiries = () => {
           <p style={{ color: '#6b7280' }}>Managing global support and partnership communications.</p>
         </div>
         <div style={{ backgroundColor: '#1a1c23', color: 'white', padding: '8px 16px', borderRadius: '4px', fontSize: '12px', fontWeight: '700' }}>
-          {inquiries.filter(i => i.status !== 'Resolved').length} UNRESOLVED
+          {safeInquiries.filter(i => i.status !== 'Resolved').length} UNRESOLVED
         </div>
       </div>
 
       <div style={{ display: 'grid', gap: '20px' }}>
-        {inquiries.map((inquiry) => (
+        {safeInquiries.map((inquiry) => (
           <div key={inquiry._id} style={{
             backgroundColor: 'white',
             padding: '24px',

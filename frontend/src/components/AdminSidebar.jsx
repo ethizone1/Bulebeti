@@ -106,7 +106,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
     .toUpperCase();
   const restaurantDisplayName =
     restaurant?.name ||
-    restaurantName.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    (restaurantName ? restaurantName.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "Restaurant");
 
   const allMenuItems = [
     {

@@ -28,7 +28,7 @@ const UserManagement = () => {
       }
 
       const data = await res.json();
-      setUsers(data);
+      setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -120,7 +120,8 @@ const UserManagement = () => {
   };
 
   // Filtered Users
-  const filteredUsers = users.filter((u) => {
+  const safeUsers = Array.isArray(users) ? users : [];
+  const filteredUsers = safeUsers.filter((u) => {
     const matchesSearch =
       (u.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (u.email || "").toLowerCase().includes(searchQuery.toLowerCase());
@@ -130,10 +131,10 @@ const UserManagement = () => {
   });
 
   // KPI Statistics
-  const totalUsers = users.length;
-  const superAdminsCount = users.filter((u) => u.role === "super-admin").length;
-  const restaurantAdminsCount = users.filter((u) => u.role === "admin").length;
-  const activeUsersCount = users.filter((u) => (u.status || "active") === "active").length;
+  const totalUsers = safeUsers.length;
+  const superAdminsCount = safeUsers.filter((u) => u.role === "super-admin").length;
+  const restaurantAdminsCount = safeUsers.filter((u) => u.role === "admin").length;
+  const activeUsersCount = safeUsers.filter((u) => (u.status || "active") === "active").length;
 
   const getRoleBadgeStyle = (role) => {
     switch (role) {
