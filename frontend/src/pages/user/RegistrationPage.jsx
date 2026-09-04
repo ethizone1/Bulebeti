@@ -38,6 +38,25 @@ const RegistrationPage = () => {
   const [verificationError, setVerificationError] = useState("");
   const [resendStatus, setResendStatus] = useState("");
   const [pendingEmail, setPendingEmail] = useState("");
+  const [resendCountdown, setResendCountdown] = useState(60);
+  const [canResend, setCanResend] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    if (showVerificationModal && resendCountdown > 0) {
+      timer = setInterval(() => {
+        setResendCountdown((prev) => {
+          if (prev <= 1) {
+            setCanResend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [showVerificationModal, resendCountdown]);
+
   const safeGetJson = (key) => {
     try {
       const val = localStorage.getItem(key);
@@ -372,6 +391,8 @@ const RegistrationPage = () => {
       if (authData.requiresVerification) {
         setPendingEmail(authData.email || formData.email.trim());
         setShowVerificationModal(true);
+        setResendCountdown(60);
+        setCanResend(false);
         setLoading(false);
         return;
       }
@@ -421,6 +442,7 @@ const RegistrationPage = () => {
   };
 
   const handleResendCode = async () => {
+    if (!canResend) return;
     setResendStatus("Sending new code to your email...");
     setVerificationError("");
     try {
@@ -432,6 +454,8 @@ const RegistrationPage = () => {
       const data = await resendResp.json().catch(() => ({}));
       if (!resendResp.ok) throw new Error(data.msg || "Failed to resend code");
       setResendStatus(data.msg || "A new 6-digit code has been sent!");
+      setResendCountdown(60);
+      setCanResend(false);
     } catch (err) {
       setVerificationError(err.message);
       setResendStatus("");
@@ -1524,11 +1548,19 @@ const RegistrationPage = () => {
               <div className="d-flex justify-content-between align-items-center pt-2 border-top mt-3">
                 <button
                   type="button"
+                  disabled={!canResend}
                   onClick={handleResendCode}
                   className="btn btn-link text-decoration-none p-0 small fw-bold"
-                  style={{ color: "var(--gold, #D4AF37)" }}
+                  style={{
+                    color: canResend ? "var(--gold, #D4AF37)" : "#94a3b8",
+                    cursor: canResend ? "pointer" : "not-allowed",
+                  }}
                 >
-                  Didn't get the code? Resend
+                  {canResend ? (
+                    <span>🔄 Resend Code</span>
+                  ) : (
+                    <span>⏳ Resend in {resendCountdown}s</span>
+                  )}
                 </button>
                 <button
                   type="button"

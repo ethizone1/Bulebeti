@@ -137,6 +137,25 @@ const LoginPage = () => {
   const [otpEmail, setOtpEmail] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [otpSuccess, setOtpSuccess] = useState("");
+  const [resendCountdown, setResendCountdown] = useState(60);
+  const [canResend, setCanResend] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    if (otpStep === 2 && resendCountdown > 0) {
+      timer = setInterval(() => {
+        setResendCountdown((prev) => {
+          if (prev <= 1) {
+            setCanResend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [otpStep, resendCountdown]);
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
@@ -164,10 +183,40 @@ const LoginPage = () => {
 
       setOtpSuccess(data.msg || "Access code sent to your email!");
       setOtpStep(2);
+      setResendCountdown(60);
+      setCanResend(false);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (!canResend || resending) return;
+    setResending(true);
+    setError("");
+    setOtpSuccess("");
+
+    try {
+      const response = await fetch(`${config.API_URL}/api/auth/send-login-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: otpEmail.trim() }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.msg || "Failed to resend access code.");
+      }
+
+      setOtpSuccess(data.msg || "New access code sent to your email!");
+      setResendCountdown(60);
+      setCanResend(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setResending(false);
     }
   };
 
@@ -329,6 +378,56 @@ const LoginPage = () => {
                     >
                       {loading ? "Verifying..." : "Verify & Sign In"}
                     </button>
+
+                    <div className="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                      <button
+                        type="button"
+                        disabled={!canResend || resending || loading}
+                        onClick={handleResendOtp}
+                        className="btn btn-link p-0 small text-decoration-none fw-bold"
+                        style={{
+                          color: canResend ? "var(--gold, #D4AF37)" : "#94a3b8",
+                          cursor: canResend ? "pointer" : "not-allowed",
+                        }}
+                      >
+                        {resending ? (
+                          <span>
+                            <i className="fa-solid fa-spinner fa-spin me-1"></i> Resending...
+                          </span>
+                        ) : canResend ? (
+                          <span>🔄 Resend Code</span>
+                        ) : (
+                          <span>⏳ Resend code in {resendCountdown}s</span>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOtpStep(1);
+                          setError("");
+                          setOtpSuccess("");
+                        }}
+                        className="btn btn-link text-decoration-none p-0 small text-muted"
+                      >
+                        Change Email
+                      </button>
+                    </div>
+
+                    <div className="text-center mt-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUseOtpMode(false);
+                          setOtpStep(1);
+                          setError("");
+                          setOtpSuccess("");
+                        }}
+                        className="btn btn-link text-decoration-none p-0 small text-muted"
+                      >
+                        ← Back to Password Login
+                      </button>
+                    </div>
                   </form>
                 )}
               </div>
