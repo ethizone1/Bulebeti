@@ -3,7 +3,7 @@ const isProduction = import.meta.env.PROD || import.meta.env.MODE === "productio
 const config = {
   API_URL:
     import.meta.env.VITE_API_URL ||
-    (isProduction ? "https://bulebet-api.onrender.com" : "http://localhost:5000"),
+    (isProduction ? "https://bulebeti.onrender.com" : "http://localhost:5000"),
 };
 
 export default config;
