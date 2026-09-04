@@ -123,7 +123,7 @@ app.use("/api/locations", require("./routes/locations"));
 app.use("/api/gallery", require("./routes/gallery"));
 app.use("/api/inquiries", require("./routes/inquiries"));
 
-// Production Health Check Routes (Includes /healthz for Render health checks)
+// Production Health Check Routes (Supports Render /healthz and /api/health)
 app.get(["/", "/api/health", "/healthz", "/health"], (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
   res.status(200).json({
