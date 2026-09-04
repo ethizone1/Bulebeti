@@ -2,6 +2,7 @@
 // Uses Nodemailer (Gmail) for both Email AND SMS (via email-to-SMS gateways)
 // Configure credentials in backend/.env
 
+require("dotenv").config();
 const nodemailer = require("nodemailer");
 const Restaurant = require("../models/Restaurant");
 const User = require("../models/User");
@@ -41,12 +42,7 @@ const getTransporter = () => {
     return null;
   }
   return nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    pool: true,
-    maxConnections: 5,
-    maxMessages: 100,
+    service: "gmail",
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
