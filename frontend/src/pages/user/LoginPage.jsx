@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import BuleBetLogo from "../../components/BuleBetLogo";
 import config from "../../config";
@@ -289,8 +289,21 @@ const LoginPage = () => {
 
             {error && (
               <div className="alert alert-danger p-3 small text-start mb-3" role="alert">
-                <i className="fa-solid fa-circle-exclamation me-2"></i>
-                {error}
+                <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                  <span>
+                    <i className="fa-solid fa-circle-exclamation me-2"></i>
+                    {error}
+                  </span>
+                  {(error.toLowerCase().includes("register") || error.toLowerCase().includes("not found")) && (
+                    <Link
+                      to="/register"
+                      className="btn btn-sm btn-outline-danger fw-bold text-decoration-none"
+                      style={{ whiteSpace: "nowrap" }}
+                    >
+                      Register Now →
+                    </Link>
+                  )}
+                </div>
               </div>
             )}
 
@@ -485,6 +498,17 @@ const LoginPage = () => {
                 </button>
               </form>
             )}
+
+            <div className="text-center mt-4 pt-3 border-top">
+              <span className="text-muted small me-2">Don't have an account?</span>
+              <Link
+                to="/register"
+                className="fw-bold text-decoration-none"
+                style={{ color: "var(--gold, #D4AF37)", fontSize: "14px" }}
+              >
+                Register Your Restaurant →
+              </Link>
+            </div>
           </div>
         </div>
       </div>
