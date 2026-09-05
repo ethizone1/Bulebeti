@@ -215,23 +215,17 @@ function App() {
             }
           />
 
-          <Route
-            path="/login"
-            element={
-              <CustomerLayout>
-                <LoginPage />
-              </CustomerLayout>
-            }
-          />
-
-          <Route
-            path="/bulebeti/login"
-            element={
-              <CustomerLayout>
-                <LoginPage />
-              </CustomerLayout>
-            }
-          />
+          {["/login", "/bulebeti/login", "/signin", "/bulebeti/signin", "/sign-in", "/bulebeti/sign-in"].map((path) => (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <CustomerLayout>
+                  <LoginPage />
+                </CustomerLayout>
+              }
+            />
+          ))}
 
           <Route
             path="/forgot-password"
