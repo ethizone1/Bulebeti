@@ -230,7 +230,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
         style={{
           width: "260px",
           minHeight: "100vh",
-          backgroundColor: "var(--primary-dark)",
+          backgroundColor: "#0a0a0a",
           color: "#ffffff",
           padding: "var(--spacing-xl) 0",
           display: "flex",
@@ -240,7 +240,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
           top: 0,
           bottom: 0,
           zIndex: 1000,
-          boxShadow: "4px 0 10px rgba(0,0,0,0.1)",
+          boxShadow: "4px 0 15px rgba(0,0,0,0.25)",
         }}
       >
         {/* ── Brand + Tier ─────────────────────────────────────────── */}

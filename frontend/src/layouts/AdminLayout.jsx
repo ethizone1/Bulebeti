@@ -21,9 +21,18 @@ const AdminLayout = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/bulebeti/login", { replace: true });
+      navigate("/login", { replace: true });
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (window.location.pathname.startsWith("/maedbet/") || window.location.pathname.startsWith("/bulebeti/")) {
+      const cleanPath = window.location.pathname
+        .replace(/^\/maedbet\//, "/")
+        .replace(/^\/bulebeti\//, "/");
+      window.history.replaceState(null, "", cleanPath + window.location.search + window.location.hash);
+    }
+  }, []);
 
   useEffect(() => {
     if (!restaurantName) return;
