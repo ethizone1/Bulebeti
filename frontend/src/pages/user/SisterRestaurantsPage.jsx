@@ -41,7 +41,7 @@ const SisterRestaurantsPage = () => {
     fetchData();
   }, [restaurantName]);
 
-  const displayName = mainRestaurant?.name || "BuleBet";
+  const displayName = mainRestaurant?.name || "MaedBet";
   const displaySisters = sisterRestaurants;
   const otherPlatformHubs = allRestaurants.filter(
     (r) => r.slug !== restaurantName && !sisterRestaurants.some((s) => s._id === r._id)
@@ -78,7 +78,7 @@ const SisterRestaurantsPage = () => {
           >
             {restaurantName
               ? `${displayName} Sister Hubs & Venues`
-              : "BuleBet Sister Restaurant Network"}
+              : "MaedBet Sister Restaurant Network"}
           </h1>
           <p
             style={{
@@ -158,7 +158,7 @@ const SisterRestaurantsPage = () => {
                 </h3>
                 <p style={{ color: "var(--on-surface-variant)", fontSize: "14px", lineHeight: "1.6" }}>
                   <strong>{displayName}</strong> is currently operating from its signature venue location.
-                  Explore other premier partner restaurants on the BuleBet platform below!
+                  Explore other premier partner restaurants on the MaedBet platform below!
                 </p>
               </div>
             )}
@@ -174,7 +174,7 @@ const SisterRestaurantsPage = () => {
                     marginBottom: "20px",
                   }}
                 >
-                  Explore Other BuleBet Premier Venues
+                  Explore Other MaedBet Premier Venues
                 </h3>
                 <div
                   style={{

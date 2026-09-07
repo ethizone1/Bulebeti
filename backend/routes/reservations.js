@@ -46,7 +46,7 @@ router.post("/", async (req, res) => {
         restaurant = await Restaurant.findOne({ slug: restaurantId });
       }
     }
-    
+
     let adminEmail = "ethizone1@gmail.com";
     let adminPhone = "+12404411075";
     if (restaurant) {
@@ -60,38 +60,34 @@ router.post("/", async (req, res) => {
       }
     }
 
-    const isOrder = specialRequests && specialRequests.toUpperCase().includes("ONLINE ORDER");
+    const isOrder =
+      specialRequests && specialRequests.toUpperCase().includes("ONLINE ORDER");
     const type = isOrder ? "Order" : "Reservation";
 
     const itemsSummary = specialRequests ? specialRequests : "Menu Items";
-    const totalPrice = (specialRequests && specialRequests.includes("Total: $")) 
-      ? specialRequests.split("Total: $")[1].split(". ")[0] 
-      : "0.00";
-    const orderType = (specialRequests && specialRequests.includes("ONLINE ORDER ("))
-      ? specialRequests.split("ONLINE ORDER (")[1].split(")")[0]
-      : "Online Order";
+    const totalPrice =
+      specialRequests && specialRequests.includes("Total: $")
+        ? specialRequests.split("Total: $")[1].split(". ")[0]
+        : "0.00";
+    const orderType =
+      specialRequests && specialRequests.includes("ONLINE ORDER (")
+        ? specialRequests.split("ONLINE ORDER (")[1].split(")")[0]
+        : "Online Order";
 
     // Trigger Notification
-    notifyAdminAndCustomer(
-      adminEmail,
-      adminPhone,
-      email,
-      phone,
-      type,
-      {
-        restaurantName: restaurant ? restaurant.name : "bulebeti Partner",
-        guestName,
-        customerName: guestName,
-        date,
-        time,
-        guests,
-        specialRequests,
-        itemsSummary,
-        totalPrice,
-        orderType,
-        notes: specialRequests,
-      },
-    );
+    notifyAdminAndCustomer(adminEmail, adminPhone, email, phone, type, {
+      restaurantName: restaurant ? restaurant.name : "bulebeti Partner",
+      guestName,
+      customerName: guestName,
+      date,
+      time,
+      guests,
+      specialRequests,
+      itemsSummary,
+      totalPrice,
+      orderType,
+      notes: specialRequests,
+    });
 
     res.json(reservation);
   } catch (err) {
@@ -110,9 +106,15 @@ router.get("/restaurant/:restaurantSlug", auth, async (req, res) => {
       return res.status(404).json({ msg: "Restaurant not found" });
     }
 
-    const authorized = await canManageRestaurant(req.user.id, req.user.role, restaurant._id);
+    const authorized = await canManageRestaurant(
+      req.user.id,
+      req.user.role,
+      restaurant._id,
+    );
     if (!authorized) {
-      return res.status(403).json({ msg: "Forbidden: You are not authorized for this restaurant's reservations" });
+      return res.status(403).json({
+        msg: "Forbidden: You are not authorized for this restaurant's reservations",
+      });
     }
 
     const reservations = await Reservation.find({
@@ -135,7 +137,11 @@ const updateReservationStatusHandler = async (req, res) => {
       return res.status(404).json({ msg: "Reservation / Order not found" });
     }
 
-    const authorized = await canManageRestaurant(req.user.id, req.user.role, reservation.restaurantId);
+    const authorized = await canManageRestaurant(
+      req.user.id,
+      req.user.role,
+      reservation.restaurantId,
+    );
     if (!authorized) {
       return res.status(403).json({ msg: "Forbidden: Access denied" });
     }
@@ -147,25 +153,21 @@ const updateReservationStatusHandler = async (req, res) => {
     // Fire notification only when status actually changed
     if (status !== previousStatus) {
       const restaurant = await Restaurant.findById(reservation.restaurantId);
-      const isOrder = (reservation.specialRequests || "").toUpperCase().includes("ONLINE ORDER");
+      const isOrder = (reservation.specialRequests || "")
+        .toUpperCase()
+        .includes("ONLINE ORDER");
       const type = isOrder ? "Order" : "Reservation";
 
-      notifyStatusUpdate(
-        type,
-        status,
-        reservation.email,
-        reservation.phone,
-        {
-          restaurantId: reservation.restaurantId,
-          restaurantName: restaurant ? restaurant.name : "bulebeti Partner",
-          guestName: reservation.guestName,
-          customerName: reservation.guestName,
-          date: reservation.date,
-          time: reservation.time,
-          guests: reservation.guests,
-          specialRequests: reservation.specialRequests,
-        },
-      );
+      notifyStatusUpdate(type, status, reservation.email, reservation.phone, {
+        restaurantId: reservation.restaurantId,
+        restaurantName: restaurant ? restaurant.name : "bulebeti Partner",
+        guestName: reservation.guestName,
+        customerName: reservation.guestName,
+        date: reservation.date,
+        time: reservation.time,
+        guests: reservation.guests,
+        specialRequests: reservation.specialRequests,
+      });
     }
 
     res.json(reservation);

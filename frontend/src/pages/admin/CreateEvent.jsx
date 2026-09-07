@@ -109,7 +109,7 @@ const CreateEvent = () => {
 
       if (!res.ok) throw new Error("Failed to create event");
 
-      navigate(`/bulebeti/${restaurantName}/admin/events`);
+      navigate(`/maedbet/${restaurantName}/admin/events`);
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -151,7 +151,7 @@ const CreateEvent = () => {
     <div className="create-event">
       <div style={{ marginBottom: "var(--spacing-xl)" }}>
         <button
-          onClick={() => navigate(`/bulebeti/${restaurantName}/admin/events`)}
+          onClick={() => navigate(`/maedbet/${restaurantName}/admin/events`)}
           style={{
             background: "none",
             border: "none",
@@ -783,7 +783,7 @@ const CreateEvent = () => {
             <button
               type="button"
               onClick={() =>
-                navigate(`/bulebeti/${restaurantName}/admin/events`)
+                navigate(`/maedbet/${restaurantName}/admin/events`)
               }
               style={{
                 padding: "12px 24px",

@@ -48,9 +48,9 @@ const LegalPage = ({ title }) => {
     );
   }
 
-  const platformName = restaurant ? restaurant.name : "BuleBet";
+  const platformName = restaurant ? restaurant.name : "MaedBet";
   const contactPhone = restaurant ? restaurant.phone : "+1 (240) 441-1075";
-  const contactAddress = restaurant ? restaurant.address : "BuleBet HQ";
+  const contactAddress = restaurant ? restaurant.address : "MaedBet HQ";
 
   return (
     <div style={{ padding: "var(--spacing-xxl) 0" }}>

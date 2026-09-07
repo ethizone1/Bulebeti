@@ -76,7 +76,7 @@ const AddLocation = ({ currentTier }) => {
       }
 
       // Successfully created! Navigate to the new restaurant's admin panel
-      navigate(`/bulebeti/${slug}/admin`);
+      navigate(`/maedbet/${slug}/admin`);
       window.location.reload(); // Reload to refresh the AdminLayout context
     } catch (err) {
       setError(err.message);
@@ -90,7 +90,7 @@ const AddLocation = ({ currentTier }) => {
       <div className="mb-4">
         <button
           onClick={() =>
-            navigate(`/bulebeti/${restaurantName}/admin/locations`)
+            navigate(`/maedbet/${restaurantName}/admin/locations`)
           }
           className="btn btn-link text-muted text-decoration-none p-0 mb-2 d-flex align-items-center gap-1"
         >
@@ -289,7 +289,7 @@ const AddLocation = ({ currentTier }) => {
               <button
                 type="button"
                 onClick={() =>
-                  navigate(`/bulebeti/${restaurantName}/admin/locations`)
+                  navigate(`/maedbet/${restaurantName}/admin/locations`)
                 }
                 className="btn btn-outline-secondary px-4 py-2"
               >

@@ -11,7 +11,10 @@ const ForgotPassword = () => {
         alignItems: "center",
       }}
     >
-      <div className="container" style={{ maxWidth: "clamp(440px, 90vw, 560px)", width: "100%" }}>
+      <div
+        className="container"
+        style={{ maxWidth: "clamp(440px, 90vw, 560px)", width: "100%" }}
+      >
         <div
           style={{
             backgroundColor: "var(--surface)",
@@ -80,7 +83,7 @@ const ForgotPassword = () => {
 
             <div style={{ fontSize: "14px" }}>
               <Link
-                to="/bulebeti/login"
+                to="/maedbet/login"
                 style={{
                   color: "var(--on-surface-variant)",
                   textDecoration: "none",

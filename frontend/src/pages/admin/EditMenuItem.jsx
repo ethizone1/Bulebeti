@@ -93,9 +93,12 @@ const EditMenuItem = () => {
 
         if (!item) throw new Error("Menu item not found");
 
-        const cats = Array.isArray(item.categories) && item.categories.length > 0
-          ? item.categories
-          : (item.category ? item.category.split(',').map(c => c.trim()) : ["Mains"]);
+        const cats =
+          Array.isArray(item.categories) && item.categories.length > 0
+            ? item.categories
+            : item.category
+              ? item.category.split(",").map((c) => c.trim())
+              : ["Mains"];
 
         setSelectedCategories(cats);
 
@@ -228,7 +231,7 @@ const EditMenuItem = () => {
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           alert("Your session has expired. Please log in again.");
-          navigate(`/bulebeti/${restaurantName}/login`);
+          navigate(`/maedbet/${restaurantName}/login`);
           return;
         }
 
@@ -236,7 +239,7 @@ const EditMenuItem = () => {
         throw new Error(errData.msg || "Failed to update menu item");
       }
 
-      navigate(`/bulebeti/${restaurantName}/admin/menu`);
+      navigate(`/maedbet/${restaurantName}/admin/menu`);
     } catch (err) {
       console.error(err);
       alert(`Save failed: ${err.message}`);
@@ -266,7 +269,7 @@ const EditMenuItem = () => {
         <div style={{ fontSize: "40px", marginBottom: "16px" }}>❌</div>
         <p style={{ color: "#dc2626", fontWeight: "600" }}>{error}</p>
         <button
-          onClick={() => navigate(`/bulebeti/${restaurantName}/admin/menu`)}
+          onClick={() => navigate(`/maedbet/${restaurantName}/admin/menu`)}
           className="btn btn-outline"
           style={{ marginTop: "16px" }}
         >
@@ -287,7 +290,7 @@ const EditMenuItem = () => {
           </p>
         </div>
         <button
-          onClick={() => navigate(`/bulebeti/${restaurantName}/admin/menu`)}
+          onClick={() => navigate(`/maedbet/${restaurantName}/admin/menu`)}
           className="btn btn-outline-secondary fw-bold px-4"
         >
           &larr; Back
@@ -334,10 +337,13 @@ const EditMenuItem = () => {
                           checked={isChecked}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              setSelectedCategories([...selectedCategories, cat]);
+                              setSelectedCategories([
+                                ...selectedCategories,
+                                cat,
+                              ]);
                             } else {
                               setSelectedCategories(
-                                selectedCategories.filter((c) => c !== cat)
+                                selectedCategories.filter((c) => c !== cat),
                               );
                             }
                           }}
@@ -433,7 +439,10 @@ const EditMenuItem = () => {
                 style={{ maxHeight: "220px", overflowY: "auto" }}
               >
                 {formData.ingredients.map((ing, idx) => (
-                  <div key={ing.name || idx} className="col-6 col-sm-4 col-md-3">
+                  <div
+                    key={ing.name || idx}
+                    className="col-6 col-sm-4 col-md-3"
+                  >
                     <div className="form-check">
                       <input
                         className="form-check-input"
@@ -469,7 +478,7 @@ const EditMenuItem = () => {
                       const val = e.target.value.trim();
                       if (val) {
                         const existsIdx = formData.ingredients.findIndex(
-                          (i) => i.name.toLowerCase() === val.toLowerCase()
+                          (i) => i.name.toLowerCase() === val.toLowerCase(),
                         );
                         if (existsIdx >= 0) {
                           const newIngs = [...formData.ingredients];
@@ -496,7 +505,7 @@ const EditMenuItem = () => {
                     const val = input.value.trim();
                     if (val) {
                       const existsIdx = formData.ingredients.findIndex(
-                        (i) => i.name.toLowerCase() === val.toLowerCase()
+                        (i) => i.name.toLowerCase() === val.toLowerCase(),
                       );
                       if (existsIdx >= 0) {
                         const newIngs = [...formData.ingredients];
@@ -572,7 +581,7 @@ const EditMenuItem = () => {
                       const val = e.target.value.trim();
                       if (val) {
                         const existsIdx = formData.contains.findIndex(
-                          (c) => c.name.toLowerCase() === val.toLowerCase()
+                          (c) => c.name.toLowerCase() === val.toLowerCase(),
                         );
                         if (existsIdx >= 0) {
                           const newContains = [...formData.contains];
@@ -599,7 +608,7 @@ const EditMenuItem = () => {
                     const val = input.value.trim();
                     if (val) {
                       const existsIdx = formData.contains.findIndex(
-                        (c) => c.name.toLowerCase() === val.toLowerCase()
+                        (c) => c.name.toLowerCase() === val.toLowerCase(),
                       );
                       if (existsIdx >= 0) {
                         const newContains = [...formData.contains];
@@ -701,7 +710,7 @@ const EditMenuItem = () => {
           <div className="col-12 d-flex flex-column flex-md-row gap-3 mt-4 pt-4 border-top">
             <button
               type="button"
-              onClick={() => navigate(`/bulebeti/${restaurantName}/admin/menu`)}
+              onClick={() => navigate(`/maedbet/${restaurantName}/admin/menu`)}
               className="btn btn-outline-secondary px-4 py-2 order-2 order-md-1 w-100"
             >
               Cancel

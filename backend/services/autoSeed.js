@@ -14,11 +14,18 @@ async function autoSeed() {
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash("password123", salt);
-    const superAdminPassword = await bcrypt.hash("Bulebeti@Ethiopia.2019", salt);
+    const superAdminPassword = await bcrypt.hash(
+      "bulebeti@Ethiopia.2019",
+      salt,
+    );
 
     // 1. Ensure Super Admin User
     let superAdmin = await User.findOne({
-      $or: [{ email: "ethizone1@gmail.com" }, { email: "superadmin@bulebeti.com" }, { role: "super-admin" }],
+      $or: [
+        { email: "ethizone1@gmail.com" },
+        { email: "superadmin@bulebeti.com" },
+        { role: "super-admin" },
+      ],
     });
 
     if (!superAdmin) {
@@ -39,7 +46,9 @@ async function autoSeed() {
       superAdmin.status = "active";
       superAdmin.isVerified = true;
       await superAdmin.save();
-      console.log("🌱 [AUTO-SEED] Super Admin account updated to ethizone1@gmail.com.");
+      console.log(
+        "🌱 [AUTO-SEED] Super Admin account updated to ethizone1@gmail.com.",
+      );
     }
 
     // 2. Ensure Default Restaurant Admin User
@@ -54,7 +63,9 @@ async function autoSeed() {
         isVerified: true,
       });
       await adminOwner.save();
-      console.log("🌱 [AUTO-SEED] Created Admin Owner: admin@goldentruffle.com");
+      console.log(
+        "🌱 [AUTO-SEED] Created Admin Owner: admin@goldentruffle.com",
+      );
     }
 
     // 3. Ensure Default Restaurant
@@ -69,27 +80,35 @@ async function autoSeed() {
         ownerId: adminOwner._id,
       });
       await restaurant.save();
-      console.log("🌱 [AUTO-SEED] Created sample restaurant: The Golden Truffle");
+      console.log(
+        "🌱 [AUTO-SEED] Created sample restaurant: The Golden Truffle",
+      );
 
       // Seed initial menu items if none exist
-      const menuCount = await MenuItem.countDocuments({ restaurantId: restaurant._id });
+      const menuCount = await MenuItem.countDocuments({
+        restaurantId: restaurant._id,
+      });
       if (menuCount === 0) {
         await MenuItem.insertMany([
           {
             name: "Truffle Arancini",
             price: 18,
-            description: "Sicilian rice balls with black truffle.\nIngredients: Arborio rice, Black Truffle, Panko",
+            description:
+              "Sicilian rice balls with black truffle.\nIngredients: Arborio rice, Black Truffle, Panko",
             category: "Starters",
-            imageUrl: "https://images.unsplash.com/photo-1541529086526-db283c563270?w=400&q=80",
+            imageUrl:
+              "https://images.unsplash.com/photo-1541529086526-db283c563270?w=400&q=80",
             isAvailable: true,
             restaurantId: restaurant._id,
           },
           {
             name: "Pan-Seared Sea Bass",
             price: 42,
-            description: "With lemon butter sauce.\nIngredients: Sea Bass, Lemon Butter, Asparagus",
+            description:
+              "With lemon butter sauce.\nIngredients: Sea Bass, Lemon Butter, Asparagus",
             category: "Mains",
-            imageUrl: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&q=80",
+            imageUrl:
+              "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&q=80",
             isAvailable: true,
             restaurantId: restaurant._id,
           },
@@ -98,7 +117,9 @@ async function autoSeed() {
       }
 
       // Seed initial location if none exist
-      const locCount = await Location.countDocuments({ restaurantId: restaurant._id });
+      const locCount = await Location.countDocuments({
+        restaurantId: restaurant._id,
+      });
       if (locCount === 0) {
         await Location.insertMany([
           {

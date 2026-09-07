@@ -360,7 +360,7 @@ const RegistrationPage = () => {
                       <i
                         className={social.icon}
                         style={{ fontSize: "18px" }}
-                        title={`bulebeti's ${social.name}`}
+                        title={`maedbet's ${social.name}`}
                       ></i>
                     </a>
                     <input
@@ -499,7 +499,7 @@ const RegistrationPage = () => {
           >
             {t("reg_already")}{" "}
             <Link
-              to="/bulebeti/login"
+              to="/maedbet/login"
               style={{
                 color: "var(--gold)",
                 fontWeight: "600",

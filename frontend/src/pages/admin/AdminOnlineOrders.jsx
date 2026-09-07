@@ -26,7 +26,7 @@ const AdminOnlineOrders = () => {
         `${config.API_URL}/api/reservations/restaurant/${restaurantName}`,
         {
           headers: { "x-auth-token": localStorage.getItem("token") },
-        }
+        },
       );
       if (res.ok) {
         const data = await res.json();
@@ -70,12 +70,14 @@ const AdminOnlineOrders = () => {
             "x-auth-token": localStorage.getItem("token"),
           },
           body: JSON.stringify({ status: newStatus }),
-        }
+        },
       );
 
       if (res.ok) {
         setOrders((prev) =>
-          prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
+          prev.map((o) =>
+            o._id === orderId ? { ...o, status: newStatus } : o,
+          ),
         );
       } else {
         const data = await res.json().catch(() => ({}));
@@ -140,7 +142,10 @@ const AdminOnlineOrders = () => {
     return {
       orderType,
       itemsStr: itemsStr || "Selected Menu Items",
-      totalStr: totalStr !== "$0.00" ? totalStr : `$${((order.guests || 1) * 15).toFixed(2)}`,
+      totalStr:
+        totalStr !== "$0.00"
+          ? totalStr
+          : `$${((order.guests || 1) * 15).toFixed(2)}`,
       notesStr,
     };
   };
@@ -174,8 +179,12 @@ const AdminOnlineOrders = () => {
     return sum + num;
   }, 0);
 
-  const pendingCount = orders.filter((o) => (o.status || "Pending").toLowerCase() === "pending").length;
-  const completedCount = orders.filter((o) => (o.status || "").toLowerCase() === "completed").length;
+  const pendingCount = orders.filter(
+    (o) => (o.status || "Pending").toLowerCase() === "pending",
+  ).length;
+  const completedCount = orders.filter(
+    (o) => (o.status || "").toLowerCase() === "completed",
+  ).length;
 
   if (!isPlatinumOrAbove) {
     return (
@@ -191,13 +200,29 @@ const AdminOnlineOrders = () => {
           margin: "40px auto",
         }}
       >
-        <div style={{ fontSize: "42px", color: "#D4AF37", marginBottom: "12px" }}>🛍️</div>
-        <h2 style={{ color: "#D4AF37", fontWeight: "800", marginBottom: "8px" }}>Online Order Management</h2>
-        <p style={{ color: "#e5e7eb", marginBottom: "20px", fontSize: "14px", lineHeight: "1.6" }}>
-          Online Orders management requires the <strong>Platinum</strong> or <strong>Premium</strong> plan.
+        <div
+          style={{ fontSize: "42px", color: "#D4AF37", marginBottom: "12px" }}
+        >
+          🛍️
+        </div>
+        <h2
+          style={{ color: "#D4AF37", fontWeight: "800", marginBottom: "8px" }}
+        >
+          Online Order Management
+        </h2>
+        <p
+          style={{
+            color: "#e5e7eb",
+            marginBottom: "20px",
+            fontSize: "14px",
+            lineHeight: "1.6",
+          }}
+        >
+          Online Orders management requires the <strong>Platinum</strong> or{" "}
+          <strong>Premium</strong> plan.
         </p>
         <Link
-          to={`/bulebeti/${restaurantName}/admin/settings`}
+          to={`/maedbet/${restaurantName}/admin/settings`}
           style={{
             backgroundColor: "#D4AF37",
             color: "#000000",
@@ -241,8 +266,11 @@ const AdminOnlineOrders = () => {
           >
             🛍️ Online Food &amp; Beverage Orders
           </h1>
-          <p style={{ margin: "4px 0 0 0", color: "#64748b", fontSize: "14px" }}>
-            Track, confirm, and fulfill online takeout, delivery, and dine-in orders in real time.
+          <p
+            style={{ margin: "4px 0 0 0", color: "#64748b", fontSize: "14px" }}
+          >
+            Track, confirm, and fulfill online takeout, delivery, and dine-in
+            orders in real time.
           </p>
         </div>
 
@@ -274,24 +302,128 @@ const AdminOnlineOrders = () => {
           marginBottom: "24px",
         }}
       >
-        <div style={{ backgroundColor: "white", padding: "18px 20px", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-          <div style={{ fontSize: "12px", fontWeight: "700", color: "#64748b", textTransform: "uppercase" }}>Total Orders</div>
-          <div style={{ fontSize: "28px", fontWeight: "800", color: "#0f172a", marginTop: "4px" }}>{orders.length}</div>
+        <div
+          style={{
+            backgroundColor: "white",
+            padding: "18px 20px",
+            borderRadius: "12px",
+            border: "1px solid #e2e8f0",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "12px",
+              fontWeight: "700",
+              color: "#64748b",
+              textTransform: "uppercase",
+            }}
+          >
+            Total Orders
+          </div>
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: "800",
+              color: "#0f172a",
+              marginTop: "4px",
+            }}
+          >
+            {orders.length}
+          </div>
         </div>
 
-        <div style={{ backgroundColor: "white", padding: "18px 20px", borderRadius: "12px", border: "1px solid #fef3c7", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-          <div style={{ fontSize: "12px", fontWeight: "700", color: "#d97706", textTransform: "uppercase" }}>Pending Orders</div>
-          <div style={{ fontSize: "28px", fontWeight: "800", color: "#b45309", marginTop: "4px" }}>{pendingCount}</div>
+        <div
+          style={{
+            backgroundColor: "white",
+            padding: "18px 20px",
+            borderRadius: "12px",
+            border: "1px solid #fef3c7",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "12px",
+              fontWeight: "700",
+              color: "#d97706",
+              textTransform: "uppercase",
+            }}
+          >
+            Pending Orders
+          </div>
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: "800",
+              color: "#b45309",
+              marginTop: "4px",
+            }}
+          >
+            {pendingCount}
+          </div>
         </div>
 
-        <div style={{ backgroundColor: "white", padding: "18px 20px", borderRadius: "12px", border: "1px solid #dcfce7", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-          <div style={{ fontSize: "12px", fontWeight: "700", color: "#166534", textTransform: "uppercase" }}>Completed Orders</div>
-          <div style={{ fontSize: "28px", fontWeight: "800", color: "#15803d", marginTop: "4px" }}>{completedCount}</div>
+        <div
+          style={{
+            backgroundColor: "white",
+            padding: "18px 20px",
+            borderRadius: "12px",
+            border: "1px solid #dcfce7",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "12px",
+              fontWeight: "700",
+              color: "#166534",
+              textTransform: "uppercase",
+            }}
+          >
+            Completed Orders
+          </div>
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: "800",
+              color: "#15803d",
+              marginTop: "4px",
+            }}
+          >
+            {completedCount}
+          </div>
         </div>
 
-        <div style={{ backgroundColor: "#0d1117", padding: "18px 20px", borderRadius: "12px", border: "1.5px solid #D4AF37", color: "white" }}>
-          <div style={{ fontSize: "12px", fontWeight: "700", color: "#D4AF37", textTransform: "uppercase" }}>Total Sales Revenue</div>
-          <div style={{ fontSize: "28px", fontWeight: "800", color: "#ffffff", marginTop: "4px" }}>${totalRevenue.toFixed(2)}</div>
+        <div
+          style={{
+            backgroundColor: "#0d1117",
+            padding: "18px 20px",
+            borderRadius: "12px",
+            border: "1.5px solid #D4AF37",
+            color: "white",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "12px",
+              fontWeight: "700",
+              color: "#D4AF37",
+              textTransform: "uppercase",
+            }}
+          >
+            Total Sales Revenue
+          </div>
+          <div
+            style={{
+              fontSize: "28px",
+              fontWeight: "800",
+              color: "#ffffff",
+              marginTop: "4px",
+            }}
+          >
+            ${totalRevenue.toFixed(2)}
+          </div>
         </div>
       </div>
 
@@ -377,7 +509,10 @@ const AdminOnlineOrders = () => {
           }}
         />
 
-        {(searchTerm || statusFilter !== "All" || typeFilter !== "All" || dateFilter) && (
+        {(searchTerm ||
+          statusFilter !== "All" ||
+          typeFilter !== "All" ||
+          dateFilter) && (
           <button
             onClick={() => {
               setSearchTerm("");
@@ -415,17 +550,46 @@ const AdminOnlineOrders = () => {
           }}
         >
           <div style={{ fontSize: "36px", marginBottom: "8px" }}>🛒</div>
-          <h3 style={{ margin: "0 0 4px 0", color: "#334155", fontSize: "18px" }}>No online orders found</h3>
+          <h3
+            style={{ margin: "0 0 4px 0", color: "#334155", fontSize: "18px" }}
+          >
+            No online orders found
+          </h3>
           <p style={{ margin: 0, color: "#64748b", fontSize: "13px" }}>
-            When customers place orders from your online menu page, they will appear here live.
+            When customers place orders from your online menu page, they will
+            appear here live.
           </p>
         </div>
       ) : (
-        <div style={{ backgroundColor: "white", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+        <div
+          style={{
+            backgroundColor: "white",
+            borderRadius: "12px",
+            border: "1px solid #e2e8f0",
+            overflow: "hidden",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          }}
+        >
           <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "13px" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                textAlign: "left",
+                fontSize: "13px",
+              }}
+            >
               <thead>
-                <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid #e2e8f0", color: "#475569", textTransform: "uppercase", fontSize: "11px", letterSpacing: "0.5px" }}>
+                <tr
+                  style={{
+                    backgroundColor: "#f8fafc",
+                    borderBottom: "1px solid #e2e8f0",
+                    color: "#475569",
+                    textTransform: "uppercase",
+                    fontSize: "11px",
+                    letterSpacing: "0.5px",
+                  }}
+                >
                   <th style={{ padding: "12px 16px" }}>ORDER ID</th>
                   <th style={{ padding: "12px 16px" }}>CUSTOMER</th>
                   <th style={{ padding: "12px 16px" }}>OPTION</th>
@@ -442,25 +606,55 @@ const AdminOnlineOrders = () => {
                   const shortId = (o._id || "").slice(-6).toUpperCase();
 
                   return (
-                    <tr key={o._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                    <tr
+                      key={o._id}
+                      style={{ borderBottom: "1px solid #f1f5f9" }}
+                    >
                       {/* Order ID */}
-                      <td style={{ padding: "14px 16px", fontWeight: "800", color: "#0f172a" }}>
+                      <td
+                        style={{
+                          padding: "14px 16px",
+                          fontWeight: "800",
+                          color: "#0f172a",
+                        }}
+                      >
                         #ORD-{shortId}
                       </td>
 
                       {/* Customer Info */}
                       <td style={{ padding: "14px 16px" }}>
-                        <div style={{ fontWeight: "700", color: "#0f172a" }}>{o.guestName}</div>
+                        <div style={{ fontWeight: "700", color: "#0f172a" }}>
+                          {o.guestName}
+                        </div>
                         {o.email && (
                           <div style={{ fontSize: "12px", color: "#64748b" }}>
-                            <a href={`mailto:${o.email}`} style={{ color: "#2563eb", textDecoration: "none" }}>
+                            <a
+                              href={`mailto:${o.email}`}
+                              style={{
+                                color: "#2563eb",
+                                textDecoration: "none",
+                              }}
+                            >
                               {o.email}
                             </a>
                           </div>
                         )}
                         {o.phone && (
-                          <div style={{ fontSize: "12px", color: "#64748b", marginTop: "2px" }}>
-                            <a href={`tel:${o.phone}`} style={{ color: "#059669", fontWeight: "600", textDecoration: "none" }}>
+                          <div
+                            style={{
+                              fontSize: "12px",
+                              color: "#64748b",
+                              marginTop: "2px",
+                            }}
+                          >
+                            <a
+                              href={`tel:${o.phone}`}
+                              style={{
+                                color: "#059669",
+                                fontWeight: "600",
+                                textDecoration: "none",
+                              }}
+                            >
                               📞 {o.phone}
                             </a>
                           </div>
@@ -471,46 +665,86 @@ const AdminOnlineOrders = () => {
                       <td style={{ padding: "14px 16px" }}>
                         <span
                           style={{
-                            backgroundColor: parsed.orderType === "Dine-In" ? "#f3e8ff" : parsed.orderType === "Delivery" ? "#e0f2fe" : "#fef3c7",
-                            color: parsed.orderType === "Dine-In" ? "#6b21a8" : parsed.orderType === "Delivery" ? "#0369a1" : "#92400e",
+                            backgroundColor:
+                              parsed.orderType === "Dine-In"
+                                ? "#f3e8ff"
+                                : parsed.orderType === "Delivery"
+                                  ? "#e0f2fe"
+                                  : "#fef3c7",
+                            color:
+                              parsed.orderType === "Dine-In"
+                                ? "#6b21a8"
+                                : parsed.orderType === "Delivery"
+                                  ? "#0369a1"
+                                  : "#92400e",
                             padding: "4px 10px",
                             borderRadius: "6px",
                             fontWeight: "700",
                             fontSize: "12px",
                           }}
                         >
-                          {parsed.orderType === "Dine-In" ? "🍽️ Dine-In" : parsed.orderType === "Delivery" ? "🛵 Delivery" : "🛍️ Takeout"}
+                          {parsed.orderType === "Dine-In"
+                            ? "🍽️ Dine-In"
+                            : parsed.orderType === "Delivery"
+                              ? "🛵 Delivery"
+                              : "🛍️ Takeout"}
                         </span>
                       </td>
 
                       {/* Items & Notes */}
                       <td style={{ padding: "14px 16px", maxWidth: "280px" }}>
-                        <div style={{ fontWeight: "600", color: "#1e293b", lineHeight: "1.4" }}>
+                        <div
+                          style={{
+                            fontWeight: "600",
+                            color: "#1e293b",
+                            lineHeight: "1.4",
+                          }}
+                        >
                           {parsed.itemsStr}
                         </div>
                         {parsed.notesStr && (
-                          <div style={{ fontSize: "12px", color: "#64748b", marginTop: "4px", fontStyle: "italic" }}>
+                          <div
+                            style={{
+                              fontSize: "12px",
+                              color: "#64748b",
+                              marginTop: "4px",
+                              fontStyle: "italic",
+                            }}
+                          >
                             Note: "{parsed.notesStr}"
                           </div>
                         )}
                       </td>
 
                       {/* Total Amount */}
-                      <td style={{ padding: "14px 16px", fontWeight: "800", color: "#166534", fontSize: "15px" }}>
+                      <td
+                        style={{
+                          padding: "14px 16px",
+                          fontWeight: "800",
+                          color: "#166534",
+                          fontSize: "15px",
+                        }}
+                      >
                         {parsed.totalStr}
                       </td>
 
                       {/* Date & Time */}
                       <td style={{ padding: "14px 16px", color: "#475569" }}>
-                        <div><strong>{o.date || "Today"}</strong></div>
-                        <div style={{ fontSize: "12px", color: "#64748b" }}>{o.time || ""}</div>
+                        <div>
+                          <strong>{o.date || "Today"}</strong>
+                        </div>
+                        <div style={{ fontSize: "12px", color: "#64748b" }}>
+                          {o.time || ""}
+                        </div>
                       </td>
 
                       {/* Status Selector */}
                       <td style={{ padding: "14px 16px" }}>
                         <select
                           value={o.status || "Pending"}
-                          onChange={(e) => handleStatusChange(o._id, e.target.value)}
+                          onChange={(e) =>
+                            handleStatusChange(o._id, e.target.value)
+                          }
                           style={{
                             backgroundColor: badge.bg,
                             color: badge.color,

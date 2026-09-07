@@ -60,7 +60,7 @@ const SupportForm = () => {
       if (!res.ok) throw new Error("Failed to submit inquiry.");
 
       setSuccessMessage(
-        "Your inquiry has been submitted! A member of the bulebeti team will contact you shortly.",
+        "Your inquiry has been submitted! A member of the MaedBet team will contact you shortly.",
       );
       setFormData({ ...formData, subject: "", message: "" });
     } catch (err) {
@@ -78,7 +78,7 @@ const SupportForm = () => {
       <div className="mb-4">
         <h1 className="fs-3 fw-bold m-0">Platform Support</h1>
         <p className="text-muted mb-0">
-          Need help with your account or the platform? Contact the bulebeti
+          Need help with your account or the platform? Contact the MaedBet
           Super Admin team.
         </p>
       </div>

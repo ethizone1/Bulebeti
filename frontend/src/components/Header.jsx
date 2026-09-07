@@ -94,7 +94,7 @@ const Header = () => {
         .then((data) => {
           if (!data.msg) {
             setRestaurant(data);
-            document.title = `BuleBet | ${data.name}`;
+            document.title = `MaedBet | ${data.name}`;
             setDynamicFavicon(data.name, data.logoUrl);
 
             // Fetch restaurant menu to extract unique DB categories

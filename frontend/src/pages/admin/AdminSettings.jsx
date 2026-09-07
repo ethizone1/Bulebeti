@@ -17,7 +17,10 @@ const AdminSettings = () => {
   const [logoUrl, setLogoUrl] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
   const [menuLayout, setMenuLayout] = useState("image-left");
-  const [openingHours, setOpeningHours] = useState({ weekdays: "", weekends: "" });
+  const [openingHours, setOpeningHours] = useState({
+    weekdays: "",
+    weekends: "",
+  });
   const [socialLinks, setSocialLinks] = useState({
     instagram: "",
     facebook: "",
@@ -128,7 +131,7 @@ const AdminSettings = () => {
   const [notifSettings, setNotifSettings] = useState(() => {
     try {
       return (
-        JSON.parse(localStorage.getItem("bulebeti_notif_settings")) ||
+        JSON.parse(localStorage.getItem("maedbet_notif_settings")) ||
         defaultNotifs
       );
     } catch {
@@ -171,9 +174,9 @@ const AdminSettings = () => {
   const toggleNotif = (key) => {
     const updated = { ...notifSettings, [key]: !notifSettings[key] };
     setNotifSettings(updated);
-    localStorage.setItem("bulebeti_notif_settings", JSON.stringify(updated));
+    localStorage.setItem("maedbet_notif_settings", JSON.stringify(updated));
     // Dispatch an event so Navbar can update immediately if needed
-    window.dispatchEvent(new Event("bulebeti_notifs_changed"));
+    window.dispatchEvent(new Event("maedbet_notifs_changed"));
   };
 
   const handlePasswordChange = async (e) => {
@@ -240,7 +243,9 @@ const AdminSettings = () => {
                 </div>
               )}
               <div className="flex-grow-1" style={{ maxWidth: "450px" }}>
-                <h4 className="m-0 mb-2">{t("admin_set_prof_logo") || "Restaurant Logo"}</h4>
+                <h4 className="m-0 mb-2">
+                  {t("admin_set_prof_logo") || "Restaurant Logo"}
+                </h4>
                 <div className="d-flex gap-2 mb-2">
                   <input
                     type="file"
@@ -262,7 +267,11 @@ const AdminSettings = () => {
                   type="text"
                   value={logoUrl.startsWith("data:") ? "" : logoUrl}
                   onChange={(e) => setLogoUrl(e.target.value)}
-                  placeholder={logoUrl.startsWith("data:") ? "[Image File Uploaded]" : "Or paste image URL (https://...)"}
+                  placeholder={
+                    logoUrl.startsWith("data:")
+                      ? "[Image File Uploaded]"
+                      : "Or paste image URL (https://...)"
+                  }
                   className="form-control form-control-sm text-muted"
                 />
               </div>
@@ -289,7 +298,7 @@ const AdminSettings = () => {
                   type="url"
                   value={
                     restaurant
-                      ? `${window.location.origin}/bulebeti/${restaurant.slug}`
+                      ? `${window.location.origin}/maedbet/${restaurant.slug}`
                       : ""
                   }
                   readOnly
@@ -378,7 +387,11 @@ const AdminSettings = () => {
                   type="text"
                   value={bannerUrl.startsWith("data:") ? "" : bannerUrl}
                   onChange={(e) => setBannerUrl(e.target.value)}
-                  placeholder={bannerUrl.startsWith("data:") ? "[Banner File Uploaded]" : "Or paste image URL (https://...)"}
+                  placeholder={
+                    bannerUrl.startsWith("data:")
+                      ? "[Banner File Uploaded]"
+                      : "Or paste image URL (https://...)"
+                  }
                   className="form-control form-control-sm text-muted"
                 />
               </div>
@@ -394,7 +407,10 @@ const AdminSettings = () => {
                   type="text"
                   value={openingHours.weekdays}
                   onChange={(e) =>
-                    setOpeningHours({ ...openingHours, weekdays: e.target.value })
+                    setOpeningHours({
+                      ...openingHours,
+                      weekdays: e.target.value,
+                    })
                   }
                   placeholder="e.g. 11:00 AM - 11:00 PM"
                   className="form-control"
@@ -408,7 +424,10 @@ const AdminSettings = () => {
                   type="text"
                   value={openingHours.weekends}
                   onChange={(e) =>
-                    setOpeningHours({ ...openingHours, weekends: e.target.value })
+                    setOpeningHours({
+                      ...openingHours,
+                      weekends: e.target.value,
+                    })
                   }
                   placeholder="e.g. 10:00 AM - 12:00 AM"
                   className="form-control"
@@ -750,13 +769,17 @@ const AdminSettings = () => {
                 {
                   id: "image-left",
                   name: t("admin_set_lay_left") || "Image Left",
-                  desc: t("admin_set_lay_left_d") || "Images positioned on the left side of menu items",
+                  desc:
+                    t("admin_set_lay_left_d") ||
+                    "Images positioned on the left side of menu items",
                   icon: "📑",
                 },
                 {
                   id: "image-right",
                   name: t("admin_set_lay_right") || "Image Right",
-                  desc: t("admin_set_lay_right_d") || "Images positioned on the right side of menu items",
+                  desc:
+                    t("admin_set_lay_right_d") ||
+                    "Images positioned on the right side of menu items",
                   icon: "📖",
                 },
                 {
@@ -774,11 +797,14 @@ const AdminSettings = () => {
                 {
                   id: "text-centered",
                   name: t("admin_set_lay_cent") || "Text Centered",
-                  desc: t("admin_set_lay_cent_d") || "Clean centered text alignment for an elegant feel",
+                  desc:
+                    t("admin_set_lay_cent_d") ||
+                    "Clean centered text alignment for an elegant feel",
                   icon: "🔝",
                 },
               ].map((layout) => {
-                const currentLayout = menuLayout || restaurant?.menuLayout || "image-left";
+                const currentLayout =
+                  menuLayout || restaurant?.menuLayout || "image-left";
                 const isActive = currentLayout === layout.id;
                 return (
                   <div key={layout.id} className="col-12 col-md-4">
@@ -801,7 +827,9 @@ const AdminSettings = () => {
                           const data = await res.json();
                           if (res.ok) {
                             setRestaurant(data);
-                            alert(`Menu layout updated to "${layout.name}" successfully!`);
+                            alert(
+                              `Menu layout updated to "${layout.name}" successfully!`,
+                            );
                           } else {
                             alert(data.msg || "Failed to update layout");
                           }

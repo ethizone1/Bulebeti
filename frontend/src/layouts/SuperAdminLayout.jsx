@@ -51,7 +51,9 @@ const SuperAdminLayout = ({ children }) => {
           }}
         />
         <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-        <div style={{ fontWeight: "600", fontSize: "14px" }}>Verifying Super Admin Access...</div>
+        <div style={{ fontWeight: "600", fontSize: "14px" }}>
+          Verifying Super Admin Access...
+        </div>
       </div>
     );
   }

@@ -40,7 +40,7 @@ const ActivatePage = () => {
       if (response.ok) {
         setSuccess(true);
         setTimeout(() => {
-          navigate("/bulebeti/login");
+          navigate("/maedbet/login");
         }, 2000);
       } else {
         setError(data.msg || "Failed to change password.");
@@ -78,7 +78,7 @@ const ActivatePage = () => {
           className="fw-bold"
           style={{ fontSize: "28px", letterSpacing: "0.05em" }}
         >
-          BULEBET
+          MAEDBET
         </h1>
         <div className="text-muted small fw-bold">CHANGE PASSWORD</div>
       </div>
@@ -160,7 +160,7 @@ const ActivatePage = () => {
           </form>
 
           <div className="text-center mt-3">
-            <Link to="/bulebeti/login" className="text-decoration-none small">
+            <Link to="/maedbet/login" className="text-decoration-none small">
               Back to Login
             </Link>
           </div>

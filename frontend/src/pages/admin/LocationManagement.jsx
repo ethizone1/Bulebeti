@@ -54,7 +54,7 @@ const LocationManagement = () => {
           <strong>Premium</strong> plan.
         </p>
         <Link
-          to={`/bulebeti/${restaurantName}/admin/settings`}
+          to={`/maedbet/${restaurantName}/admin/settings`}
           className="btn btn-primary"
         >
           Upgrade Plan
@@ -69,7 +69,7 @@ const LocationManagement = () => {
         <h1 className="fs-3 fw-bold m-0">{t("admin_loc_title")}</h1>
         <button
           onClick={() =>
-            navigate(`/bulebeti/${restaurantName}/admin/locations/add`)
+            navigate(`/maedbet/${restaurantName}/admin/locations/add`)
           }
           className="btn btn-primary fw-bold px-4"
         >
@@ -155,7 +155,7 @@ const LocationManagement = () => {
                         ) : (
                           <button
                             onClick={() => {
-                              navigate(`/bulebeti/${loc.slug}/admin`);
+                              navigate(`/maedbet/${loc.slug}/admin`);
                               window.location.reload();
                             }}
                             className="btn btn-outline-secondary btn-sm fw-bold px-3 py-1"

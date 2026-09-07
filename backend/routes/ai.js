@@ -18,14 +18,21 @@ router.post("/chat", async (req, res) => {
 
     // Security: Enforce authentication for admin persona requests
     if (role === "admin") {
-      const token = req.header("x-auth-token") || (req.header("Authorization") && req.header("Authorization").replace("Bearer ", ""));
+      const token =
+        req.header("x-auth-token") ||
+        (req.header("Authorization") &&
+          req.header("Authorization").replace("Bearer ", ""));
       if (!token) {
-        return res.status(401).json({ error: "Authentication required for admin AI assistant" });
+        return res
+          .status(401)
+          .json({ error: "Authentication required for admin AI assistant" });
       }
       try {
         jwt.verify(token, process.env.JWT_SECRET);
       } catch (err) {
-        return res.status(401).json({ error: "Invalid token for admin AI assistant" });
+        return res
+          .status(401)
+          .json({ error: "Invalid token for admin AI assistant" });
       }
     }
 

@@ -67,7 +67,7 @@ const ReservationManagement = () => {
           <strong>Platinum</strong>, or <strong>Premium</strong> plan.
         </p>
         <Link
-          to={`/bulebeti/${restaurantName}/admin/settings`}
+          to={`/maedbet/${restaurantName}/admin/settings`}
           className="btn btn-primary"
         >
           Upgrade Plan
@@ -135,16 +135,22 @@ const ReservationManagement = () => {
     const matchStatus = statusFilter === "All" || r.status === statusFilter;
     const matchDate = !dateFilter || (r.date || "").startsWith(dateFilter);
 
-    const isOnlineOrder = (r.specialRequests || "").toUpperCase().includes("ONLINE ORDER");
+    const isOnlineOrder = (r.specialRequests || "")
+      .toUpperCase()
+      .includes("ONLINE ORDER");
     const matchCategory =
       categoryFilter === "All" ||
       (categoryFilter === "Orders" && isOnlineOrder) ||
       (categoryFilter === "Reservations" && !isOnlineOrder);
 
-    return matchLocalSearch && matchGlobalSearch && matchStatus && matchDate && matchCategory;
+    return (
+      matchLocalSearch &&
+      matchGlobalSearch &&
+      matchStatus &&
+      matchDate &&
+      matchCategory
+    );
   });
-
-
 
   return (
     <div className="reservation-management py-3">

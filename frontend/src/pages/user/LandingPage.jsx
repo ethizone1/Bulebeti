@@ -421,7 +421,7 @@ const LandingPage = () => {
                   marginBottom: "24px",
                 }}
               >
-                Be the first premier venue to register on BuleBet!
+                Be the first premier venue to register on MaedBet!
               </p>
               <Link to="/register" className="btn btn-primary">
                 {t("landing_get_started")}

@@ -25,7 +25,7 @@ const SuperAdminSettings = () => {
                 </label>
                 <input
                   type="text"
-                  defaultValue="BuleBet Global"
+                  defaultValue="MaedBet Global"
                   style={{
                     width: "100%",
                     padding: "12px",

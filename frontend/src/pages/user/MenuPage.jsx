@@ -55,10 +55,12 @@ const MenuPage = () => {
   const [menuCategories, setMenuCategories] = React.useState([]);
   const [_loading, setLoading] = React.useState(true);
   const [restaurantTier, setRestaurantTier] = React.useState("Platinum");
-  const [restaurantPhone, setRestaurantPhone] = React.useState("+1 (240) 441-1075");
+  const [restaurantPhone, setRestaurantPhone] =
+    React.useState("+1 (240) 441-1075");
   const [globalImgPos, setGlobalImgPos] = React.useState("Left");
 
-  const isPlatinumOrAbove = restaurantTier === "Platinum" || restaurantTier === "Premium";
+  const isPlatinumOrAbove =
+    restaurantTier === "Platinum" || restaurantTier === "Premium";
 
   // Online Order Cart & Checkout State (Platinum & Premium feature)
   const [cart, setCart] = React.useState([]);
@@ -92,7 +94,9 @@ const MenuPage = () => {
     setCart((prev) => {
       const existing = prev.find((i) => i.id === item.id);
       if (existing) {
-        return prev.map((i) => (i.id === item.id ? { ...i, qty: i.qty + 1 } : i));
+        return prev.map((i) =>
+          i.id === item.id ? { ...i, qty: i.qty + 1 } : i,
+        );
       }
       const numericPrice = parseFloat(item.price.replace(/[^0-9.]/g, "")) || 0;
       return [...prev, { ...item, numericPrice, qty: 1 }];
@@ -113,7 +117,10 @@ const MenuPage = () => {
     );
   };
 
-  const totalCartPrice = cart.reduce((sum, item) => sum + item.numericPrice * item.qty, 0);
+  const totalCartPrice = cart.reduce(
+    (sum, item) => sum + item.numericPrice * item.qty,
+    0,
+  );
   const totalCartItems = cart.reduce((sum, item) => sum + item.qty, 0);
 
   const [restaurantIdState, setRestaurantIdState] = React.useState("");
@@ -132,7 +139,10 @@ const MenuPage = () => {
           email: orderForm.email.trim(),
           phone: orderForm.phone.trim(),
           date: new Date().toLocaleDateString(),
-          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
           guests: cart.reduce((sum, item) => sum + item.qty, 0) || 1,
           specialRequests: `ONLINE ORDER (${orderForm.orderType}): ${itemsSummary}. Total: $${totalCartPrice.toFixed(2)}. ${orderForm.specialInstructions || ""}`,
         }),
@@ -447,12 +457,14 @@ const MenuPage = () => {
                   onChange={(e) => {
                     const val = e.target.value;
                     if (val === "all items") {
-                      navigate(`/bulebeti/${restaurantName}/menu#all-items`);
+                      navigate(`/maedbet/${restaurantName}/menu#all-items`);
                     } else if (val === "our signature") {
-                      navigate(`/bulebeti/${restaurantName}/menu#our-signature`);
+                      navigate(
+                        `/maedbet/${restaurantName}/menu#our-signature`,
+                      );
                     } else {
                       navigate(
-                        `/bulebeti/${restaurantName}/menu#${val.replace(/ /g, "-")}`,
+                        `/maedbet/${restaurantName}/menu#${val.replace(/ /g, "-")}`,
                       );
                     }
                   }}
@@ -505,10 +517,14 @@ const MenuPage = () => {
             )}
           </div>
 
-
-          <div className="container" style={{ paddingBottom: "var(--spacing-xxl)" }}>
+          <div
+            className="container"
+            style={{ paddingBottom: "var(--spacing-xxl)" }}
+          >
             {menuCategories.map((category) => {
-              let visibleItems = category.items.filter((item) => item.visible !== false);
+              let visibleItems = category.items.filter(
+                (item) => item.visible !== false,
+              );
 
               if (
                 activeFilter !== "all items" &&
@@ -528,338 +544,342 @@ const MenuPage = () => {
                   key={category.name}
                   style={{ marginBottom: "var(--spacing-xxl)" }}
                 >
-                <h2
-                  style={{
-                    textAlign: "center",
-                    borderBottom: "1px solid var(--platinum)",
-                    paddingBottom: "12px",
-                    marginBottom: "var(--spacing-xl)",
-                    color: "var(--gold)",
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    fontSize: "clamp(16px, 5vw, 20px)",
-                  }}
-                >
-                  {category.name}
-                </h2>
+                  <h2
+                    style={{
+                      textAlign: "center",
+                      borderBottom: "1px solid var(--platinum)",
+                      paddingBottom: "12px",
+                      marginBottom: "var(--spacing-xl)",
+                      color: "var(--gold)",
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                      fontSize: "clamp(16px, 5vw, 20px)",
+                    }}
+                  >
+                    {category.name}
+                  </h2>
 
-                <div style={{ display: "grid", gap: "clamp(24px, 5vw, 48px)" }}>
-                  {visibleItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="menu-item-row"
-                      style={{
-                        display: "flex",
-                        flexDirection:
-                          globalImgPos === "Center" || globalImgPos === "Top"
-                            ? "column"
-                            : globalImgPos === "Bottom"
-                              ? "column-reverse"
-                              : globalImgPos === "Right"
-                                ? "row-reverse"
-                                : "row",
-                        alignItems:
-                          globalImgPos === "Center" || globalImgPos === "Top" || globalImgPos === "Bottom"
-                            ? "center"
-                            : "flex-start",
-                        gap: "clamp(16px, 4vw, 32px)",
-                        textAlign:
-                          globalImgPos === "Center" ? "center" : "left",
-                      }}
-                    >
-                      <div style={{ flex: 1, minWidth: "0" }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent:
-                              globalImgPos === "Center"
-                                ? "center"
-                                : "space-between",
-                            alignItems: "baseline",
-                            marginBottom: "8px",
-                            gap: "16px",
-                            flexWrap: "wrap",
-                          }}
-                        >
-                          <h3
+                  <div
+                    style={{ display: "grid", gap: "clamp(24px, 5vw, 48px)" }}
+                  >
+                    {visibleItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="menu-item-row"
+                        style={{
+                          display: "flex",
+                          flexDirection:
+                            globalImgPos === "Center" || globalImgPos === "Top"
+                              ? "column"
+                              : globalImgPos === "Bottom"
+                                ? "column-reverse"
+                                : globalImgPos === "Right"
+                                  ? "row-reverse"
+                                  : "row",
+                          alignItems:
+                            globalImgPos === "Center" ||
+                            globalImgPos === "Top" ||
+                            globalImgPos === "Bottom"
+                              ? "center"
+                              : "flex-start",
+                          gap: "clamp(16px, 4vw, 32px)",
+                          textAlign:
+                            globalImgPos === "Center" ? "center" : "left",
+                        }}
+                      >
+                        <div style={{ flex: 1, minWidth: "0" }}>
+                          <div
                             style={{
-                              fontSize: "clamp(18px, 5vw, 24px)",
-                              margin: 0,
+                              display: "flex",
+                              justifyContent:
+                                globalImgPos === "Center"
+                                  ? "center"
+                                  : "space-between",
+                              alignItems: "baseline",
+                              marginBottom: "8px",
+                              gap: "16px",
+                              flexWrap: "wrap",
                             }}
                           >
-                            {item.name}
-                          </h3>
-                          {globalImgPos !== "Center" && (
+                            <h3
+                              style={{
+                                fontSize: "clamp(18px, 5vw, 24px)",
+                                margin: 0,
+                              }}
+                            >
+                              {item.name}
+                            </h3>
+                            {globalImgPos !== "Center" && (
+                              <div
+                                style={{
+                                  fontWeight: "700",
+                                  fontSize: "clamp(16px, 4vw, 20px)",
+                                  color: "var(--primary)",
+                                }}
+                              >
+                                {item.price}
+                              </div>
+                            )}
+                          </div>
+                          <MenuDescription text={item.description} />
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "4px",
+                              fontSize: "11px",
+                              fontWeight: "700",
+                              letterSpacing: "0.05em",
+                            }}
+                          >
+                            <div>
+                              <span style={{ color: "var(--gold)" }}>
+                                {t("menu_ingredients")}
+                              </span>{" "}
+                              <span
+                                style={{ color: "#6b7280", fontWeight: "400" }}
+                              >
+                                {Array.isArray(item.ingredients)
+                                  ? item.ingredients
+                                      .filter((i) => i.checked)
+                                      .map((i) => i.name)
+                                      .join(", ")
+                                  : item.ingredients}
+                              </span>
+                            </div>
+                            <div>
+                              <span style={{ color: "#dc2626" }}>
+                                {t("menu_contains")}
+                              </span>{" "}
+                              <span
+                                style={{ color: "#6b7280", fontWeight: "400" }}
+                              >
+                                {Array.isArray(item.contains)
+                                  ? item.contains
+                                      .filter((i) => i.checked)
+                                      .map((i) => i.name)
+                                      .join(", ")
+                                  : item.contains}
+                              </span>
+                            </div>
+                          </div>
+
+                          {globalImgPos === "Center" && (
                             <div
                               style={{
                                 fontWeight: "700",
-                                fontSize: "clamp(16px, 4vw, 20px)",
+                                fontSize: "20px",
                                 color: "var(--primary)",
+                                marginTop: "12px",
                               }}
                             >
                               {item.price}
                             </div>
                           )}
+
+                          {/* Platinum & Premium Online Order Button */}
+                          {isPlatinumOrAbove && (
+                            <div style={{ marginTop: "14px" }}>
+                              {cart.find((c) => c.id === item.id) ? (
+                                <div
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                    backgroundColor: "#f0fdf4",
+                                    border: "1px solid #86efac",
+                                    borderRadius: "8px",
+                                    padding: "4px 10px",
+                                  }}
+                                >
+                                  <button
+                                    type="button"
+                                    onClick={() => updateCartQty(item.id, -1)}
+                                    style={{
+                                      width: "26px",
+                                      height: "26px",
+                                      borderRadius: "50%",
+                                      border: "1px solid #166534",
+                                      backgroundColor: "white",
+                                      color: "#166534",
+                                      cursor: "pointer",
+                                      fontWeight: "bold",
+                                      fontSize: "14px",
+                                    }}
+                                  >
+                                    -
+                                  </button>
+                                  <span
+                                    style={{
+                                      fontWeight: "800",
+                                      fontSize: "14px",
+                                      color: "#166534",
+                                      minWidth: "20px",
+                                      textAlign: "center",
+                                    }}
+                                  >
+                                    {cart.find((c) => c.id === item.id).qty}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => updateCartQty(item.id, 1)}
+                                    style={{
+                                      width: "26px",
+                                      height: "26px",
+                                      borderRadius: "50%",
+                                      border: "1px solid #166534",
+                                      backgroundColor: "#166534",
+                                      color: "white",
+                                      cursor: "pointer",
+                                      fontWeight: "bold",
+                                      fontSize: "14px",
+                                    }}
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => addToCart(item)}
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    padding: "8px 16px",
+                                    borderRadius: "8px",
+                                    backgroundColor: "#10b981",
+                                    color: "white",
+                                    border: "none",
+                                    fontSize: "13px",
+                                    fontWeight: "700",
+                                    cursor: "pointer",
+                                    boxShadow: "0 2px 6px rgba(16,185,129,0.3)",
+                                    transition: "all 0.2s",
+                                  }}
+                                >
+                                  🛒 Order Online
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        <MenuDescription text={item.description} />
 
                         <div
                           style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "4px",
-                            fontSize: "11px",
-                            fontWeight: "700",
-                            letterSpacing: "0.05em",
+                            width: "100%",
+                            maxWidth:
+                              globalImgPos === "Center" ? "600px" : "350px",
+                            height: "clamp(180px, 40vw, 240px)",
+                            borderRadius: "var(--radius-lg)",
+                            overflow: "hidden",
+                            boxShadow: "var(--shadow-2)",
+                            flexShrink: 0,
                           }}
                         >
-                          <div>
-                            <span style={{ color: "var(--gold)" }}>
-                              {t("menu_ingredients")}
-                            </span>{" "}
-                            <span
-                              style={{ color: "#6b7280", fontWeight: "400" }}
-                            >
-                              {Array.isArray(item.ingredients)
-                                ? item.ingredients
-                                    .filter((i) => i.checked)
-                                    .map((i) => i.name)
-                                    .join(", ")
-                                : item.ingredients}
-                            </span>
-                          </div>
-                          <div>
-                            <span style={{ color: "#dc2626" }}>
-                              {t("menu_contains")}
-                            </span>{" "}
-                            <span
-                              style={{ color: "#6b7280", fontWeight: "400" }}
-                            >
-                              {Array.isArray(item.contains)
-                                ? item.contains
-                                    .filter((i) => i.checked)
-                                    .map((i) => i.name)
-                                    .join(", ")
-                                : item.contains}
-                            </span>
-                          </div>
-                        </div>
-
-                        {globalImgPos === "Center" && (
-                          <div
+                          <img
+                            src={item.img}
+                            alt={item.name}
                             style={{
-                              fontWeight: "700",
-                              fontSize: "20px",
-                              color: "var(--primary)",
-                              marginTop: "12px",
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
                             }}
-                          >
-                            {item.price}
-                          </div>
-                        )}
-
-                        {/* Platinum & Premium Online Order Button */}
-                        {isPlatinumOrAbove && (
-                          <div style={{ marginTop: "14px" }}>
-                            {cart.find((c) => c.id === item.id) ? (
-                              <div
-                                style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: "8px",
-                                  backgroundColor: "#f0fdf4",
-                                  border: "1px solid #86efac",
-                                  borderRadius: "8px",
-                                  padding: "4px 10px",
-                                }}
-                              >
-                                <button
-                                  type="button"
-                                  onClick={() => updateCartQty(item.id, -1)}
-                                  style={{
-                                    width: "26px",
-                                    height: "26px",
-                                    borderRadius: "50%",
-                                    border: "1px solid #166534",
-                                    backgroundColor: "white",
-                                    color: "#166534",
-                                    cursor: "pointer",
-                                    fontWeight: "bold",
-                                    fontSize: "14px",
-                                  }}
-                                >
-                                  -
-                                </button>
-                                <span
-                                  style={{
-                                    fontWeight: "800",
-                                    fontSize: "14px",
-                                    color: "#166534",
-                                    minWidth: "20px",
-                                    textAlign: "center",
-                                  }}
-                                >
-                                  {cart.find((c) => c.id === item.id).qty}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => updateCartQty(item.id, 1)}
-                                  style={{
-                                    width: "26px",
-                                    height: "26px",
-                                    borderRadius: "50%",
-                                    border: "1px solid #166534",
-                                    backgroundColor: "#166534",
-                                    color: "white",
-                                    cursor: "pointer",
-                                    fontWeight: "bold",
-                                    fontSize: "14px",
-                                  }}
-                                >
-                                  +
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => addToCart(item)}
-                                style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: "6px",
-                                  padding: "8px 16px",
-                                  borderRadius: "8px",
-                                  backgroundColor: "#10b981",
-                                  color: "white",
-                                  border: "none",
-                                  fontSize: "13px",
-                                  fontWeight: "700",
-                                  cursor: "pointer",
-                                  boxShadow: "0 2px 6px rgba(16,185,129,0.3)",
-                                  transition: "all 0.2s",
-                                }}
-                              >
-                                🛒 Order Online
-                              </button>
-                            )}
-                          </div>
-                        )}
+                          />
+                        </div>
                       </div>
-
-                      <div
-                        style={{
-                          width: "100%",
-                          maxWidth:
-                            globalImgPos === "Center" ? "600px" : "350px",
-                          height: "clamp(180px, 40vw, 240px)",
-                          borderRadius: "var(--radius-lg)",
-                          overflow: "hidden",
-                          boxShadow: "var(--shadow-2)",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <img
-                          src={item.img}
-                          alt={item.name}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
 
-          {/* Restaurant Contact Section */}
-          <section
-            style={{
-              marginTop: "var(--spacing-xxl)",
-              padding: "clamp(20px, 5vw, 60px)",
-              backgroundColor: "#f9fafb",
-              borderRadius: "24px",
-              border: "1px solid var(--platinum)",
-              textAlign: "center",
-            }}
-          >
-            <h2 style={{ fontSize: "28px", marginBottom: "12px" }}>
-              {t("menu_inquiries")}
-            </h2>
-            <p
+            {/* Restaurant Contact Section */}
+            <section
               style={{
-                color: "#6b7280",
-                marginBottom: "32px",
-                maxWidth: "600px",
-                margin: "0 auto 32px auto",
+                marginTop: "var(--spacing-xxl)",
+                padding: "clamp(20px, 5vw, 60px)",
+                backgroundColor: "#f9fafb",
+                borderRadius: "24px",
+                border: "1px solid var(--platinum)",
+                textAlign: "center",
               }}
             >
-              {t("menu_inquiries_desc").replace("{restaurant}", displayName)}
-            </p>
+              <h2 style={{ fontSize: "28px", marginBottom: "12px" }}>
+                {t("menu_inquiries")}
+              </h2>
+              <p
+                style={{
+                  color: "#6b7280",
+                  marginBottom: "32px",
+                  maxWidth: "600px",
+                  margin: "0 auto 32px auto",
+                }}
+              >
+                {t("menu_inquiries_desc").replace("{restaurant}", displayName)}
+              </p>
 
-            <form
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-                gap: "20px",
-                maxWidth: "800px",
-                margin: "0 auto",
-              }}
-            >
-              <input
-                required
-                type="text"
-                placeholder={t("menu_name_ph")}
+              <form
                 style={{
-                  padding: "14px",
-                  borderRadius: "8px",
-                  border: "1px solid var(--platinum)",
-                  fontSize: "14px",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                  gap: "20px",
+                  maxWidth: "800px",
+                  margin: "0 auto",
                 }}
-              />
-              <input
-                required
-                type="email"
-                placeholder={t("menu_email_ph")}
-                style={{
-                  padding: "14px",
-                  borderRadius: "8px",
-                  border: "1px solid var(--platinum)",
-                  fontSize: "14px",
-                }}
-              />
-              <div style={{ gridColumn: "1 / -1" }}>
-                <textarea
+              >
+                <input
                   required
-                  rows="4"
-                  placeholder={t("menu_message_ph")}
+                  type="text"
+                  placeholder={t("menu_name_ph")}
                   style={{
-                    width: "100%",
                     padding: "14px",
                     borderRadius: "8px",
                     border: "1px solid var(--platinum)",
                     fontSize: "14px",
-                    fontFamily: "inherit",
                   }}
                 />
-              </div>
-              <div style={{ gridColumn: "1 / -1" }}>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ width: "100%", padding: "16px" }}
-                >
-                  {t("menu_send_msg")}
-                </button>
-              </div>
-            </form>
-          </section>
+                <input
+                  required
+                  type="email"
+                  placeholder={t("menu_email_ph")}
+                  style={{
+                    padding: "14px",
+                    borderRadius: "8px",
+                    border: "1px solid var(--platinum)",
+                    fontSize: "14px",
+                  }}
+                />
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <textarea
+                    required
+                    rows="4"
+                    placeholder={t("menu_message_ph")}
+                    style={{
+                      width: "100%",
+                      padding: "14px",
+                      borderRadius: "8px",
+                      border: "1px solid var(--platinum)",
+                      fontSize: "14px",
+                      fontFamily: "inherit",
+                    }}
+                  />
+                </div>
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    style={{ width: "100%", padding: "16px" }}
+                  >
+                    {t("menu_send_msg")}
+                  </button>
+                </div>
+              </form>
+            </section>
+          </div>
         </div>
       </div>
-    </div>
 
       {/* Floating View Order Cart Button (Platinum & Premium) */}
       {isPlatinumOrAbove && totalCartItems > 0 && (
@@ -893,7 +913,13 @@ const MenuPage = () => {
             }}
           >
             <span>🛍️ View Order ({totalCartItems})</span>
-            <span style={{ backgroundColor: "rgba(255,255,255,0.25)", padding: "4px 10px", borderRadius: "14px" }}>
+            <span
+              style={{
+                backgroundColor: "rgba(255,255,255,0.25)",
+                padding: "4px 10px",
+                borderRadius: "14px",
+              }}
+            >
               ${totalCartPrice.toFixed(2)}
             </span>
           </button>
@@ -929,13 +955,35 @@ const MenuPage = () => {
               boxShadow: "0 20px 25px -5px rgba(0,0,0,0.15)",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px", borderBottom: "1px solid #f3f4f6", paddingBottom: "12px" }}>
-              <h3 style={{ margin: 0, fontSize: "20px", fontWeight: "800", color: "#111827" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "18px",
+                borderBottom: "1px solid #f3f4f6",
+                paddingBottom: "12px",
+              }}
+            >
+              <h3
+                style={{
+                  margin: 0,
+                  fontSize: "20px",
+                  fontWeight: "800",
+                  color: "#111827",
+                }}
+              >
                 🛍️ Online Order — {displayName}
               </h3>
               <button
                 onClick={() => setIsCheckoutOpen(false)}
-                style={{ background: "none", border: "none", fontSize: "22px", cursor: "pointer", color: "#9ca3af" }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "22px",
+                  cursor: "pointer",
+                  color: "#9ca3af",
+                }}
               >
                 ✕
               </button>
@@ -956,7 +1004,13 @@ const MenuPage = () => {
                 flexWrap: "wrap",
               }}
             >
-              <div style={{ fontSize: "12px", color: "#166534", fontWeight: "600" }}>
+              <div
+                style={{
+                  fontSize: "12px",
+                  color: "#166534",
+                  fontWeight: "600",
+                }}
+              >
                 📞 Call or Text Owner Direct: <strong>{restaurantPhone}</strong>
               </div>
               <div style={{ display: "flex", gap: "8px" }}>
@@ -994,15 +1048,43 @@ const MenuPage = () => {
             {orderSuccess ? (
               <div style={{ textAlign: "center", padding: "20px 10px" }}>
                 <div style={{ fontSize: "52px", marginBottom: "10px" }}>🎉</div>
-                <h3 style={{ color: "#10b981", margin: "0 0 6px 0", fontSize: "22px", fontWeight: "800" }}>
+                <h3
+                  style={{
+                    color: "#10b981",
+                    margin: "0 0 6px 0",
+                    fontSize: "22px",
+                    fontWeight: "800",
+                  }}
+                >
                   Order &amp; Reservation Submitted!
                 </h3>
-                <p style={{ color: "#374151", fontSize: "14px", margin: "10px 0 16px 0", lineHeight: "1.5" }}>
-                  An automated <strong>Email Notification</strong> and <strong>SMS Text Alert</strong> have been sent to both you and the restaurant owner so you can confirm directly with each other!
+                <p
+                  style={{
+                    color: "#374151",
+                    fontSize: "14px",
+                    margin: "10px 0 16px 0",
+                    lineHeight: "1.5",
+                  }}
+                >
+                  An automated <strong>Email Notification</strong> and{" "}
+                  <strong>SMS Text Alert</strong> have been sent to both you and
+                  the restaurant owner so you can confirm directly with each
+                  other!
                 </p>
-                <div style={{ backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "12px", padding: "14px", textAlign: "left", marginBottom: "20px", fontSize: "13px" }}>
+                <div
+                  style={{
+                    backgroundColor: "#f0fdf4",
+                    border: "1px solid #bbf7d0",
+                    borderRadius: "12px",
+                    padding: "14px",
+                    textAlign: "left",
+                    marginBottom: "20px",
+                    fontSize: "13px",
+                  }}
+                >
                   <div style={{ marginBottom: "6px", color: "#166534" }}>
-                    <strong>📧 Customer Email:</strong> {orderForm.email || "Sent to your email"}
+                    <strong>📧 Customer Email:</strong>{" "}
+                    {orderForm.email || "Sent to your email"}
                   </div>
                   <div style={{ marginBottom: "6px", color: "#166534" }}>
                     <strong>📱 Customer Phone:</strong> {orderForm.phone}
@@ -1032,14 +1114,46 @@ const MenuPage = () => {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handlePlaceOrder} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <form
+                onSubmit={handlePlaceOrder}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "14px",
+                }}
+              >
                 {/* Order Items List & In-Modal Menu Picker */}
-                <div style={{ backgroundColor: "#fafafa", borderRadius: "10px", padding: "14px", border: "1px solid #e2e8f0" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                    <h4 style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#1e293b" }}>Your Order Items</h4>
+                <div
+                  style={{
+                    backgroundColor: "#fafafa",
+                    borderRadius: "10px",
+                    padding: "14px",
+                    border: "1px solid #e2e8f0",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <h4
+                      style={{
+                        margin: 0,
+                        fontSize: "14px",
+                        fontWeight: "700",
+                        color: "#1e293b",
+                      }}
+                    >
+                      Your Order Items
+                    </h4>
                     <button
                       type="button"
-                      onClick={() => setShowQuickMenuPicker(!showQuickMenuPicker)}
+                      onClick={() =>
+                        setShowQuickMenuPicker(!showQuickMenuPicker)
+                      }
                       style={{
                         background: "none",
                         border: "none",
@@ -1049,27 +1163,76 @@ const MenuPage = () => {
                         cursor: "pointer",
                       }}
                     >
-                      {showQuickMenuPicker ? "▲ Hide Menu Picker" : "➕ Add Items from Menu"}
+                      {showQuickMenuPicker
+                        ? "▲ Hide Menu Picker"
+                        : "➕ Add Items from Menu"}
                     </button>
                   </div>
 
                   {cart.length === 0 ? (
-                    <div style={{ textAlign: "center", padding: "12px 10px", backgroundColor: "#f8fafc", borderRadius: "8px", border: "1px dashed #cbd5e1", marginBottom: "10px" }}>
-                      <p style={{ margin: "0 0 6px 0", fontSize: "13px", color: "#64748b", fontWeight: "600" }}>
-                        Your cart is empty! Select items below to place your order:
+                    <div
+                      style={{
+                        textAlign: "center",
+                        padding: "12px 10px",
+                        backgroundColor: "#f8fafc",
+                        borderRadius: "8px",
+                        border: "1px dashed #cbd5e1",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          margin: "0 0 6px 0",
+                          fontSize: "13px",
+                          color: "#64748b",
+                          fontWeight: "600",
+                        }}
+                      >
+                        Your cart is empty! Select items below to place your
+                        order:
                       </p>
                     </div>
                   ) : (
                     cart.map((item) => (
-                      <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px", fontSize: "13px", padding: "6px 10px", backgroundColor: "white", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                      <div
+                        key={item.id}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: "6px",
+                          fontSize: "13px",
+                          padding: "6px 10px",
+                          backgroundColor: "white",
+                          borderRadius: "6px",
+                          border: "1px solid #e2e8f0",
+                        }}
+                      >
                         <div>
-                          <strong>{item.name}</strong> <span style={{ color: "#64748b" }}>(${item.price})</span>
+                          <strong>{item.name}</strong>{" "}
+                          <span style={{ color: "#64748b" }}>
+                            (${item.price})
+                          </span>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                          }}
+                        >
                           <button
                             type="button"
                             onClick={() => updateCartQty(item.id, -1)}
-                            style={{ width: "22px", height: "22px", borderRadius: "4px", border: "1px solid #cbd5e1", background: "#f8fafc", cursor: "pointer", fontWeight: "bold" }}
+                            style={{
+                              width: "22px",
+                              height: "22px",
+                              borderRadius: "4px",
+                              border: "1px solid #cbd5e1",
+                              background: "#f8fafc",
+                              cursor: "pointer",
+                              fontWeight: "bold",
+                            }}
                           >
                             -
                           </button>
@@ -1077,11 +1240,21 @@ const MenuPage = () => {
                           <button
                             type="button"
                             onClick={() => updateCartQty(item.id, 1)}
-                            style={{ width: "22px", height: "22px", borderRadius: "4px", border: "1px solid #cbd5e1", background: "#f8fafc", cursor: "pointer", fontWeight: "bold" }}
+                            style={{
+                              width: "22px",
+                              height: "22px",
+                              borderRadius: "4px",
+                              border: "1px solid #cbd5e1",
+                              background: "#f8fafc",
+                              cursor: "pointer",
+                              fontWeight: "bold",
+                            }}
                           >
                             +
                           </button>
-                          <strong style={{ marginLeft: "6px", color: "#0f172a" }}>
+                          <strong
+                            style={{ marginLeft: "6px", color: "#0f172a" }}
+                          >
                             ${(item.numericPrice * item.qty).toFixed(2)}
                           </strong>
                         </div>
@@ -1091,24 +1264,74 @@ const MenuPage = () => {
 
                   {/* Expandable Quick Menu Picker List inside Modal */}
                   {showQuickMenuPicker && (
-                    <div style={{ marginTop: "10px", borderTop: "1px solid #e2e8f0", paddingTop: "10px", maxHeight: "200px", overflowY: "auto" }}>
-                      <strong style={{ fontSize: "11px", color: "#64748b", display: "block", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    <div
+                      style={{
+                        marginTop: "10px",
+                        borderTop: "1px solid #e2e8f0",
+                        paddingTop: "10px",
+                        maxHeight: "200px",
+                        overflowY: "auto",
+                      }}
+                    >
+                      <strong
+                        style={{
+                          fontSize: "11px",
+                          color: "#64748b",
+                          display: "block",
+                          marginBottom: "8px",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                        }}
+                      >
                         🍽️ Select Dishes &amp; Drinks to Add:
                       </strong>
                       {allMenuItems.length > 0 ? (
                         allMenuItems.map((item) => {
                           const inCart = cart.find((c) => c.id === item.id);
                           return (
-                            <div key={item.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 8px", marginBottom: "6px", backgroundColor: "white", borderRadius: "6px", border: "1px solid #e2e8f0", fontSize: "13px" }}>
-                              <div style={{ minWidth: 0, flex: 1, paddingRight: "8px" }}>
-                                <strong style={{ color: "#0f172a", display: "block" }}>{item.name}</strong>
-                                <span style={{ color: "#166534", fontWeight: "700", fontSize: "12px" }}>{item.price}</span>
+                            <div
+                              key={item.id}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                padding: "6px 8px",
+                                marginBottom: "6px",
+                                backgroundColor: "white",
+                                borderRadius: "6px",
+                                border: "1px solid #e2e8f0",
+                                fontSize: "13px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  minWidth: 0,
+                                  flex: 1,
+                                  paddingRight: "8px",
+                                }}
+                              >
+                                <strong
+                                  style={{ color: "#0f172a", display: "block" }}
+                                >
+                                  {item.name}
+                                </strong>
+                                <span
+                                  style={{
+                                    color: "#166534",
+                                    fontWeight: "700",
+                                    fontSize: "12px",
+                                  }}
+                                >
+                                  {item.price}
+                                </span>
                               </div>
                               <button
                                 type="button"
                                 onClick={() => addToCart(item)}
                                 style={{
-                                  backgroundColor: inCart ? "#166534" : "#2563eb",
+                                  backgroundColor: inCart
+                                    ? "#166534"
+                                    : "#2563eb",
                                   color: "white",
                                   border: "none",
                                   padding: "5px 12px",
@@ -1119,138 +1342,329 @@ const MenuPage = () => {
                                   whiteSpace: "nowrap",
                                 }}
                               >
-                                {inCart ? `+ Add More (${inCart.qty})` : "+ Add"}
+                                {inCart
+                                  ? `+ Add More (${inCart.qty})`
+                                  : "+ Add"}
                               </button>
                             </div>
                           );
                         })
                       ) : (
-                        <div style={{ fontSize: "12px", color: "#64748b" }}>No menu items found.</div>
+                        <div style={{ fontSize: "12px", color: "#64748b" }}>
+                          No menu items found.
+                        </div>
                       )}
                     </div>
                   )}
 
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #e2e8f0", paddingTop: "10px", marginTop: "10px", fontWeight: "800", fontSize: "15px", color: "#0f172a" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      borderTop: "1px solid #e2e8f0",
+                      paddingTop: "10px",
+                      marginTop: "10px",
+                      fontWeight: "800",
+                      fontSize: "15px",
+                      color: "#0f172a",
+                    }}
+                  >
                     <span>Total Amount:</span>
-                    <span style={{ color: "#166534", fontSize: "18px" }}>${totalCartPrice.toFixed(2)}</span>
+                    <span style={{ color: "#166534", fontSize: "18px" }}>
+                      ${totalCartPrice.toFixed(2)}
+                    </span>
                   </div>
                 </div>
 
                 {/* Order Type Selector */}
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "700", marginBottom: "6px" }}>Order Option *</label>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "13px",
+                      fontWeight: "700",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    Order Option *
+                  </label>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr 1fr",
+                      gap: "8px",
+                    }}
+                  >
                     {["Dine-In", "Takeout", "Delivery"].map((type) => (
                       <button
                         type="button"
                         key={type}
-                        onClick={() => setOrderForm({ ...orderForm, orderType: type })}
+                        onClick={() =>
+                          setOrderForm({ ...orderForm, orderType: type })
+                        }
                         style={{
                           padding: "8px",
                           borderRadius: "6px",
-                          border: orderForm.orderType === type ? "2px solid #10b981" : "1px solid #d1d5db",
-                          backgroundColor: orderForm.orderType === type ? "#ecfdf5" : "white",
-                          color: orderForm.orderType === type ? "#065f46" : "#374151",
+                          border:
+                            orderForm.orderType === type
+                              ? "2px solid #10b981"
+                              : "1px solid #d1d5db",
+                          backgroundColor:
+                            orderForm.orderType === type ? "#ecfdf5" : "white",
+                          color:
+                            orderForm.orderType === type
+                              ? "#065f46"
+                              : "#374151",
                           fontWeight: "700",
                           fontSize: "12px",
                           cursor: "pointer",
                         }}
                       >
-                        {type === "Dine-In" ? "🍽️ Dine-In" : type === "Takeout" ? "🛍️ Takeout" : "🛵 Delivery"}
+                        {type === "Dine-In"
+                          ? "🍽️ Dine-In"
+                          : type === "Takeout"
+                            ? "🛍️ Takeout"
+                            : "🛵 Delivery"}
                       </button>
                     ))}
                   </div>
                 </div>
 
                 {/* Contact Inputs */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr 1fr",
+                    gap: "10px",
+                  }}
+                >
                   <div>
-                    <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Your Name *</label>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Your Name *
+                    </label>
                     <input
                       type="text"
                       required
                       placeholder="e.g. Belaye"
                       value={orderForm.customerName}
-                      onChange={(e) => setOrderForm({ ...orderForm, customerName: e.target.value })}
-                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                      onChange={(e) =>
+                        setOrderForm({
+                          ...orderForm,
+                          customerName: e.target.value,
+                        })
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px 10px",
+                        borderRadius: "6px",
+                        border: "1px solid #d1d5db",
+                        fontSize: "13px",
+                      }}
                     />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Email Address *</label>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Email Address *
+                    </label>
                     <input
                       type="email"
                       required
                       placeholder="your@email.com"
                       value={orderForm.email}
-                      onChange={(e) => setOrderForm({ ...orderForm, email: e.target.value })}
-                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                      onChange={(e) =>
+                        setOrderForm({ ...orderForm, email: e.target.value })
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px 10px",
+                        borderRadius: "6px",
+                        border: "1px solid #d1d5db",
+                        fontSize: "13px",
+                      }}
                     />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Phone Number *</label>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Phone Number *
+                    </label>
                     <input
                       type="tel"
                       required
                       placeholder="+1 571 342 9228"
                       value={orderForm.phone}
-                      onChange={(e) => setOrderForm({ ...orderForm, phone: e.target.value })}
-                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                      onChange={(e) =>
+                        setOrderForm({ ...orderForm, phone: e.target.value })
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px 10px",
+                        borderRadius: "6px",
+                        border: "1px solid #d1d5db",
+                        fontSize: "13px",
+                      }}
                     />
                   </div>
                 </div>
 
                 {orderForm.orderType === "Dine-In" && (
                   <div>
-                    <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Table Number (optional)</label>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Table Number (optional)
+                    </label>
                     <input
                       type="text"
                       placeholder="e.g. Table 5"
                       value={orderForm.tableNumber}
-                      onChange={(e) => setOrderForm({ ...orderForm, tableNumber: e.target.value })}
-                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                      onChange={(e) =>
+                        setOrderForm({
+                          ...orderForm,
+                          tableNumber: e.target.value,
+                        })
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px 10px",
+                        borderRadius: "6px",
+                        border: "1px solid #d1d5db",
+                        fontSize: "13px",
+                      }}
                     />
                   </div>
                 )}
 
                 {orderForm.orderType === "Delivery" && (
                   <div>
-                    <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Delivery Address *</label>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Delivery Address *
+                    </label>
                     <input
                       type="text"
                       required
                       placeholder="Bole Road, Addis Ababa"
                       value={orderForm.deliveryAddress}
-                      onChange={(e) => setOrderForm({ ...orderForm, deliveryAddress: e.target.value })}
-                      style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                      onChange={(e) =>
+                        setOrderForm({
+                          ...orderForm,
+                          deliveryAddress: e.target.value,
+                        })
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px 10px",
+                        borderRadius: "6px",
+                        border: "1px solid #d1d5db",
+                        fontSize: "13px",
+                      }}
                     />
                   </div>
                 )}
 
                 <div>
-                  <label style={{ display: "block", fontSize: "12px", fontWeight: "600", marginBottom: "4px" }}>Special Notes (optional)</label>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "12px",
+                      fontWeight: "600",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    Special Notes (optional)
+                  </label>
                   <textarea
                     rows="2"
                     placeholder="e.g. Extra sauce on the side..."
                     value={orderForm.specialInstructions}
-                    onChange={(e) => setOrderForm({ ...orderForm, specialInstructions: e.target.value })}
-                    style={{ width: "100%", padding: "8px 10px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "13px" }}
+                    onChange={(e) =>
+                      setOrderForm({
+                        ...orderForm,
+                        specialInstructions: e.target.value,
+                      })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "8px 10px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "13px",
+                    }}
                   />
                 </div>
 
-                <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "10px", paddingTop: "10px", borderTop: "1px solid #f3f4f6" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    justifyContent: "flex-end",
+                    marginTop: "10px",
+                    paddingTop: "10px",
+                    borderTop: "1px solid #f3f4f6",
+                  }}
+                >
                   <button
                     type="button"
                     onClick={() => setIsCheckoutOpen(false)}
-                    style={{ padding: "8px 16px", borderRadius: "6px", border: "1px solid #d1d5db", backgroundColor: "white", cursor: "pointer" }}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      backgroundColor: "white",
+                      cursor: "pointer",
+                    }}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={orderSubmitting}
-                    style={{ padding: "10px 20px", borderRadius: "6px", backgroundColor: "#10b981", color: "white", border: "none", fontWeight: "700", cursor: "pointer" }}
+                    style={{
+                      padding: "10px 20px",
+                      borderRadius: "6px",
+                      backgroundColor: "#10b981",
+                      color: "white",
+                      border: "none",
+                      fontWeight: "700",
+                      cursor: "pointer",
+                    }}
                   >
-                    {orderSubmitting ? "⏳ Placing Order..." : "🚀 Place Order ($" + totalCartPrice.toFixed(2) + ")"}
+                    {orderSubmitting
+                      ? "⏳ Placing Order..."
+                      : "🚀 Place Order ($" + totalCartPrice.toFixed(2) + ")"}
                   </button>
                 </div>
               </form>

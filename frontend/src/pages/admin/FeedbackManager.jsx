@@ -77,7 +77,7 @@ const FeedbackManager = () => {
           <strong>Premium</strong> plan.
         </p>
         <Link
-          to={`/bulebeti/${restaurantName}/admin/settings`}
+          to={`/maedbet/${restaurantName}/admin/settings`}
           style={{
             padding: "10px 20px",
             backgroundColor: "var(--primary)",

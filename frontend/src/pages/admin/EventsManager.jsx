@@ -74,7 +74,7 @@ const EventsManager = () => {
         <button
           onClick={() =>
             isPremiumOrPlatinum
-              ? navigate(`/bulebeti/${restaurantName}/admin/events/create`)
+              ? navigate(`/maedbet/${restaurantName}/admin/events/create`)
               : null
           }
           className={`btn ${isPremiumOrPlatinum ? "btn-primary" : "btn-outline"}`}
@@ -223,7 +223,7 @@ const EventsManager = () => {
                       <button
                         onClick={() =>
                           navigate(
-                            `/bulebeti/${restaurantName}/admin/events/edit/${ev._id}`,
+                            `/maedbet/${restaurantName}/admin/events/edit/${ev._id}`,
                           )
                         }
                         style={{

@@ -39,7 +39,7 @@ const EventsPage = () => {
     fetchEvents();
   }, [restaurantName]);
 
-  const displayName = restaurant?.name || "BuleBet Platform";
+  const displayName = restaurant?.name || "MaedBet Platform";
 
   return (
     <div style={{ padding: "40px 0 80px 0", backgroundColor: "var(--surface-bright)" }}>
@@ -127,7 +127,7 @@ const EventsPage = () => {
             </p>
             {restaurantName && (
               <Link
-                to={`/bulebeti/${restaurantName}/reservations`}
+                to={`/maedbet/${restaurantName}/reservations`}
                 className="btn btn-primary mt-3"
               >
                 Reserve a Table

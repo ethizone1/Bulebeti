@@ -54,7 +54,9 @@ const MenuReview = () => {
             item.id === id ? { ...item, status: "Reviewed" } : item,
           ),
         );
-        alert("Menu item approved and officially registered in the bulebeti Network!");
+        alert(
+          "Menu item approved and officially registered in the MaedBet Network!",
+        );
       } else {
         alert("Failed to update menu item in database");
       }

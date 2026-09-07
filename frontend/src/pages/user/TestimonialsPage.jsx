@@ -6,7 +6,7 @@ import config from "../../config";
 const FALLBACK_TESTIMONIALS = [
   {
     name: "Julianne Vance",
-    text: "BuleBet has completely transformed how we manage our high-profile catering events. The precision is unmatched.",
+    text: "MaedBet has completely transformed how we manage our high-profile catering events. The precision is unmatched.",
     rating: 5,
     date: "May 1, 2026",
   },
@@ -108,7 +108,7 @@ const TestimonialsPage = () => {
           current subscription tier.
         </p>
         <Link
-          to={`/bulebeti/${restaurantName}`}
+          to={`/maedbet/${restaurantName}`}
           className="btn btn-primary"
           style={{ marginTop: "20px" }}
         >
@@ -154,7 +154,7 @@ const TestimonialsPage = () => {
           >
             {restaurant
               ? `Read reviews and culinary feedback left by our distinguished guests at ${restaurant.name}.`
-              : "Hear from the industry leaders who have elevated their business with BuleBet."}
+              : "Hear from the industry leaders who have elevated their business with MaedBet."}
           </p>
         </header>
 

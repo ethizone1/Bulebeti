@@ -81,9 +81,15 @@ router.post("/", async (req, res) => {
 // Get catering requests for a specific restaurant (Requires auth & management access)
 router.get("/restaurant/:restaurantId", auth, async (req, res) => {
   try {
-    const authorized = await canManageRestaurant(req.user.id, req.user.role, req.params.restaurantId);
+    const authorized = await canManageRestaurant(
+      req.user.id,
+      req.user.role,
+      req.params.restaurantId,
+    );
     if (!authorized) {
-      return res.status(403).json({ msg: "Forbidden: Access denied to restaurant catering requests" });
+      return res.status(403).json({
+        msg: "Forbidden: Access denied to restaurant catering requests",
+      });
     }
 
     const requests = await CateringRequest.find({
@@ -106,7 +112,11 @@ router.put("/:id", auth, async (req, res) => {
       return res.status(404).json({ msg: "Catering request not found" });
     }
 
-    const authorized = await canManageRestaurant(req.user.id, req.user.role, cateringRequest.restaurantId);
+    const authorized = await canManageRestaurant(
+      req.user.id,
+      req.user.role,
+      cateringRequest.restaurantId,
+    );
     if (!authorized) {
       return res.status(403).json({ msg: "Forbidden: Access denied" });
     }

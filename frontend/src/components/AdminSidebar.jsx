@@ -86,14 +86,16 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
   const ownerEmail = owner?.email || "";
   // Check if owner or admin
   const currentUserIdStr = String(owner?._id || owner?.id || "");
-  const ownerIdStr = String(restaurant?.ownerId?._id || restaurant?.ownerId || "");
+  const ownerIdStr = String(
+    restaurant?.ownerId?._id || restaurant?.ownerId || "",
+  );
   const isOwner =
     (ownerIdStr && currentUserIdStr && ownerIdStr === currentUserIdStr) ||
     owner?.role === "hub owner" ||
     owner?.role === "super-admin";
 
   const adminRecord = restaurant?.admins?.find(
-    (a) => String(a.user?._id || a.user?.id || a.user) === currentUserIdStr
+    (a) => String(a.user?._id || a.user?.id || a.user) === currentUserIdStr,
   );
   const userRole = isOwner ? "Owner" : "Sub-Admin";
   const userPermissions = isOwner ? ["all"] : adminRecord?.permissions || [];
@@ -106,7 +108,11 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
     .toUpperCase();
   const restaurantDisplayName =
     restaurant?.name ||
-    (restaurantName ? restaurantName.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "Restaurant");
+    (restaurantName
+      ? restaurantName
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase())
+      : "Restaurant");
 
   const allMenuItems = [
     {
@@ -244,12 +250,22 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
           {/* bulebeti Hub → admin dashboard */}
           <Link
             to={`/bulebeti/${restaurantName}/admin`}
-            style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "10px" }}
+            style={{
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
           >
             <img
               src="/bulebet_emblem.png"
               alt="BuleBet Logo"
-              style={{ height: "36px", width: "36px", objectFit: "cover", borderRadius: "50%" }}
+              style={{
+                height: "36px",
+                width: "36px",
+                objectFit: "cover",
+                borderRadius: "50%",
+              }}
             />
             <div>
               <h2
@@ -263,7 +279,16 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
                   lineHeight: 1,
                 }}
               >
-                BuleBet <span style={{ color: "var(--gold)", fontSize: "14px", fontWeight: "700" }}>HUB</span>
+                BuleBet{" "}
+                <span
+                  style={{
+                    color: "var(--gold)",
+                    fontSize: "14px",
+                    fontWeight: "700",
+                  }}
+                >
+                  HUB
+                </span>
               </h2>
             </div>
           </Link>

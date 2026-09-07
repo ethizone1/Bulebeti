@@ -75,12 +75,12 @@ const ContactPage = () => {
     }
   };
 
-  const displayName = restaurant?.name || "BuleBet";
+  const displayName = restaurant?.name || "MaedBet";
   const displayAddress =
     restaurant?.address || "Location details available upon reservation";
   const displayPhone = restaurant?.phone || "Direct phone line available";
   const displayEmail =
-    restaurant?.email || `info@${restaurantName || "bulebeti"}.com`;
+    restaurant?.email || `info@${restaurantName || "maedbet"}.com`;
   const openingHours = restaurant?.openingHours;
 
   return (

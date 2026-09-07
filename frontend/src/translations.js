@@ -66,7 +66,7 @@ export const translations = {
     login_email_placeholder: "name@example.com or +1...",
     login_send_code: "Send Verification Code",
     login_or: "OR",
-    login_new: "New to BuleBet?",
+    login_new: "New to MaedBet?",
     login_partner: "Partner with us",
     login_verify_title: "Verify Identity",
     login_sent_code: "We've sent a 6-digit code to",
@@ -79,7 +79,7 @@ export const translations = {
     // Registration Page
     reg_title: "Register Your Restaurant",
     reg_subtitle:
-      "Join the BuleBet network and elevate your management experience.",
+      "Join the MaedBet network and elevate your management experience.",
     reg_rest_name: "Restaurant Name",
     reg_rest_name_ph: "e.g. The Golden Truffle",
     reg_owner_name: "Owner Name",
@@ -98,7 +98,7 @@ export const translations = {
       "CONNECTED TO GOOGLE MAPS: Precise geocoding enabled for your public menu page.",
     reg_social: "Social Profiles (Optional)",
     reg_social_ph: "Your {platform} handle",
-    reg_connect_hub: "Connect with BuleBet Hub",
+    reg_connect_hub: "Connect with MaedBet Hub",
     reg_submit: "Create Your Hub",
     reg_already: "Already have an account?",
     reg_login: "Log in",
@@ -129,12 +129,12 @@ export const translations = {
     // Landing Page
     landing_hero_title: "The Digital Concierge for Elite Dining",
     landing_hero_desc:
-      "BuleBet empowers restaurant owners with high-efficiency management tools while providing diners with an aspirational luxury experience.",
+      "MaedBet empowers restaurant owners with high-efficiency management tools while providing diners with an aspirational luxury experience.",
     landing_get_started: "Get Started",
     landing_explore: "Explore Menu",
     landing_registered_restaurants: "Registered Restaurants",
     landing_registered_restaurants_desc:
-      "Explore elite dining experiences powered by BuleBet. Click on a restaurant to view their custom landing page, menu, and reservation system.",
+      "Explore elite dining experiences powered by MaedBet. Click on a restaurant to view their custom landing page, menu, and reservation system.",
     landing_visit_restaurant: "Visit Restaurant",
     landing_no_restaurants: "No registered restaurants found yet.",
     landing_loading_restaurants: "Loading premier venues...",
@@ -149,7 +149,7 @@ export const translations = {
     landing_feat3_desc:
       "Easily manage multiple locations and staff from a single authoritative source.",
 
-    landing_pricing_title: "Select Your BuleBet Hub Tier",
+    landing_pricing_title: "Select Your MaedBet Hub Tier",
     landing_launch_badge: "LIMITED LAUNCH PROMO",
     landing_tier_silver: "Basic",
     landing_free: "Free",
@@ -178,7 +178,7 @@ export const translations = {
     landing_plat_f2: "✓ Reservation & Catering SMS",
     landing_plat_f3: "✓ Photo Gallery User Page",
     landing_plat_f4: "✓ Reply to Comments",
-    landing_plat_f5: "✓ BuleBet Signature Page",
+    landing_plat_f5: "✓ MaedBet Signature Page",
     landing_plat_f6: "✓ Up to 3 Locations",
 
     landing_tier_prem: "Premium",
@@ -194,11 +194,11 @@ export const translations = {
 
     // Admin Dashboard
     admin_dash_title: "Admin Dashboard",
-    admin_dash_subtitle: "Overview of your BuleBet Restaurant operations.",
+    admin_dash_subtitle: "Overview of your MaedBet Restaurant operations.",
     admin_dash_plan: "PLAN",
     admin_dash_quick_tour: "Quick Tour",
 
-    admin_tour_1_title: "Welcome to BuleBet Hub",
+    admin_tour_1_title: "Welcome to MaedBet Hub",
     admin_tour_1_desc:
       "This is your central command center. From here, you can manage your signature menu, oversee all guest interactions, and scale your restaurant operations.",
     admin_tour_2_title: "Menu Excellence",
@@ -397,7 +397,7 @@ export const translations = {
     admin_set_not_fb: "Feedback Notifications",
     admin_set_not_fb_d: "Receive a summary of weekly guest ratings.",
     admin_set_not_mkt: "Marketing Emails",
-    admin_set_not_mkt_d: "Updates about new BuleBet platform features.",
+    admin_set_not_mkt_d: "Updates about new MaedBet platform features.",
 
     // Layout
     admin_set_lay_title: "Global Menu Presentation",
@@ -490,7 +490,7 @@ export const translations = {
     login_email_placeholder: "name@example.com ወይም +1...",
     login_send_code: "የማረጋገጫ ኮድ ላክ",
     login_or: "ወይም",
-    login_new: "ለ BuleBet አዲስ ነዎት?",
+    login_new: "ለ MaedBet አዲስ ነዎት?",
     login_partner: "ከእኛ ጋር አጋር ይሁኑ",
     login_verify_title: "ማንነት ያረጋግጡ",
     login_sent_code: "ባለ 6-አሃዝ ኮድ ልከናል ወደ",
@@ -502,7 +502,7 @@ export const translations = {
 
     // Registration Page
     reg_title: "ምግብ ቤትዎን ይመዝገቡ",
-    reg_subtitle: "የBuleBet አውታረ መረብን ይቀላቀሉ እና የአስተዳደር ልምድዎን ያሳድጉ።",
+    reg_subtitle: "የMaedBet አውታረ መረብን ይቀላቀሉ እና የአስተዳደር ልምድዎን ያሳድጉ።",
     reg_rest_name: "የምግብ ቤቱ ስም",
     reg_rest_name_ph: "ምሳሌ: ዘ ጎልደን ትራፍል",
     reg_owner_name: "የባለቤት ስም",
@@ -521,7 +521,7 @@ export const translations = {
       "ከGoogle ካርታዎች ጋር ተገናኝቷል፡ ትክክለኛ ቦታ ለሕዝብ ምናለዎ ገቢር ተደርጓል።",
     reg_social: "ማህበራዊ ገጾች (አማራጭ)",
     reg_social_ph: "የ{platform} ስምዎ",
-    reg_connect_hub: "ከ BuleBet Hub ጋር ይገናኙ",
+    reg_connect_hub: "ከ MaedBet Hub ጋር ይገናኙ",
     reg_submit: "የእርስዎን Hub ይፍጠሩ",
     reg_already: "አካውንት አለዎት?",
     reg_login: "ግባ",
@@ -551,12 +551,12 @@ export const translations = {
     // Landing Page
     landing_hero_title: "ለከፍተኛ ደረጃ ምግብ ቤቶች ዲጂታል አስተዳደር",
     landing_hero_desc:
-      "BuleBet የምግብ ቤት ባለቤቶችን በከፍተኛ ብቃት የማስተዳደር መሳሪያዎች ያበረታታል፣ ለተመጋቢዎች ደግሞ የቅንጦት ልምድ ይሰጣል።",
+      "MaedBet የምግብ ቤት ባለቤቶችን በከፍተኛ ብቃት የማስተዳደር መሳሪያዎች ያበረታታል፣ ለተመጋቢዎች ደግሞ የቅንጦት ልምድ ይሰጣል።",
     landing_get_started: "አሁኑኑ ይጀምሩ",
     landing_explore: "ምናለውን ያስሱ",
     landing_registered_restaurants: "የተመዘገቡ ሬስቶራንቶች",
     landing_registered_restaurants_desc:
-      "በBuleBet የሚደገፉ ከፍተኛ ደረጃ ያላቸውን የምግብ ቤቶች ልምድ ያስሱ። ምናለያቸውን እና ቦታ ማስያዣዎቻቸውን ለማየት ሬስቶራንት ላይ ይጫኑ።",
+      "በMaedBet የሚደገፉ ከፍተኛ ደረጃ ያላቸውን የምግብ ቤቶች ልምድ ያስሱ። ምናለያቸውን እና ቦታ ማስያዣዎቻቸውን ለማየት ሬስቶራንት ላይ ይጫኑ።",
     landing_visit_restaurant: "ሬስቶራንቱን ይጎብኙ",
     landing_no_restaurants: "እስካሁን የተመዘገቡ ሬስቶራንቶች አልተገኙም።",
     landing_loading_restaurants: "ሬስቶራንቶችን በመጫን ላይ...",
@@ -568,7 +568,7 @@ export const translations = {
     landing_feat3_title: "እንከን የለሽ ውህደት",
     landing_feat3_desc: "በርካታ ቅርንጫፎችን እና ሰራተኞችን ከአንድ ማዕከላዊ ምንጭ በቀላሉ ያስተዳድሩ።",
 
-    landing_pricing_title: "የ BuleBet Hub ደረጃዎን ይምረጡ",
+    landing_pricing_title: "የ MaedBet Hub ደረጃዎን ይምረጡ",
     landing_launch_badge: "የጅማሮ ልዩ ቅናሽ",
     landing_tier_silver: "ቤዚክ (Basic)",
     landing_free: "ነፃ",
@@ -597,7 +597,7 @@ export const translations = {
     landing_plat_f2: "✓ የቦታ ማስያዝ እና የዝግጅት ኤስኤምኤስ",
     landing_plat_f3: "✓ የፎቶ ማዕከለ-ስዕላት",
     landing_plat_f4: "✓ ለአስተያየቶች ምላሽ መስጠት",
-    landing_plat_f5: "✓ የ BuleBet ፊርማ ገጽ",
+    landing_plat_f5: "✓ የ MaedBet ፊርማ ገጽ",
     landing_plat_f6: "✓ እስከ 3 ቅርንጫፎች",
 
     landing_tier_prem: "ፕሪሚየም (Premium)",
@@ -613,11 +613,11 @@ export const translations = {
 
     // Admin Dashboard
     admin_dash_title: "የአስተዳዳሪ ዳሽቦርድ",
-    admin_dash_subtitle: "የ BuleBet ምግብ ቤትዎ አጠቃላይ እይታ።",
+    admin_dash_subtitle: "የ MaedBet ምግብ ቤትዎ አጠቃላይ እይታ።",
     admin_dash_plan: "ዕቅድ",
     admin_dash_quick_tour: "አጭር ጉብኝት",
 
-    admin_tour_1_title: "እንኳን ወደ BuleBet Hub በደህና መጡ",
+    admin_tour_1_title: "እንኳን ወደ MaedBet Hub በደህና መጡ",
     admin_tour_1_desc:
       "ይህ የእርስዎ ማዕከላዊ የቁጥጥር ማዕከል ነው። ከዚህ ሆነው የእርስዎን ምናለ ማስተዳደር፣ ሁሉንም የደንበኛ ግንኙነቶች መከታተል እና የምግብ ቤትዎን ስራዎች ማስፋፋት ይችላሉ።",
     admin_tour_2_title: "የምናለ ጥራት",
@@ -812,7 +812,7 @@ export const translations = {
     admin_set_not_fb: "የአስተያየት ማሳወቂያዎች",
     admin_set_not_fb_d: "የሳምንታዊ የእንግዳ ደረጃ አሰጣጦች ማጠቃለያ ይቀበሉ።",
     admin_set_not_mkt: "የግብይት ኢሜይሎች",
-    admin_set_not_mkt_d: "ስለ አዳዲስ የ BuleBet መድረክ ባህሪያት ዝመናዎች።",
+    admin_set_not_mkt_d: "ስለ አዳዲስ የ MaedBet መድረክ ባህሪያት ዝመናዎች።",
 
     // Layout
     admin_set_lay_title: "ዓለም አቀፍ የምናለ አቀራረብ",

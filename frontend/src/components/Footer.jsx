@@ -36,7 +36,7 @@ const Footer = () => {
     fetchRestaurant();
   }, [restaurantName, isRestaurantPage]);
 
-  const displayName = restaurant?.name || "BuleBet";
+  const displayName = restaurant?.name || "MaedBet";
   const displayPhone = restaurant?.phone || null;
   const displayEmail = restaurant?.email || null;
   const displayAddress = restaurant?.address || null;
@@ -142,8 +142,8 @@ const Footer = () => {
               />
             ) : (
               <img
-                src="/bulebet_footer_logo.png"
-                alt="BuleBet Ethiopian Restaurant Hub"
+                src="/maedbet_logo.png"
+                alt="MaedBet Ethiopian Restaurant Hub"
                 style={{
                   height: "70px",
                   width: "auto",
@@ -603,7 +603,7 @@ const Footer = () => {
                 letterSpacing: "1px",
               }}
             >
-              POWERED BY bulebeti PLATFORM
+              POWERED BY MAEDBET PLATFORM
             </span>
           </div>
         </div>

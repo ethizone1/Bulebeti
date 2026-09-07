@@ -47,7 +47,7 @@ const LoginPage = () => {
       if (data.user.role === "super-admin") {
         navigate("/super-admin");
       } else {
-        navigate(`/bulebeti/${data.restaurantSlug || "default"}/admin`);
+        navigate(`/maedbet/${data.restaurantSlug || "default"}/admin`);
       }
     } catch (err) {
       setError(err.message);
@@ -56,48 +56,54 @@ const LoginPage = () => {
     }
   };
 
-  const handleGoogleLoginResponse = useCallback(async (googleResponse) => {
-    setLoading(true);
-    setError("");
-    try {
-      const response = await fetch(`${config.API_URL}/api/auth/google`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token: googleResponse.credential }),
-      });
+  const handleGoogleLoginResponse = useCallback(
+    async (googleResponse) => {
+      setLoading(true);
+      setError("");
+      try {
+        const response = await fetch(`${config.API_URL}/api/auth/google`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: googleResponse.credential }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.msg || "Google Sign-In failed");
+        if (!response.ok) {
+          throw new Error(data.msg || "Google Sign-In failed");
+        }
+
+        // Store token
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        // Navigate based on role or default
+        if (data.user.role === "super-admin") {
+          navigate("/super-admin");
+        } else {
+          navigate(`/maedbet/${data.restaurantSlug || "default"}/admin`);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-
-      // Store token
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      // Navigate based on role or default
-      if (data.user.role === "super-admin") {
-        navigate("/super-admin");
-      } else {
-        navigate(`/bulebeti/${data.restaurantSlug || "default"}/admin`);
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [navigate]);
+    },
+    [navigate],
+  );
 
   useEffect(() => {
     const initializeGoogleSignIn = () => {
       const rawClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
-      const isPlaceholder = !rawClientId || rawClientId.includes("YOUR_CLIENT_ID");
+      const isPlaceholder =
+        !rawClientId || rawClientId.includes("YOUR_CLIENT_ID");
 
       if (isPlaceholder) {
-        console.warn("⚠️ [Google OAuth] VITE_GOOGLE_CLIENT_ID is not configured or contains placeholder.");
+        console.warn(
+          "⚠️ [Google OAuth] VITE_GOOGLE_CLIENT_ID is not configured or contains placeholder.",
+        );
         return;
       }
 
@@ -169,11 +175,14 @@ const LoginPage = () => {
     setOtpSuccess("");
 
     try {
-      const response = await fetch(`${config.API_URL}/api/auth/send-login-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: otpEmail.trim() }),
-      });
+      const response = await fetch(
+        `${config.API_URL}/api/auth/send-login-otp`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: otpEmail.trim() }),
+        },
+      );
 
       const data = await response.json();
 
@@ -199,11 +208,14 @@ const LoginPage = () => {
     setOtpSuccess("");
 
     try {
-      const response = await fetch(`${config.API_URL}/api/auth/send-login-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: otpEmail.trim() }),
-      });
+      const response = await fetch(
+        `${config.API_URL}/api/auth/send-login-otp`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: otpEmail.trim() }),
+        },
+      );
 
       const data = await response.json();
       if (!response.ok) {
@@ -231,14 +243,17 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await fetch(`${config.API_URL}/api/auth/verify-login-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: otpEmail.trim(),
-          code: otpCode.trim(),
-        }),
-      });
+      const response = await fetch(
+        `${config.API_URL}/api/auth/verify-login-otp`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: otpEmail.trim(),
+            code: otpCode.trim(),
+          }),
+        },
+      );
 
       const data = await response.json();
 
@@ -252,7 +267,7 @@ const LoginPage = () => {
       if (data.user.role === "super-admin") {
         navigate("/super-admin");
       } else {
-        navigate(`/bulebeti/${data.restaurantSlug || "default"}/admin`);
+        navigate(`/maedbet/${data.restaurantSlug || "default"}/admin`);
       }
     } catch (err) {
       setError(err.message);
@@ -264,9 +279,15 @@ const LoginPage = () => {
   return (
     <div
       className="py-5 d-flex align-items-center justify-content-center"
-      style={{ minHeight: "75vh", backgroundColor: "var(--background, #f8f9fa)" }}
+      style={{
+        minHeight: "75vh",
+        backgroundColor: "var(--background, #f8f9fa)",
+      }}
     >
-      <div className="container" style={{ maxWidth: "clamp(440px, 90vw, 560px)", width: "100%" }}>
+      <div
+        className="container"
+        style={{ maxWidth: "clamp(440px, 90vw, 560px)", width: "100%" }}
+      >
         <div
           className="card border text-start"
           style={{
@@ -284,17 +305,22 @@ const LoginPage = () => {
             <p className="text-muted mb-4">
               {useOtpMode
                 ? "Enter your email to receive a secure access code."
-                : t("login_enter_email") || "Enter your email or phone to receive a secure access code."}
+                : t("login_enter_email") ||
+                  "Enter your email or phone to receive a secure access code."}
             </p>
 
             {error && (
-              <div className="alert alert-danger p-3 small text-start mb-3" role="alert">
+              <div
+                className="alert alert-danger p-3 small text-start mb-3"
+                role="alert"
+              >
                 <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
                   <span>
                     <i className="fa-solid fa-circle-exclamation me-2"></i>
                     {error}
                   </span>
-                  {(error.toLowerCase().includes("register") || error.toLowerCase().includes("not found")) && (
+                  {(error.toLowerCase().includes("register") ||
+                    error.toLowerCase().includes("not found")) && (
                     <Link
                       to="/register"
                       className="btn btn-sm btn-outline-danger fw-bold text-decoration-none"
@@ -308,7 +334,10 @@ const LoginPage = () => {
             )}
 
             {otpSuccess && (
-              <div className="alert alert-success p-3 small text-start mb-3" role="alert">
+              <div
+                className="alert alert-success p-3 small text-start mb-3"
+                role="alert"
+              >
                 <i className="fa-solid fa-circle-check me-2"></i>
                 {otpSuccess}
               </div>
@@ -326,7 +355,10 @@ const LoginPage = () => {
                         type="email"
                         value={otpEmail}
                         onChange={(e) => setOtpEmail(e.target.value)}
-                        placeholder={t("login_email_placeholder") || "name@example.com or +1..."}
+                        placeholder={
+                          t("login_email_placeholder") ||
+                          "name@example.com or +1..."
+                        }
                         required
                         className="form-control p-3"
                       />
@@ -383,7 +415,9 @@ const LoginPage = () => {
                         autoFocus
                       />
                       <div className="form-text text-center text-muted small mt-2">
-                        Didn't receive email? Check spam folder or use master code <span className="fw-bold text-dark">123456</span> for testing.
+                        Didn't receive email? Check spam folder or use master
+                        code <span className="fw-bold text-dark">123456</span>{" "}
+                        for testing.
                       </div>
                     </div>
 
@@ -408,7 +442,8 @@ const LoginPage = () => {
                       >
                         {resending ? (
                           <span>
-                            <i className="fa-solid fa-spinner fa-spin me-1"></i> Resending...
+                            <i className="fa-solid fa-spinner fa-spin me-1"></i>{" "}
+                            Resending...
                           </span>
                         ) : canResend ? (
                           <span>🔄 Resend Code</span>
@@ -450,7 +485,10 @@ const LoginPage = () => {
             ) : (
               <form onSubmit={handleLogin} className="text-start">
                 <div className="mb-3">
-                  <label className="form-label fw-bold" style={{ fontSize: "14px" }}>
+                  <label
+                    className="form-label fw-bold"
+                    style={{ fontSize: "14px" }}
+                  >
                     {t("login_email_label") || "EMAIL OR PHONE"}
                   </label>
                   <input
@@ -463,7 +501,10 @@ const LoginPage = () => {
                 </div>
 
                 <div className="mb-2">
-                  <label className="form-label fw-bold" style={{ fontSize: "14px" }}>
+                  <label
+                    className="form-label fw-bold"
+                    style={{ fontSize: "14px" }}
+                  >
                     PASSWORD
                   </label>
                   <input
@@ -503,7 +544,9 @@ const LoginPage = () => {
             )}
 
             <div className="text-center mt-4 pt-3 border-top">
-              <span className="text-muted small me-2">Don't have an account?</span>
+              <span className="text-muted small me-2">
+                Don't have an account?
+              </span>
               <Link
                 to="/register"
                 className="fw-bold text-decoration-none"

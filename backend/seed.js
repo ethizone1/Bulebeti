@@ -8,7 +8,10 @@ const Location = require("./models/Location");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 
-const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || "mongodb://localhost:27017/bulebeti";
+const mongoUri =
+  process.env.MONGO_URI ||
+  process.env.MONGODB_URI ||
+  "mongodb://localhost:27017/bulebeti";
 
 mongoose.connect(mongoUri).then(async () => {
   try {
@@ -32,7 +35,10 @@ mongoose.connect(mongoUri).then(async () => {
     });
     await owner.save();
 
-    const superAdminPassword = await bcrypt.hash("Bulebeti@Ethiopia.2019", salt);
+    const superAdminPassword = await bcrypt.hash(
+      "Bulebeti@Ethiopia.2019",
+      salt,
+    );
 
     const superAdmin = new User({
       name: "Super Admin",

@@ -32,7 +32,7 @@ const AdminLayout = ({ children }) => {
         const token = localStorage.getItem("token");
         const res = await fetch(
           `${config.API_URL}/api/restaurants/${restaurantName}`,
-          { headers: token ? { "x-auth-token": token } : {} }
+          { headers: token ? { "x-auth-token": token } : {} },
         );
         let data = null;
         if (res.ok) {
@@ -40,7 +40,7 @@ const AdminLayout = ({ children }) => {
         } else if (token) {
           const myRes = await fetch(
             `${config.API_URL}/api/restaurants/owner/my`,
-            { headers: { "x-auth-token": token } }
+            { headers: { "x-auth-token": token } },
           );
           if (myRes.ok) {
             const myData = await myRes.json();
@@ -49,7 +49,8 @@ const AdminLayout = ({ children }) => {
                 myData.find(
                   (r) =>
                     r.slug &&
-                    r.slug.toLowerCase() === (restaurantName || "").toLowerCase()
+                    r.slug.toLowerCase() ===
+                      (restaurantName || "").toLowerCase(),
                 ) || myData[0];
             }
           }
@@ -57,7 +58,7 @@ const AdminLayout = ({ children }) => {
 
         if (data) {
           setRestaurant(data);
-          document.title = `BuleBet | ${data.name} Admin`;
+          document.title = `MaedBet | ${data.name} Admin`;
           setDynamicFavicon(data.name, data.logoUrl);
           if (data.subscriptionTier) {
             setTier(data.subscriptionTier);
@@ -109,14 +110,16 @@ const AdminLayout = ({ children }) => {
     storedUser = {};
   }
   const storedUserId = String(storedUser._id || storedUser.id || "");
-  const ownerIdStr = String(restaurant?.ownerId?._id || restaurant?.ownerId || "");
+  const ownerIdStr = String(
+    restaurant?.ownerId?._id || restaurant?.ownerId || "",
+  );
   const isOwner =
     (ownerIdStr && storedUserId && ownerIdStr === storedUserId) ||
     storedUser.role === "hub owner" ||
     storedUser.role === "super-admin";
 
   const adminRecord = restaurant?.admins?.find(
-    (a) => String(a.user?._id || a.user?.id || a.user) === storedUserId
+    (a) => String(a.user?._id || a.user?.id || a.user) === storedUserId,
   );
 
   const userPermissions = isOwner ? ["all"] : adminRecord?.permissions || [];
@@ -336,7 +339,7 @@ const AdminLayout = ({ children }) => {
 
             {/* Right — copyright */}
             <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
-              © {currentYear} bulebeti Platform. All rights reserved.
+              © {currentYear} MaedBet Platform. All rights reserved.
             </div>
           </footer>
         </div>

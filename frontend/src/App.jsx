@@ -189,6 +189,14 @@ function App() {
             }
           />
           <Route
+            path="/maedbet/register"
+            element={
+              <CustomerLayout>
+                <RegistrationPage />
+              </CustomerLayout>
+            }
+          />
+          <Route
             path="/bulebeti/register"
             element={
               <CustomerLayout>
@@ -215,7 +223,17 @@ function App() {
             }
           />
 
-          {["/login", "/bulebeti/login", "/signin", "/bulebeti/signin", "/sign-in", "/bulebeti/sign-in"].map((path) => (
+          {[
+            "/login",
+            "/maedbet/login",
+            "/bulebeti/login",
+            "/signin",
+            "/maedbet/signin",
+            "/bulebeti/signin",
+            "/sign-in",
+            "/maedbet/sign-in",
+            "/bulebeti/sign-in",
+          ].map((path) => (
             <Route
               key={path}
               path={path}
@@ -255,32 +273,99 @@ function App() {
 
           {/* Platform Static & Public Pages */}
           {["/contact-us", "/bulebeti/contact-us"].map((p) => (
-            <Route key={p} path={p} element={<CustomerLayout><ContactPage /></CustomerLayout>} />
+            <Route
+              key={p}
+              path={p}
+              element={
+                <CustomerLayout>
+                  <ContactPage />
+                </CustomerLayout>
+              }
+            />
           ))}
           {["/gallery", "/bulebeti/gallery"].map((p) => (
-            <Route key={p} path={p} element={<CustomerLayout><GalleryPage /></CustomerLayout>} />
+            <Route
+              key={p}
+              path={p}
+              element={
+                <CustomerLayout>
+                  <GalleryPage />
+                </CustomerLayout>
+              }
+            />
           ))}
           {["/testimonials", "/bulebeti/testimonials"].map((p) => (
-            <Route key={p} path={p} element={<CustomerLayout><TestimonialsPage /></CustomerLayout>} />
+            <Route
+              key={p}
+              path={p}
+              element={
+                <CustomerLayout>
+                  <TestimonialsPage />
+                </CustomerLayout>
+              }
+            />
           ))}
           {["/sister-restaurants", "/bulebeti/sister-restaurants"].map((p) => (
-            <Route key={p} path={p} element={<CustomerLayout><SisterRestaurantsPage /></CustomerLayout>} />
+            <Route
+              key={p}
+              path={p}
+              element={
+                <CustomerLayout>
+                  <SisterRestaurantsPage />
+                </CustomerLayout>
+              }
+            />
           ))}
           {["/events", "/bulebeti/events"].map((p) => (
-            <Route key={p} path={p} element={<CustomerLayout><EventsPage /></CustomerLayout>} />
+            <Route
+              key={p}
+              path={p}
+              element={
+                <CustomerLayout>
+                  <EventsPage />
+                </CustomerLayout>
+              }
+            />
           ))}
-          {["/events/truffle-festival", "/bulebeti/events/truffle-festival"].map((p) => (
-            <Route key={p} path={p} element={<CustomerLayout><EventLandingPage /></CustomerLayout>} />
+          {[
+            "/events/truffle-festival",
+            "/bulebeti/events/truffle-festival",
+          ].map((p) => (
+            <Route
+              key={p}
+              path={p}
+              element={
+                <CustomerLayout>
+                  <EventLandingPage />
+                </CustomerLayout>
+              }
+            />
           ))}
           {["/privacy", "/bulebeti/privacy"].map((p) => (
-            <Route key={p} path={p} element={<CustomerLayout><PrivacyPolicy /></CustomerLayout>} />
+            <Route
+              key={p}
+              path={p}
+              element={
+                <CustomerLayout>
+                  <PrivacyPolicy />
+                </CustomerLayout>
+              }
+            />
           ))}
           {["/terms", "/bulebeti/terms"].map((p) => (
-            <Route key={p} path={p} element={<CustomerLayout><TermsOfService /></CustomerLayout>} />
+            <Route
+              key={p}
+              path={p}
+              element={
+                <CustomerLayout>
+                  <TermsOfService />
+                </CustomerLayout>
+              }
+            />
           ))}
 
           {/* Super Admin Routes (Must be before dynamic /:restaurantName catch-all routes) */}
-          {["/super-admin/*", "/bulebeti/super-admin/*"].map((pathPattern) => (
+          {["/super-admin/*", "/maedbet/super-admin/*", "/bulebeti/super-admin/*"].map((pathPattern) => (
             <Route
               key={pathPattern}
               path={pathPattern}
@@ -316,7 +401,7 @@ function App() {
           ))}
 
           {/* Public & Admin Restaurant Pages (Supports clean domain URLs like /injera-world and /bulebeti/injera-world) */}
-          {["/:restaurantName", "/bulebeti/:restaurantName"].map((pattern) => (
+          {["/:restaurantName", "/maedbet/:restaurantName", "/bulebeti/:restaurantName"].map((pattern) => (
             <Route key={pattern} path={pattern}>
               <Route
                 index
@@ -520,7 +605,10 @@ function App() {
                       <Route
                         path="events"
                         element={
-                          <AdminPage element={EventsManager} minTier="Premium" />
+                          <AdminPage
+                            element={EventsManager}
+                            minTier="Premium"
+                          />
                         }
                       />
                       <Route
@@ -559,10 +647,6 @@ function App() {
               />
             </Route>
           ))}
-
-
-
-
 
           {/* Global 404 */}
           <Route

@@ -314,7 +314,7 @@ const RegistrationPage = () => {
       throw new Error(restData.msg || "Failed to create restaurant profile.");
     }
 
-    navigate(`/bulebeti/${slug}/admin`);
+    navigate(`/maedbet/${slug}/admin`);
   };
 
   const handleSubmit = async (e) => {
@@ -481,7 +481,7 @@ const RegistrationPage = () => {
           </p>
           <button
             onClick={() =>
-              navigate(`/bulebeti/${targetRestaurantSlug || "adme"}/admin`)
+              navigate(`/maedbet/${targetRestaurantSlug || "adme"}/admin`)
             }
             className="btn btn-primary btn-lg fw-bold px-4 rounded-3 mx-auto"
           >
@@ -753,14 +753,14 @@ const RegistrationPage = () => {
                 position: "relative",
                 height: "100%",
                 cursor: "pointer",
-                transition: "all 0.2s ease-in-out",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 boxShadow:
                   formData.subscriptionTier === "Platinum"
-                    ? "0 12px 30px rgba(212, 175, 55, 0.35)"
-                    : "0 10px 25px -5px rgba(0,0,0,0.1)",
+                    ? "0 12px 32px rgba(212, 175, 55, 0.4)"
+                    : "0 8px 22px rgba(212, 175, 55, 0.2)",
                 transform:
                   formData.subscriptionTier === "Platinum"
-                    ? "translateY(-4px)"
+                    ? "translateY(-6px)"
                     : "none",
               }}
             >
@@ -838,7 +838,7 @@ const RegistrationPage = () => {
                   {t("landing_plat_f4") || "✓ Reply to Comments"}
                 </li>
                 <li style={{ marginBottom: "8px" }}>
-                  {t("landing_plat_f5") || "✓ BuleBet Signature Page"}
+                  {t("landing_plat_f5") || "✓ MaedBet Signature Page"}
                 </li>
                 <li style={{ marginBottom: "8px" }}>
                   {t("landing_plat_f6") || "✓ Up to 3 Locations"}
@@ -866,28 +866,48 @@ const RegistrationPage = () => {
                 border:
                   formData.subscriptionTier === "Premium"
                     ? "3px solid var(--gold)"
-                    : "1px solid var(--primary)",
+                    : "2px solid var(--gold)",
                 textAlign: "center",
                 display: "flex",
                 flexDirection: "column",
+                position: "relative",
                 height: "100%",
                 cursor: "pointer",
-                transition: "all 0.2s ease-in-out",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                 boxShadow:
                   formData.subscriptionTier === "Premium"
-                    ? "0 12px 30px rgba(212, 175, 55, 0.4)"
-                    : "0 4px 15px rgba(0,0,0,0.15)",
+                    ? "0 12px 32px rgba(212, 175, 55, 0.45)"
+                    : "0 8px 24px rgba(0,0,0,0.25)",
                 transform:
                   formData.subscriptionTier === "Premium"
-                    ? "translateY(-4px)"
+                    ? "translateY(-6px)"
                     : "none",
               }}
             >
+              <div
+                style={{
+                  position: "absolute",
+                  top: "-12px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  backgroundColor: "var(--gold)",
+                  color: "#000",
+                  padding: "2px 12px",
+                  borderRadius: "12px",
+                  fontSize: "10px",
+                  fontWeight: "800",
+                  letterSpacing: "0.5px",
+                  boxShadow: "0 2px 8px rgba(212, 175, 55, 0.4)",
+                }}
+              >
+                ULTIMATE VIP
+              </div>
               <h3
                 style={{
                   color: "var(--gold)",
                   marginBottom: "4px",
                   fontSize: "22px",
+                  fontWeight: "800",
                 }}
               >
                 {t("landing_tier_prem") || "Premium"}
@@ -1412,7 +1432,7 @@ const RegistrationPage = () => {
               <p className="text-center mt-4 small text-muted">
                 {t("reg_already") || "Already have an account?"}{" "}
                 <Link
-                  to="/bulebeti/login"
+                  to="/maedbet/login"
                   style={{
                     color: "var(--gold)",
                     fontWeight: "600",

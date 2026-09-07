@@ -27,7 +27,7 @@ const LoginPage = () => {
       navigate("/super-admin");
     } else {
       // Default to a known restaurant for demo purposes
-      navigate("/bulebeti/the-golden-truffle/admin");
+      navigate("/maedbet/the-golden-truffle/admin");
     }
   };
 

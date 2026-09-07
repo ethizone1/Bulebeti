@@ -8,7 +8,11 @@ const Restaurant = require("../models/Restaurant");
 // Get feedback for a specific restaurant (Requires Auth & Ownership)
 router.get("/restaurant/:restaurantId", auth, async (req, res) => {
   try {
-    const authorized = await canManageRestaurant(req.user.id, req.user.role, req.params.restaurantId);
+    const authorized = await canManageRestaurant(
+      req.user.id,
+      req.user.role,
+      req.params.restaurantId,
+    );
     if (!authorized) {
       return res.status(403).json({ msg: "Forbidden: Access denied" });
     }
@@ -82,7 +86,11 @@ router.put("/:id/status", auth, async (req, res) => {
     let feedback = await Feedback.findById(req.params.id);
     if (!feedback) return res.status(404).json({ msg: "Feedback not found" });
 
-    const authorized = await canManageRestaurant(req.user.id, req.user.role, feedback.restaurantId);
+    const authorized = await canManageRestaurant(
+      req.user.id,
+      req.user.role,
+      feedback.restaurantId,
+    );
     if (!authorized) {
       return res.status(403).json({ msg: "Forbidden: Access denied" });
     }

@@ -36,22 +36,26 @@ const RestaurantManagement = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${config.API_URL}/api/restaurants/admin-create`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-auth-token": token,
-          "Authorization": `Bearer ${token}`,
+      const res = await fetch(
+        `${config.API_URL}/api/restaurants/admin-create`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-auth-token": token,
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(newPartnerForm),
         },
-        body: JSON.stringify(newPartnerForm),
-      });
+      );
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.msg || "Failed to create partner restaurant.");
+      if (!res.ok)
+        throw new Error(data.msg || "Failed to create partner restaurant.");
 
       // Close modal & directly navigate to the new restaurant's admin page!
       setAddPartnerModalOpen(false);
-      navigate(`/bulebeti/${data.slug}/admin`);
+      navigate(`/maedbet/${data.slug}/admin`);
     } catch (err) {
       console.error("Create partner error:", err);
       setCreateError(err.message);
@@ -125,7 +129,8 @@ const RestaurantManagement = () => {
   };
 
   const handleApproveUpgrade = async (id, targetTier, name) => {
-    if (!window.confirm(`Approve upgrade for "${name}" to ${targetTier} Plan?`)) return;
+    if (!window.confirm(`Approve upgrade for "${name}" to ${targetTier} Plan?`))
+      return;
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
@@ -144,7 +149,9 @@ const RestaurantManagement = () => {
       );
 
       if (res.ok) {
-        alert(`🎉 Upgrade APPROVED! "${name}" is now upgraded to ${targetTier} Plan in the database, and a congratulatory notification was sent to the owner.`);
+        alert(
+          `🎉 Upgrade APPROVED! "${name}" is now upgraded to ${targetTier} Plan in the database, and a congratulatory notification was sent to the owner.`,
+        );
         fetchRestaurants(); // Refresh data
       } else {
         alert("Failed to approve upgrade");
@@ -156,7 +163,12 @@ const RestaurantManagement = () => {
   };
 
   const handleRejectUpgrade = async (id, name, requestedTier) => {
-    if (!window.confirm(`Reject upgrade request (${requestedTier}) for "${name}"?`)) return;
+    if (
+      !window.confirm(
+        `Reject upgrade request (${requestedTier}) for "${name}"?`,
+      )
+    )
+      return;
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
@@ -212,10 +224,12 @@ const RestaurantManagement = () => {
       } else {
         const errorData = await res.json();
         if (res.status === 401) {
-          alert("⚠️ Your Super Admin session has expired. Redirecting to login page...");
+          alert(
+            "⚠️ Your Super Admin session has expired. Redirecting to login page...",
+          );
           localStorage.removeItem("token");
           localStorage.removeItem("user");
-          window.location.href = "/bulebeti/login";
+          window.location.href = "/maedbet/login";
           return;
         }
         alert(
@@ -258,12 +272,18 @@ const RestaurantManagement = () => {
           <div className="card border-0 shadow-sm rounded-4 p-3 bg-white d-flex flex-row align-items-center gap-3">
             <div
               className="rounded-3 p-3 fs-4 d-flex align-items-center justify-content-center"
-              style={{ backgroundColor: "rgba(13, 110, 253, 0.1)", width: "52px", height: "52px" }}
+              style={{
+                backgroundColor: "rgba(13, 110, 253, 0.1)",
+                width: "52px",
+                height: "52px",
+              }}
             >
               🏪
             </div>
             <div>
-              <div className="text-muted small fw-bold text-uppercase">Total Restaurants</div>
+              <div className="text-muted small fw-bold text-uppercase">
+                Total Restaurants
+              </div>
               <div className="fs-3 fw-bold">{restaurants.length}</div>
             </div>
           </div>
@@ -273,12 +293,18 @@ const RestaurantManagement = () => {
           <div className="card border-0 shadow-sm rounded-4 p-3 bg-white d-flex flex-row align-items-center gap-3">
             <div
               className="rounded-3 p-3 fs-4 d-flex align-items-center justify-content-center"
-              style={{ backgroundColor: "rgba(25, 135, 84, 0.1)", width: "52px", height: "52px" }}
+              style={{
+                backgroundColor: "rgba(25, 135, 84, 0.1)",
+                width: "52px",
+                height: "52px",
+              }}
             >
               ✅
             </div>
             <div>
-              <div className="text-muted small fw-bold text-uppercase">Active Operational</div>
+              <div className="text-muted small fw-bold text-uppercase">
+                Active Operational
+              </div>
               <div className="fs-3 fw-bold">
                 {restaurants.filter((r) => r.status === "Active").length}
               </div>
@@ -297,12 +323,18 @@ const RestaurantManagement = () => {
           >
             <div
               className="rounded-3 p-3 fs-4 d-flex align-items-center justify-content-center"
-              style={{ backgroundColor: "rgba(217, 119, 6, 0.1)", width: "52px", height: "52px" }}
+              style={{
+                backgroundColor: "rgba(217, 119, 6, 0.1)",
+                width: "52px",
+                height: "52px",
+              }}
             >
               ⚡
             </div>
             <div>
-              <div className="text-muted small fw-bold text-uppercase">Pending Upgrades</div>
+              <div className="text-muted small fw-bold text-uppercase">
+                Pending Upgrades
+              </div>
               <div className="fs-3 fw-bold text-warning">
                 {restaurants.filter((r) => r.pendingTierRequest).length}
               </div>
@@ -395,7 +427,7 @@ const RestaurantManagement = () => {
                   </td>
                   <td style={{ padding: "16px 8px" }}>
                     <Link
-                      to={`/bulebeti/${row.slug}`}
+                      to={`/maedbet/${row.slug}`}
                       target="_blank"
                       rel="noreferrer"
                       style={{ textDecoration: "none" }}
@@ -419,7 +451,7 @@ const RestaurantManagement = () => {
                             "rgba(212, 175, 55, 0.05)")
                         }
                       >
-                        bulebeti/{row.slug}
+                        maedbet/{row.slug}
                       </code>
                     </Link>
                   </td>
@@ -514,7 +546,7 @@ const RestaurantManagement = () => {
                               handleApproveUpgrade(
                                 row.id,
                                 row.pendingTierRequest,
-                                row.name
+                                row.name,
                               )
                             }
                             style={{
@@ -538,7 +570,7 @@ const RestaurantManagement = () => {
                               handleRejectUpgrade(
                                 row.id,
                                 row.name,
-                                row.pendingTierRequest
+                                row.pendingTierRequest,
                               )
                             }
                             style={{
@@ -805,10 +837,23 @@ const RestaurantManagement = () => {
               }}
             >
               <div>
-                <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "800", color: "#111827" }}>
+                <h2
+                  style={{
+                    margin: 0,
+                    fontSize: "20px",
+                    fontWeight: "800",
+                    color: "#111827",
+                  }}
+                >
                   🏢 Add New Partner Restaurant
                 </h2>
-                <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "#6b7280" }}>
+                <p
+                  style={{
+                    margin: "4px 0 0 0",
+                    fontSize: "13px",
+                    color: "#6b7280",
+                  }}
+                >
                   Direct creation bypassing email OTP verification.
                 </p>
               </div>
@@ -842,85 +887,215 @@ const RestaurantManagement = () => {
               </div>
             )}
 
-            <form onSubmit={handleCreatePartner} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+            <form
+              onSubmit={handleCreatePartner}
+              style={{ display: "flex", flexDirection: "column", gap: "14px" }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "12px",
+                }}
+              >
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      marginBottom: "4px",
+                    }}
+                  >
                     Restaurant Name *
                   </label>
                   <input
                     type="text"
                     placeholder="e.g. Time Cafe"
                     value={newPartnerForm.restaurantName}
-                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, restaurantName: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
+                    onChange={(e) =>
+                      setNewPartnerForm({
+                        ...newPartnerForm,
+                        restaurantName: e.target.value,
+                      })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "9px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "14px",
+                    }}
                     required
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      marginBottom: "4px",
+                    }}
+                  >
                     Owner Name *
                   </label>
                   <input
                     type="text"
                     placeholder="e.g. Hailu Gebreyohannes"
                     value={newPartnerForm.ownerName}
-                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, ownerName: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
+                    onChange={(e) =>
+                      setNewPartnerForm({
+                        ...newPartnerForm,
+                        ownerName: e.target.value,
+                      })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "9px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "14px",
+                    }}
                     required
                   />
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "12px",
+                }}
+              >
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      marginBottom: "4px",
+                    }}
+                  >
                     Owner Email Address *
                   </label>
                   <input
                     type="email"
                     placeholder="hailu@example.com"
                     value={newPartnerForm.email}
-                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, email: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
+                    onChange={(e) =>
+                      setNewPartnerForm({
+                        ...newPartnerForm,
+                        email: e.target.value,
+                      })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "9px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "14px",
+                    }}
                     required
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      marginBottom: "4px",
+                    }}
+                  >
                     Initial Password *
                   </label>
                   <input
                     type="text"
                     value={newPartnerForm.password}
-                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, password: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
+                    onChange={(e) =>
+                      setNewPartnerForm({
+                        ...newPartnerForm,
+                        password: e.target.value,
+                      })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "9px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "14px",
+                    }}
                     required
                   />
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "12px",
+                }}
+              >
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      marginBottom: "4px",
+                    }}
+                  >
                     Phone Number
                   </label>
                   <input
                     type="text"
                     placeholder="+251 911 000 000"
                     value={newPartnerForm.phone}
-                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, phone: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
+                    onChange={(e) =>
+                      setNewPartnerForm({
+                        ...newPartnerForm,
+                        phone: e.target.value,
+                      })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "9px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "14px",
+                    }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      marginBottom: "4px",
+                    }}
+                  >
                     Cuisine Type
                   </label>
                   <select
                     value={newPartnerForm.cuisineType}
-                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, cuisineType: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px", backgroundColor: "white" }}
+                    onChange={(e) =>
+                      setNewPartnerForm({
+                        ...newPartnerForm,
+                        cuisineType: e.target.value,
+                      })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "9px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "14px",
+                      backgroundColor: "white",
+                    }}
                   >
                     <option value="Ethiopian">Ethiopian</option>
                     <option value="Fine Dining">Fine Dining</option>
@@ -932,15 +1107,40 @@ const RestaurantManagement = () => {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "12px",
+                }}
+              >
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      marginBottom: "4px",
+                    }}
+                  >
                     Subscription Tier
                   </label>
                   <select
                     value={newPartnerForm.subscriptionTier}
-                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, subscriptionTier: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px", backgroundColor: "white" }}
+                    onChange={(e) =>
+                      setNewPartnerForm({
+                        ...newPartnerForm,
+                        subscriptionTier: e.target.value,
+                      })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "9px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "14px",
+                      backgroundColor: "white",
+                    }}
                   >
                     <option value="Basic">Basic</option>
                     <option value="Gold">Gold</option>
@@ -949,15 +1149,33 @@ const RestaurantManagement = () => {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", marginBottom: "4px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      marginBottom: "4px",
+                    }}
+                  >
                     Location / Address
                   </label>
                   <input
                     type="text"
                     placeholder="Bole, Addis Ababa"
                     value={newPartnerForm.address}
-                    onChange={(e) => setNewPartnerForm({ ...newPartnerForm, address: e.target.value })}
-                    style={{ width: "100%", padding: "9px 12px", borderRadius: "6px", border: "1px solid #d1d5db", fontSize: "14px" }}
+                    onChange={(e) =>
+                      setNewPartnerForm({
+                        ...newPartnerForm,
+                        address: e.target.value,
+                      })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "9px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid #d1d5db",
+                      fontSize: "14px",
+                    }}
                   />
                 </div>
               </div>
@@ -999,7 +1217,9 @@ const RestaurantManagement = () => {
                     cursor: "pointer",
                   }}
                 >
-                  {createLoading ? "⏳ Launching Partner..." : "🚀 Create & Open Partner Dashboard"}
+                  {createLoading
+                    ? "⏳ Launching Partner..."
+                    : "🚀 Create & Open Partner Dashboard"}
                 </button>
               </div>
             </form>

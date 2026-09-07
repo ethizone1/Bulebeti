@@ -13,7 +13,9 @@ const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
 const jwtSecret = process.env.JWT_SECRET;
 
 if (!jwtSecret) {
-  console.error("❌ [FATAL SECURITY ERROR] JWT_SECRET is not set in environment variables!");
+  console.error(
+    "❌ [FATAL SECURITY ERROR] JWT_SECRET is not set in environment variables!",
+  );
   if (isProduction) process.exit(1);
 }
 
@@ -29,17 +31,17 @@ const PORT = process.env.PORT || 5000;
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
-  })
+  }),
 );
 
 // CORS Configuration
 const allowedOrigins = [
   process.env.CLIENT_ORIGIN,
   process.env.FRONTEND_URL,
-  "https://maedbet.com",
-  "https://www.maedbet.com",
-  "http://maedbet.com",
-  "http://www.maedbet.com",
+  "https://bulebeti.com",
+  "https://www.bulebeti.com",
+  "http://bulebeti.com",
+  "http://www.bulebeti.com",
   "https://bulebeti.com",
   "https://www.bulebeti.com",
   "http://bulebeti.com",
@@ -58,15 +60,16 @@ app.use(
       const cleanOrigin = origin.replace(/\/$/, "");
 
       const isExplicitlyAllowed = allowedOrigins.some(
-        (allowed) => allowed === "*" || allowed.replace(/\/$/, "") === cleanOrigin
+        (allowed) =>
+          allowed === "*" || allowed.replace(/\/$/, "") === cleanOrigin,
       );
 
       const isDomainMatch =
-        cleanOrigin.endsWith(".maedbet.com") ||
+        cleanOrigin.endsWith(".bulebeti.com") ||
         cleanOrigin.endsWith(".bulebeti.com") ||
         cleanOrigin.endsWith(".vercel.app") ||
-        cleanOrigin === "https://maedbet.com" ||
-        cleanOrigin === "http://maedbet.com" ||
+        cleanOrigin === "https://bulebeti.com" ||
+        cleanOrigin === "http://bulebeti.com" ||
         cleanOrigin === "https://bulebeti.com" ||
         cleanOrigin === "http://bulebeti.com";
 
@@ -80,9 +83,8 @@ app.use(
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"],
-  })
+  }),
 );
-
 
 // Rate Limiting
 const generalLimiter = rateLimit({
@@ -91,7 +93,9 @@ const generalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: () => !isProduction,
-  message: { msg: "Too many requests from this IP, please try again after 15 minutes." },
+  message: {
+    msg: "Too many requests from this IP, please try again after 15 minutes.",
+  },
 });
 
 const authLimiter = rateLimit({
@@ -100,7 +104,9 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: () => !isProduction,
-  message: { msg: "Too many authentication attempts, please try again after 15 minutes." },
+  message: {
+    msg: "Too many authentication attempts, please try again after 15 minutes.",
+  },
 });
 
 app.use("/api/", generalLimiter);
@@ -112,7 +118,9 @@ app.use(express.urlencoded({ limit: "5mb", extended: true }));
 
 // Activity Logging (Sanitizing output)
 app.use((req, res, next) => {
-  console.log(`[ACTIVITY] ${req.method} ${req.path} - ${new Date().toISOString()}`);
+  console.log(
+    `[ACTIVITY] ${req.method} ${req.path} - ${new Date().toISOString()}`,
+  );
   next();
 });
 
@@ -133,7 +141,8 @@ app.use("/api/inquiries", require("./routes/inquiries"));
 
 // Production Health Check Routes (Supports Render /healthz and /api/health)
 app.get(["/", "/api/health", "/healthz", "/health"], (req, res) => {
-  const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
+  const dbStatus =
+    mongoose.connection.readyState === 1 ? "connected" : "disconnected";
   res.status(200).json({
     status: "healthy",
     service: "Bulebet Backend API",

@@ -156,7 +156,7 @@ const MenuManagement = ({ _currentTier = "Platinum" }) => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         alert("Session expired. Please log in again.");
-        navigate(`/bulebeti/${restaurantName}/login`);
+        navigate(`/maedbet/${restaurantName}/login`);
         return;
       }
 
@@ -467,7 +467,7 @@ const MenuManagement = ({ _currentTier = "Platinum" }) => {
           {canAddItem ? (
             <button
               onClick={() =>
-                navigate(`/bulebeti/${restaurantName}/admin/menu/add`)
+                navigate(`/maedbet/${restaurantName}/admin/menu/add`)
               }
               className="btn btn-primary"
             >
@@ -719,7 +719,7 @@ const MenuManagement = ({ _currentTier = "Platinum" }) => {
                     <button
                       onClick={() =>
                         navigate(
-                          `/bulebeti/${restaurantName}/admin/menu/edit/${item.id}`,
+                          `/maedbet/${restaurantName}/admin/menu/edit/${item.id}`,
                         )
                       }
                       title="Edit item"

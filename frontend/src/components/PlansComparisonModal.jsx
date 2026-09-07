@@ -117,7 +117,7 @@ const PlansComparisonModal = ({
         },
         { text: t("landing_plat_f3") || "✓ Photo Gallery User Page", included: true },
         { text: t("landing_plat_f4") || "✓ Reply to Comments", included: true },
-        { text: t("landing_plat_f5") || "✓ BuleBet Signature Page", included: true },
+        { text: t("landing_plat_f5") || "✓ MaedBet Signature Page", included: true },
         { text: t("landing_plat_f6") || "✓ Up to 3 Locations", included: true },
       ],
     },
@@ -127,7 +127,7 @@ const PlansComparisonModal = ({
       period: t("landing_year") || "/year",
       regPrice: t("landing_prem_reg") || "Regular $1,000/year (Save $301)",
       tierKey: "Premium",
-      badge: null,
+      badge: "ULTIMATE VIP",
       isDark: true,
       titleColor: "var(--gold)",
       features: [
@@ -264,7 +264,7 @@ const PlansComparisonModal = ({
               marginBottom: "12px",
             }}
           >
-            {t("landing_pricing_title") || "Select Your BuleBet Hub Tier"}
+            {t("landing_pricing_title") || "Select Your MaedBet Hub Tier"}
           </h2>
           <p
             style={{

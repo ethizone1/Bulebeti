@@ -81,7 +81,10 @@ const sendEmail = async (
     });
 
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Email dispatch timeout (5s limit)")), 5000)
+      setTimeout(
+        () => reject(new Error("Email dispatch timeout (5s limit)")),
+        5000,
+      ),
     );
 
     await Promise.race([emailPromise, timeoutPromise]);
@@ -103,15 +106,15 @@ const sendSMS = async (toPhone, textMessage, senderName = "bulebeti") => {
     try {
       const sid = process.env.TWILIO_ACCOUNT_SID;
       const auth = Buffer.from(
-        `${sid}:${process.env.TWILIO_AUTH_TOKEN}`
+        `${sid}:${process.env.TWILIO_AUTH_TOKEN}`,
       ).toString("base64");
 
       const digits = cleanPhone(toPhone);
       const formattedPhone = toPhone.startsWith("+")
         ? toPhone
         : digits.length === 10
-        ? `+1${digits}`
-        : `+${digits}`;
+          ? `+1${digits}`
+          : `+${digits}`;
 
       const params = new URLSearchParams();
       params.append("To", formattedPhone);
@@ -127,7 +130,7 @@ const sendSMS = async (toPhone, textMessage, senderName = "bulebeti") => {
             "Content-Type": "application/x-www-form-urlencoded",
           },
           body: params.toString(),
-        }
+        },
       );
 
       if (twilioRes.ok) {
@@ -135,7 +138,10 @@ const sendSMS = async (toPhone, textMessage, senderName = "bulebeti") => {
         return true;
       } else {
         const errData = await twilioRes.json().catch(() => ({}));
-        console.error("❌ Twilio SMS error:", errData.message || twilioRes.statusText);
+        console.error(
+          "❌ Twilio SMS error:",
+          errData.message || twilioRes.statusText,
+        );
       }
     } catch (twErr) {
       console.error("❌ Twilio API request failed:", twErr.message);
@@ -162,9 +168,7 @@ const sendSMS = async (toPhone, textMessage, senderName = "bulebeti") => {
 
   const primaryGateways = ["txt.att.net", "tmomail.net", "vtext.com"];
   const gatewaysToUse =
-    gateway.toLowerCase() === "all"
-      ? primaryGateways
-      : [gateway];
+    gateway.toLowerCase() === "all" ? primaryGateways : [gateway];
 
   let sent = false;
 
@@ -455,8 +459,10 @@ const notifyStatusUpdate = async (
     sms = msg.smsText;
   } else if (type === "Order") {
     const restaurantName = details.restaurantName || "bulebeti Partner";
-    const customerName = details.customerName || details.guestName || "Customer";
-    const itemsSummary = details.specialRequests || details.itemsSummary || "Your Order Items";
+    const customerName =
+      details.customerName || details.guestName || "Customer";
+    const itemsSummary =
+      details.specialRequests || details.itemsSummary || "Your Order Items";
 
     const messages = {
       Confirmed: {
@@ -553,7 +559,8 @@ const notifyStatusUpdate = async (
 
   // Send to owner/admin
   if (subject && adminEmail) {
-    const custName = details.customerName || details.guestName || details.name || "Customer";
+    const custName =
+      details.customerName || details.guestName || details.name || "Customer";
     const adminSubject = `[Admin Alert] Status Updated to ${newStatus}: ${custName}`;
     const adminHtml = `
       <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-family: sans-serif; font-size: 13px; color: #1e3a8a;">
@@ -570,7 +577,8 @@ const notifyStatusUpdate = async (
   }
 
   if (sms && adminPhone && adminPhone !== "N/A") {
-    const custName = details.customerName || details.guestName || details.name || "Customer";
+    const custName =
+      details.customerName || details.guestName || details.name || "Customer";
     const adminSms = `[${details.restaurantName}] Admin Alert: Request for ${custName} updated to ${newStatus}.`;
     await sendSMS(adminPhone, adminSms, details.restaurantName);
   }

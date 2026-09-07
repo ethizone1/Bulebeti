@@ -36,7 +36,7 @@ const AdminDashboard = () => {
         let restaurant = null;
         const restRes = await fetch(
           `${config.API_URL}/api/restaurants/${restaurantName}`,
-          { headers: { "x-auth-token": localStorage.getItem("token") || "" } }
+          { headers: { "x-auth-token": localStorage.getItem("token") || "" } },
         );
 
         if (restRes.ok) {
@@ -46,7 +46,7 @@ const AdminDashboard = () => {
           if (token) {
             const myRestRes = await fetch(
               `${config.API_URL}/api/restaurants/owner/my`,
-              { headers: { "x-auth-token": token } }
+              { headers: { "x-auth-token": token } },
             );
             if (myRestRes.ok) {
               const myData = await myRestRes.json();
@@ -55,7 +55,8 @@ const AdminDashboard = () => {
                   myData.find(
                     (r) =>
                       r.slug &&
-                      r.slug.toLowerCase() === (restaurantName || "").toLowerCase()
+                      r.slug.toLowerCase() ===
+                        (restaurantName || "").toLowerCase(),
                   ) || myData[0];
               }
             }
@@ -262,10 +263,7 @@ const AdminDashboard = () => {
     },
     {
       title: "Online Ordering",
-      value:
-        currentTierImp < getTierImportance("Platinum")
-          ? "🔒"
-          : "ACTIVE",
+      value: currentTierImp < getTierImportance("Platinum") ? "🔒" : "ACTIVE",
       sub:
         currentTierImp < getTierImportance("Platinum")
           ? "Requires Platinum Plan"
@@ -399,7 +397,7 @@ const AdminDashboard = () => {
                   key={r._id}
                   onClick={() => {
                     if (!isActive) {
-                      navigate(`/bulebeti/${r.slug}/admin`);
+                      navigate(`/maedbet/${r.slug}/admin`);
                       window.location.reload();
                     }
                   }}
@@ -433,7 +431,7 @@ const AdminDashboard = () => {
             {currentTierImp >= getTierImportance("Platinum") && (
               <button
                 onClick={() =>
-                  navigate(`/bulebeti/${restaurantName}/admin/locations`)
+                  navigate(`/maedbet/${restaurantName}/admin/locations`)
                 }
                 className="btn btn-outline-warning d-flex align-items-center gap-2 p-2 px-3 rounded-3 flex-shrink-0 fw-bold"
                 style={{
@@ -468,7 +466,7 @@ const AdminDashboard = () => {
                 if (card.value === "🔒") {
                   setIsPlansModalOpen(true);
                 } else {
-                  navigate(`/bulebeti/${restaurantName}/admin/${card.path}`);
+                  navigate(`/maedbet/${restaurantName}/admin/${card.path}`);
                 }
               }}
               className={`card h-100 border-0 shadow-sm p-4 position-relative overflow-hidden ${card.highlight ? "border border-danger" : ""}`}
@@ -530,7 +528,7 @@ const AdminDashboard = () => {
               <h3 className="m-0 fs-6 fw-bold">📅 Recent Reservations</h3>
               <button
                 onClick={() =>
-                  navigate(`/bulebeti/${restaurantName}/admin/reservations`)
+                  navigate(`/maedbet/${restaurantName}/admin/reservations`)
                 }
                 className="btn btn-link text-decoration-none text-warning fw-bold p-0 fs-7"
               >
@@ -597,7 +595,7 @@ const AdminDashboard = () => {
               <h3 className="m-0 fs-6 fw-bold">🍽️ Recent Catering</h3>
               <button
                 onClick={() =>
-                  navigate(`/bulebeti/${restaurantName}/admin/catering`)
+                  navigate(`/maedbet/${restaurantName}/admin/catering`)
                 }
                 className="btn btn-link text-decoration-none text-warning fw-bold p-0 fs-7"
               >
@@ -739,11 +737,26 @@ const AdminDashboard = () => {
               }}
             >
               <div style={{ fontSize: "36px", color: "#D4AF37" }}>✦</div>
-              <h3 style={{ color: "#D4AF37", margin: 0, fontSize: "18px", fontWeight: "800" }}>
+              <h3
+                style={{
+                  color: "#D4AF37",
+                  margin: 0,
+                  fontSize: "18px",
+                  fontWeight: "800",
+                }}
+              >
                 {t("admin_upgrade_title") || "Upgrade Hub"}
               </h3>
-              <p style={{ margin: 0, fontSize: "13px", color: "rgba(255, 255, 255, 0.8)", lineHeight: "1.5" }}>
-                {t("admin_upgrade_desc") || "Unlock advanced catering management, unlimited locations, and automated SMS alerts."}
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "13px",
+                  color: "rgba(255, 255, 255, 0.8)",
+                  lineHeight: "1.5",
+                }}
+              >
+                {t("admin_upgrade_desc") ||
+                  "Unlock advanced catering management, unlimited locations, and automated SMS alerts."}
               </p>
               <button
                 style={{
@@ -780,7 +793,7 @@ const AdminDashboard = () => {
           <div key={action.path} className="col-6 col-md-4 col-xl">
             <button
               onClick={() =>
-                navigate(`/bulebeti/${restaurantName}/admin/${action.path}`)
+                navigate(`/maedbet/${restaurantName}/admin/${action.path}`)
               }
               className="btn btn-light w-100 h-100 p-3 d-flex flex-column align-items-center gap-2 border shadow-sm rounded-3"
               style={{

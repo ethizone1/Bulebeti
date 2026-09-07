@@ -20,11 +20,11 @@ const BuleBetLogo = ({
           ...style,
         }}
         className={className}
-        aria-label="BuleBet Ethiopian Restaurant Hub"
+        aria-label="MaedBet Ethiopian Restaurant Hub"
       >
         <img
           src="/bulebet_footer_logo.png"
-          alt="BuleBet Ethiopian Restaurant Hub Logo"
+          alt="MaedBet Ethiopian Restaurant Hub Logo"
           style={{
             height: `${size}px`,
             width: "auto",
@@ -46,11 +46,11 @@ const BuleBetLogo = ({
           ...style,
         }}
         className={className}
-        aria-label="BuleBet Ethiopian Restaurant Hub"
+        aria-label="MaedBet Ethiopian Restaurant Hub"
       >
         <img
           src="/bulebet_title_logo.png"
-          alt="BuleBet Ethiopian Restaurant Hub Logo"
+          alt="MaedBet Ethiopian Restaurant Hub Logo"
           style={{
             height: `${size}px`,
             width: "auto",
@@ -73,11 +73,11 @@ const BuleBetLogo = ({
           ...style,
         }}
         className={className}
-        aria-label="BuleBet Ethiopian Restaurant Hub"
+        aria-label="MaedBet Ethiopian Restaurant Hub"
       >
         <img
           src="/bulebet_text_logo.png"
-          alt="BuleBet Ethiopian Restaurant Hub"
+          alt="MaedBet Ethiopian Restaurant Hub"
           style={{
             height: `${size}px`,
             width: "auto",
@@ -99,11 +99,11 @@ const BuleBetLogo = ({
           ...style,
         }}
         className={className}
-        aria-label="BuleBet Home"
+        aria-label="MaedBet Home"
       >
         <img
           src="/bulebet_emblem.png"
-          alt="BuleBet Emblem"
+          alt="MaedBet Emblem"
           style={{
             height: `${size}px`,
             width: "auto",
@@ -115,7 +115,7 @@ const BuleBetLogo = ({
     );
   }
 
-  // Default: Combo (Emblem Image + Styled Golden Title Text)
+  // Default: Combo (Renders full new luxury golden MaedBet logo image)
   return (
     <Link
       to={linkTo}
@@ -123,53 +123,21 @@ const BuleBetLogo = ({
         textDecoration: "none",
         display: "inline-flex",
         alignItems: "center",
-        gap: "10px",
         ...style,
       }}
       className={className}
-      aria-label="BuleBet Home"
+      aria-label="MaedBet Home"
     >
       <img
-        src="/bulebet_light_emblem.png"
-        alt="BuleBet Emblem"
+        src="/maedbet_logo.png"
+        alt="MaedBet Ethiopian Restaurant Hub Logo"
         style={{
-          height: `${size}px`,
-          width: `${size}px`,
+          height: `${size * 1.3}px`,
+          width: "auto",
           objectFit: "contain",
-          flexShrink: 0,
-          filter: "drop-shadow(0 2px 6px rgba(212, 175, 55, 0.25))",
+          filter: "drop-shadow(0 2px 8px rgba(212, 175, 55, 0.25))",
         }}
       />
-      <div
-        style={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}
-      >
-        <span
-          style={{
-            fontSize: `${Math.max(15, size * 0.45)}px`,
-            fontWeight: 800,
-            letterSpacing: "0.08em",
-            color: "var(--primary, #0f172a)",
-            fontFamily: "'Georgia', 'Times New Roman', serif",
-          }}
-        >
-          BULEBET
-        </span>
-        {showSubtitle && (
-          <span
-            className="hide-on-mobile"
-            style={{
-              fontSize: `${Math.max(9, size * 0.22)}px`,
-              fontWeight: 700,
-              letterSpacing: "0.06em",
-              color: "var(--gold, #d4af37)",
-              textTransform: "uppercase",
-              whiteSpace: "nowrap",
-            }}
-          >
-            ETHIOPIAN RESTAURANT HUB
-          </span>
-        )}
-      </div>
     </Link>
   );
 };

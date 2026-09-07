@@ -890,7 +890,7 @@ const RestaurantLandingPage = () => {
               style={{ textAlign: "center", marginTop: "var(--spacing-xl)" }}
             >
               <Link
-                to={`/bulebeti/${restaurantName}/menu`}
+                to={`/maedbet/${restaurantName}/menu`}
                 className="btn btn-outline"
               >
                 See Full Menu
@@ -1038,7 +1038,7 @@ const RestaurantLandingPage = () => {
                 style={{ textAlign: "center", marginTop: "var(--spacing-xl)" }}
               >
                 <Link
-                  to={`/bulebeti/${restaurantName}/testimonials`}
+                  to={`/maedbet/${restaurantName}/testimonials`}
                   className="btn btn-outline"
                 >
                   Read All Reviews

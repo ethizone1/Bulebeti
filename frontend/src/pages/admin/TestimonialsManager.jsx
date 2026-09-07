@@ -85,7 +85,7 @@ const TestimonialsManager = () => {
           <strong>Premium</strong> plan.
         </p>
         <Link
-          to={`/bulebeti/${restaurantName}/admin/settings`}
+          to={`/maedbet/${restaurantName}/admin/settings`}
           className="btn btn-primary"
         >
           Upgrade Plan
