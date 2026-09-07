@@ -41,18 +41,19 @@ const getTransporter = () => {
   ) {
     return null;
   }
+  const cleanPass = (process.env.EMAIL_PASS || "").replace(/\s+/g, "");
   return nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: process.env.EMAIL_USER.trim(),
+      pass: cleanPass,
     },
     tls: {
       rejectUnauthorized: false,
     },
-    connectionTimeout: 5000,
-    greetingTimeout: 5000,
-    socketTimeout: 5000,
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 15000,
   });
 };
 
@@ -61,7 +62,7 @@ const sendEmail = async (
   toEmail,
   subject,
   htmlContent,
-  senderName = "bulebeti",
+  senderName = "MaedBet",
 ) => {
   try {
     const transporter = getTransporter();
@@ -74,7 +75,7 @@ const sendEmail = async (
     }
 
     const emailPromise = transporter.sendMail({
-      from: `"${senderName}" <${process.env.EMAIL_USER}>`,
+      from: `"${senderName}" <${process.env.EMAIL_USER.trim()}>`,
       to: toEmail,
       subject,
       html: htmlContent,
@@ -82,8 +83,8 @@ const sendEmail = async (
 
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(
-        () => reject(new Error("Email dispatch timeout (5s limit)")),
-        5000,
+        () => reject(new Error("Email dispatch timeout (15s limit)")),
+        15000,
       ),
     );
 
