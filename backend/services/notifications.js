@@ -50,6 +50,9 @@ const getTransporter = () => {
     tls: {
       rejectUnauthorized: false,
     },
+    connectionTimeout: 5000,
+    greetingTimeout: 5000,
+    socketTimeout: 5000,
   });
 };
 
@@ -70,12 +73,18 @@ const sendEmail = async (
       return false;
     }
 
-    await transporter.sendMail({
+    const emailPromise = transporter.sendMail({
       from: `"${senderName}" <${process.env.EMAIL_USER}>`,
       to: toEmail,
       subject,
       html: htmlContent,
     });
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Email dispatch timeout (5s limit)")), 5000)
+    );
+
+    await Promise.race([emailPromise, timeoutPromise]);
     console.log(`✅ Email sent → ${toEmail}`);
     return true;
   } catch (err) {

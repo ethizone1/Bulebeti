@@ -36,6 +36,10 @@ app.use(
 const allowedOrigins = [
   process.env.CLIENT_ORIGIN,
   process.env.FRONTEND_URL,
+  "https://maedbet.com",
+  "https://www.maedbet.com",
+  "http://maedbet.com",
+  "http://www.maedbet.com",
   "https://bulebeti.com",
   "https://www.bulebeti.com",
   "http://bulebeti.com",
@@ -58,8 +62,11 @@ app.use(
       );
 
       const isDomainMatch =
+        cleanOrigin.endsWith(".maedbet.com") ||
         cleanOrigin.endsWith(".bulebeti.com") ||
         cleanOrigin.endsWith(".vercel.app") ||
+        cleanOrigin === "https://maedbet.com" ||
+        cleanOrigin === "http://maedbet.com" ||
         cleanOrigin === "https://bulebeti.com" ||
         cleanOrigin === "http://bulebeti.com";
 
