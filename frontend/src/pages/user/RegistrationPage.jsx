@@ -346,7 +346,11 @@ const RegistrationPage = () => {
 
         setUpgradeSuccess(true);
       } catch (err) {
-        setError(err.message);
+        setError(
+          err.message === "Failed to fetch" || err.message?.includes("Failed to fetch")
+            ? "Unable to connect to backend server. Render server may be waking up (cold start) or updating CORS. Please wait 10 seconds and try again."
+            : err.message
+        );
       } finally {
         setLoading(false);
       }
@@ -400,7 +404,11 @@ const RegistrationPage = () => {
       // If already verified or authenticated with matching password
       await finalizeRegistration(authData.token, authData.user);
     } catch (err) {
-      setError(err.message);
+      setError(
+        err.message === "Failed to fetch" || err.message?.includes("Failed to fetch")
+          ? "Unable to connect to backend server. Render server may be waking up (cold start) or updating CORS. Please wait 10 seconds and try again."
+          : err.message
+      );
       setLoading(false);
     }
   };
