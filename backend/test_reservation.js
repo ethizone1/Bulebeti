@@ -16,7 +16,7 @@ async function testApi() {
   const payload = {
     restaurantId: restaurant._id,
     guestName: 'API Test User',
-    email: 'add.belaye@gmail.com',
+    email: 'ethizone1@gmail.com',
     phone: '5713429228',
     date: '2026-12-25',
     time: '19:00',
