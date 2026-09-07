@@ -541,6 +541,7 @@ const RegistrationPage = () => {
             {/* Basic Plan */}
             <div
               onClick={() => handleSelectTier("Basic")}
+              className={`pricing-card-option ${formData.subscriptionTier === "Basic" ? "is-selected" : ""}`}
               style={{
                 padding: "28px 20px",
                 borderRadius: "16px",
@@ -554,15 +555,6 @@ const RegistrationPage = () => {
                 flexDirection: "column",
                 height: "100%",
                 cursor: "pointer",
-                transition: "all 0.2s ease-in-out",
-                boxShadow:
-                  formData.subscriptionTier === "Basic"
-                    ? "0 8px 25px rgba(212, 175, 55, 0.25)"
-                    : "0 2px 8px rgba(0,0,0,0.04)",
-                transform:
-                  formData.subscriptionTier === "Basic"
-                    ? "translateY(-4px)"
-                    : "none",
               }}
             >
               <h3
@@ -641,6 +633,7 @@ const RegistrationPage = () => {
             {/* Gold Plan */}
             <div
               onClick={() => handleSelectTier("Gold")}
+              className={`pricing-card-option ${formData.subscriptionTier === "Gold" ? "is-selected" : ""}`}
               style={{
                 padding: "28px 20px",
                 borderRadius: "16px",
@@ -654,15 +647,6 @@ const RegistrationPage = () => {
                 flexDirection: "column",
                 height: "100%",
                 cursor: "pointer",
-                transition: "all 0.2s ease-in-out",
-                boxShadow:
-                  formData.subscriptionTier === "Gold"
-                    ? "0 8px 25px rgba(212, 175, 55, 0.25)"
-                    : "0 2px 8px rgba(0,0,0,0.04)",
-                transform:
-                  formData.subscriptionTier === "Gold"
-                    ? "translateY(-4px)"
-                    : "none",
               }}
             >
               <h3
@@ -739,6 +723,7 @@ const RegistrationPage = () => {
             {/* Platinum Plan */}
             <div
               onClick={() => handleSelectTier("Platinum")}
+              className={`pricing-card-option tier-platinum-card ${formData.subscriptionTier === "Platinum" ? "is-selected" : ""}`}
               style={{
                 padding: "28px 20px",
                 borderRadius: "16px",
@@ -753,15 +738,6 @@ const RegistrationPage = () => {
                 position: "relative",
                 height: "100%",
                 cursor: "pointer",
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                boxShadow:
-                  formData.subscriptionTier === "Platinum"
-                    ? "0 12px 32px rgba(212, 175, 55, 0.4)"
-                    : "0 8px 22px rgba(212, 175, 55, 0.2)",
-                transform:
-                  formData.subscriptionTier === "Platinum"
-                    ? "translateY(-6px)"
-                    : "none",
               }}
             >
               <div
@@ -858,6 +834,7 @@ const RegistrationPage = () => {
             {/* Premium Plan */}
             <div
               onClick={() => handleSelectTier("Premium")}
+              className={`pricing-card-option tier-premium-dark ${formData.subscriptionTier === "Premium" ? "is-selected" : ""}`}
               style={{
                 padding: "28px 20px",
                 borderRadius: "16px",
@@ -873,15 +850,6 @@ const RegistrationPage = () => {
                 position: "relative",
                 height: "100%",
                 cursor: "pointer",
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                boxShadow:
-                  formData.subscriptionTier === "Premium"
-                    ? "0 12px 32px rgba(212, 175, 55, 0.45)"
-                    : "0 8px 24px rgba(0,0,0,0.25)",
-                transform:
-                  formData.subscriptionTier === "Premium"
-                    ? "translateY(-6px)"
-                    : "none",
               }}
             >
               <div

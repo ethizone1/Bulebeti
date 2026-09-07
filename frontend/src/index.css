@@ -676,4 +676,44 @@ h4 { font-size: clamp(15px, 2vw, 20px); font-weight: 600; }
   }
 }
 
+/* ═══════════════════════════════════════════════════════════
+   PRICING TIER CARDS — SHADOW & HOVER RULES
+═══════════════════════════════════════════════════════════ */
+.pricing-card-option {
+  box-shadow: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.pricing-card-option:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.16) !important;
+}
+
+.pricing-card-option.is-selected {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 14px 35px rgba(212, 175, 55, 0.4) !important;
+}
+
+/* Platinum default state has hard shadow */
+.pricing-card-option.tier-platinum-card {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22) !important;
+}
+
+.pricing-card-option.tier-platinum-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 16px 38px rgba(212, 175, 55, 0.45) !important;
+}
+
+.pricing-card-option.tier-platinum-card.is-selected {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 16px 38px rgba(212, 175, 55, 0.5) !important;
+}
+
+/* Premium Dark card hover */
+.pricing-card-option.tier-premium-dark:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 16px 38px rgba(212, 175, 55, 0.45) !important;
+}
+
+
 
