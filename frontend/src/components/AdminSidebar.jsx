@@ -228,19 +228,15 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
     <>
       <aside
         style={{
-          width: "260px",
+          width: "100%",
           minHeight: "100vh",
           backgroundColor: "#0a0a0a",
           color: "#ffffff",
           padding: "var(--spacing-xl) 0",
           display: "flex",
           flexDirection: "column",
-          position: "fixed",
-          left: 0,
-          top: 0,
-          bottom: 0,
+          position: "relative",
           zIndex: 1000,
-          boxShadow: "4px 0 15px rgba(0,0,0,0.25)",
         }}
       >
         {/* ── Brand + Tier ─────────────────────────────────────────── */}
