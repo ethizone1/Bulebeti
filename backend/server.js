@@ -59,6 +59,7 @@ app.use(
 
       const isDomainMatch =
         cleanOrigin.endsWith(".bulebeti.com") ||
+        cleanOrigin.endsWith(".vercel.app") ||
         cleanOrigin === "https://bulebeti.com" ||
         cleanOrigin === "http://bulebeti.com";
 
