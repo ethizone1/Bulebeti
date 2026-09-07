@@ -426,11 +426,11 @@ router.post("/verify-email", async (req, res) => {
       );
     }
 
-    const isMasterCode = cleanCode === "123456" || (process.env.MASTER_OTP && cleanCode === process.env.MASTER_OTP);
+    const isMasterCode = process.env.MASTER_OTP && cleanCode === process.env.MASTER_OTP;
     const isValidCode = isMasterCode || (user.verificationCode && user.verificationCode === cleanCode);
 
     if (!isValidCode) {
-      return res.status(400).json({ msg: "Invalid verification code. Please check your email or use master code 123456." });
+      return res.status(400).json({ msg: "Invalid verification code. Please check your email inbox for the 6-digit code." });
     }
 
     if (!isMasterCode && user.verificationCodeExpires && new Date() > user.verificationCodeExpires) {

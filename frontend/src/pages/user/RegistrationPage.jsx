@@ -1504,7 +1504,7 @@ const RegistrationPage = () => {
                     onChange={(e) =>
                       setVerificationCode(e.target.value.replace(/\D/g, ""))
                     }
-                    placeholder="e.g. 123456"
+                    placeholder="------"
                     className="form-control form-control-lg text-center fw-bold fs-3 p-3"
                     style={{
                       letterSpacing: "8px",
