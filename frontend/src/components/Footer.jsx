@@ -145,11 +145,11 @@ const Footer = () => {
                 src="/maedbet_logo.png"
                 alt="MaedBet Ethiopian Restaurant Hub"
                 style={{
-                  height: "70px",
+                  height: "85px",
                   width: "auto",
                   objectFit: "contain",
                   marginBottom: "14px",
-                  borderRadius: "4px",
+                  filter: "drop-shadow(0 2px 10px rgba(212, 175, 55, 0.3))",
                 }}
               />
             )}
