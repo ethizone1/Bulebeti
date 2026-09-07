@@ -107,7 +107,7 @@ const AdminNavbar = ({ currentTier = "Platinum" }) => {
                   id: r._id,
                   label: `New Reservation`,
                   detail: `${r.guestName} — ${r.date} at ${r.time} (${r.guests} guests)`,
-                  path: `/bulebeti/${restaurantName}/admin/reservations`,
+                  path: `/${restaurantName}/admin/reservations`,
                   time: r.createdAt,
                 });
               });
@@ -136,7 +136,7 @@ const AdminNavbar = ({ currentTier = "Platinum" }) => {
                         id: c._id,
                         label: `New Catering Inquiry`,
                         detail: `${c.name} — ${c.eventType} for ${c.guestCount} guests`,
-                        path: `/bulebeti/${restaurantName}/admin/catering`,
+                        path: `/${restaurantName}/admin/catering`,
                         time: c.createdAt,
                       });
                     });
@@ -157,7 +157,7 @@ const AdminNavbar = ({ currentTier = "Platinum" }) => {
                         id: f._id,
                         label: `New Feedback Received`,
                         detail: `${f.customer || "Guest"} rated ${f.rating} stars`,
-                        path: `/bulebeti/${restaurantName}/admin/feedback`,
+                        path: `/${restaurantName}/admin/feedback`,
                         time: f.createdAt || new Date().toISOString(),
                       });
                     });
@@ -234,7 +234,7 @@ const AdminNavbar = ({ currentTier = "Platinum" }) => {
     >
       {/* ── Brand logo → customer main page ──────────────────── */}
       <Link
-        to={`/bulebeti/${restaurantName}`}
+        to={`/${restaurantName}`}
         title="View customer site"
         style={{
           display: "flex",
@@ -390,7 +390,7 @@ const AdminNavbar = ({ currentTier = "Platinum" }) => {
               }}
             >
               <a
-                href={`/bulebeti/${restaurantName}`}
+                href={`/${restaurantName}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setShowQuickActions(false)}
@@ -733,7 +733,7 @@ const AdminNavbar = ({ currentTier = "Platinum" }) => {
                   <button
                     onClick={() => {
                       navigate(
-                        `/bulebeti/${restaurantName}/admin/reservations`,
+                        `/${restaurantName}/admin/reservations`,
                       );
                       setShowNotifDropdown(false);
                     }}
@@ -753,7 +753,7 @@ const AdminNavbar = ({ currentTier = "Platinum" }) => {
                   </button>
                   <button
                     onClick={() => {
-                      navigate(`/bulebeti/${restaurantName}/admin/catering`);
+                      navigate(`/${restaurantName}/admin/catering`);
                       setShowNotifDropdown(false);
                     }}
                     style={{
@@ -974,22 +974,22 @@ const AdminNavbar = ({ currentTier = "Platinum" }) => {
                 {
                   label: "Profile Settings",
                   icon: "👤",
-                  path: `/bulebeti/${restaurantName}/admin/settings`,
+                  path: `/${restaurantName}/admin/settings`,
                 },
                 {
                   label: "Add New Location",
                   icon: "📍",
-                  path: `/bulebeti/${restaurantName}/admin/locations`,
+                  path: `/${restaurantName}/admin/locations`,
                 },
                 {
                   label: "Security & Privacy",
                   icon: "🔒",
-                  path: `/bulebeti/${restaurantName}/admin/settings`,
+                  path: `/${restaurantName}/admin/settings`,
                 },
                 {
                   label: "Billing & Plans",
                   icon: "💳",
-                  path: `/bulebeti/${restaurantName}/admin/settings`,
+                  path: `/${restaurantName}/admin/settings`,
                 },
                 { label: "Help & Support", icon: "❓", path: "#" },
               ].map((item) => (
@@ -1031,7 +1031,7 @@ const AdminNavbar = ({ currentTier = "Platinum" }) => {
                   onClick={() => {
                     localStorage.removeItem("token");
                     localStorage.removeItem("user");
-                    navigate("/bulebeti/login", { replace: true });
+                    navigate("/login", { replace: true });
                   }}
                   style={{
                     padding: "10px 16px",

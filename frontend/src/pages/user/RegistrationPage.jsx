@@ -314,7 +314,7 @@ const RegistrationPage = () => {
       throw new Error(restData.msg || "Failed to create restaurant profile.");
     }
 
-    navigate(`/maedbet/${slug}/admin`);
+    navigate(`/${slug}/admin`);
   };
 
   const handleSubmit = async (e) => {

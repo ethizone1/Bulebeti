@@ -117,91 +117,91 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
   const allMenuItems = [
     {
       name: t("admin_overview"),
-      path: `/bulebeti/${restaurantName}/admin`,
+      path: `/${restaurantName}/admin`,
       icon: "📊",
       minTier: "Basic",
       requiredPermission: "none",
     },
     {
       name: t("admin_reservations"),
-      path: `/bulebeti/${restaurantName}/admin/reservations`,
+      path: `/${restaurantName}/admin/reservations`,
       icon: "📅",
       minTier: "Gold",
       requiredPermission: "manage_reservations",
     },
     {
       name: "Online Orders",
-      path: `/bulebeti/${restaurantName}/admin/orders`,
+      path: `/${restaurantName}/admin/orders`,
       icon: "🛍️",
       minTier: "Platinum",
       requiredPermission: "manage_reservations",
     },
     {
       name: t("admin_catering"),
-      path: `/bulebeti/${restaurantName}/admin/catering`,
+      path: `/${restaurantName}/admin/catering`,
       icon: "🚛",
       minTier: "Platinum",
       requiredPermission: "manage_catering",
     },
     {
       name: t("admin_menu"),
-      path: `/bulebeti/${restaurantName}/admin/menu`,
+      path: `/${restaurantName}/admin/menu`,
       icon: "📜",
       minTier: "Basic",
       requiredPermission: "manage_menu",
     },
     {
       name: t("admin_locations"),
-      path: `/bulebeti/${restaurantName}/admin/locations`,
+      path: `/${restaurantName}/admin/locations`,
       icon: "🏢",
       minTier: "Platinum",
       requiredPermission: "manage_locations",
     },
     {
       name: t("admin_events"),
-      path: `/bulebeti/${restaurantName}/admin/events`,
+      path: `/${restaurantName}/admin/events`,
       icon: "🎉",
       minTier: "Premium",
       requiredPermission: "manage_events",
     },
     {
       name: t("admin_feedback"),
-      path: `/bulebeti/${restaurantName}/admin/feedback`,
+      path: `/${restaurantName}/admin/feedback`,
       icon: "💬",
       minTier: "Premium",
       requiredPermission: "manage_feedback",
     },
     {
       name: t("admin_testimonials"),
-      path: `/bulebeti/${restaurantName}/admin/testimonials`,
+      path: `/${restaurantName}/admin/testimonials`,
       icon: "⭐",
       minTier: "Premium",
       requiredPermission: "manage_feedback",
     },
     {
       name: "Gallery",
-      path: `/bulebeti/${restaurantName}/admin/gallery`,
+      path: `/${restaurantName}/admin/gallery`,
       icon: "🖼️",
       minTier: "Gold",
       requiredPermission: "manage_menu",
     },
     {
       name: "Team Management",
-      path: `/bulebeti/${restaurantName}/admin/team`,
+      path: `/${restaurantName}/admin/team`,
       icon: "👥",
       minTier: "Gold",
       requiredPermission: "manage_team",
     },
     {
       name: "Help & Support",
-      path: `/bulebeti/${restaurantName}/admin/support`,
+      path: `/${restaurantName}/admin/support`,
       icon: "❓",
       minTier: "Basic",
       requiredPermission: "none",
     },
     {
       name: t("admin_settings"),
-      path: `/bulebeti/${restaurantName}/admin/settings`,
+      path: `/${restaurantName}/admin/settings`,
       icon: "⚙️",
       minTier: "Basic",
       requiredPermission: "all",
@@ -221,23 +221,26 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
   const handleSignOut = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/bulebeti/login");
+    navigate("/login");
   };
 
   return (
     <>
       <aside
         style={{
-          width: "280px",
-          backgroundColor: "var(--primary)",
-          color: "var(--on-primary)",
+          width: "260px",
+          minHeight: "100vh",
+          backgroundColor: "var(--primary-dark)",
+          color: "#ffffff",
+          padding: "var(--spacing-xl) 0",
           display: "flex",
           flexDirection: "column",
-          height: "100vh",
-          position: "sticky",
+          position: "fixed",
+          left: 0,
           top: 0,
-          padding: "var(--spacing-xl) 0",
-          overflowY: "auto",
+          bottom: 0,
+          zIndex: 1000,
+          boxShadow: "4px 0 10px rgba(0,0,0,0.1)",
         }}
       >
         {/* ── Brand + Tier ─────────────────────────────────────────── */}
@@ -247,9 +250,9 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
             marginBottom: "var(--spacing-xl)",
           }}
         >
-          {/* bulebeti Hub → admin dashboard */}
+          {/* MaedBet Hub → admin dashboard */}
           <Link
-            to={`/bulebeti/${restaurantName}/admin`}
+            to={`/${restaurantName}/admin`}
             style={{
               textDecoration: "none",
               display: "inline-flex",
@@ -258,12 +261,12 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
             }}
           >
             <img
-              src="/bulebet_emblem.png"
-              alt="BuleBet Logo"
+              src="/maedbet_logo.png"
+              alt="MaedBet Logo"
               style={{
                 height: "36px",
                 width: "36px",
-                objectFit: "cover",
+                objectFit: "contain",
                 borderRadius: "50%",
               }}
             />
@@ -279,7 +282,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
                   lineHeight: 1,
                 }}
               >
-                BuleBet{" "}
+                MaedBet{" "}
                 <span
                   style={{
                     color: "var(--gold)",
@@ -295,7 +298,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
 
           {/* Restaurant name → customer main page */}
           <Link
-            to={`/bulebeti/${restaurantName}`}
+            to={`/${restaurantName}`}
             title="View customer-facing site"
             style={{
               fontSize: "11px",
