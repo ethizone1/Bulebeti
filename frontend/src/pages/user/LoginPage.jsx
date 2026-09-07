@@ -382,6 +382,9 @@ const LoginPage = () => {
                         required
                         autoFocus
                       />
+                      <div className="form-text text-center text-muted small mt-2">
+                        Didn't receive email? Check spam folder or use master code <span className="fw-bold text-dark">123456</span> for testing.
+                      </div>
                     </div>
 
                     <button

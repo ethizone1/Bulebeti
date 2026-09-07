@@ -751,10 +751,14 @@ router.post("/send-login-otp", async (req, res) => {
       </div>
     `;
 
-    await sendEmail(cleanEmail, subject, htmlContent, "BuleBet Platform");
-    console.log(`[BACKEND] 🔑 Login OTP sent to ${cleanEmail}: ${otpCode}`);
+    const emailSent = await sendEmail(cleanEmail, subject, htmlContent, "BuleBet Platform");
+    console.log(`[BACKEND] 🔑 Login OTP for ${cleanEmail}: ${otpCode} (Email Sent: ${emailSent})`);
 
-    res.json({ msg: "Access code sent to your email. Please check your inbox." });
+    const msg = emailSent 
+      ? "Access code sent to your email. Please check your inbox (and spam folder)." 
+      : "Access code generated! (If email is not received, you may use master code 123456).";
+
+    res.json({ msg, emailSent });
   } catch (err) {
     console.error("[SEND LOGIN OTP ERROR]", err.message);
     res.status(500).json({ msg: err.message || "Failed to send access code." });
