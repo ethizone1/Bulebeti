@@ -161,10 +161,10 @@ router.post("/register", async (req, res) => {
         user.verificationCodeExpires = verificationCodeExpires;
         await user.save();
 
-        const subject = "🔐 Complete Your BuleBet Registration - Verification Code";
+        const subject = "🔐 Complete Your MaedBet Registration - Verification Code";
         const htmlContent = `
           <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;">
-            <h2 style="color: #D4AF37; margin-top: 0;">Confirm Your BuleBet Account</h2>
+            <h2 style="color: #D4AF37; margin-top: 0;">Confirm Your MaedBet Account</h2>
             <p>Hi <strong>${finalName}</strong>,</p>
             <p>Your registration code is:</p>
             <div style="background: #f3f4f6; font-size: 32px; font-weight: bold; letter-spacing: 6px; text-align: center; padding: 16px; border-radius: 8px; margin: 20px 0; color: #111827;">
@@ -173,7 +173,7 @@ router.post("/register", async (req, res) => {
             <p style="font-size: 13px; color: #6b7280;">This code will expire in 15 minutes.</p>
           </div>
         `;
-        const sent = await sendEmail(finalEmail, subject, htmlContent, "BuleBet Platform");
+        const sent = await sendEmail(finalEmail, subject, htmlContent, "MaedBet Platform");
         if (sent) {
           console.log(`[BACKEND] 🔑 Resent verification code to unverified user ${finalEmail}: ${verificationCode}`);
         } else {
@@ -335,10 +335,10 @@ router.post("/register", async (req, res) => {
     }
 
     // Send Verification Email
-    const subject = "🔐 Verify Your BuleBet Account Registration";
+    const subject = "🔐 Verify Your MaedBet Account Registration";
     const htmlContent = `
       <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;">
-        <h2 style="color: #D4AF37; margin-top: 0;">Welcome to BuleBet!</h2>
+        <h2 style="color: #D4AF37; margin-top: 0;">Welcome to MaedBet!</h2>
         <p>Hi <strong>${finalName}</strong>,</p>
         <p>Please enter the following 6-digit confirmation code in your browser to complete your restaurant registration:</p>
         <div style="background: #f3f4f6; font-size: 32px; font-weight: bold; letter-spacing: 6px; text-align: center; padding: 16px; border-radius: 8px; margin: 20px 0; color: #111827;">
@@ -347,7 +347,7 @@ router.post("/register", async (req, res) => {
         <p style="font-size: 13px; color: #6b7280;">This verification code will expire in 15 minutes.</p>
       </div>
     `;
-    const sent = await sendEmail(finalEmail, subject, htmlContent, "BuleBet Platform");
+    const sent = await sendEmail(finalEmail, subject, htmlContent, "MaedBet Platform");
     if (sent) {
       console.log(`[BACKEND] 🔑 Generated & dispatched verification code for ${finalEmail}: ${verificationCode}`);
     } else {

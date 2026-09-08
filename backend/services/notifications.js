@@ -67,32 +67,59 @@ const sendEmail = async (
   senderName = "MaedBet",
 ) => {
   try {
-    const transporter = getTransporter();
+    const user = (process.env.EMAIL_USER || "").trim();
+    const pass = (process.env.EMAIL_PASS || "").replace(/\s+/g, "");
 
-    if (!transporter) {
+    if (!user || !pass || user.includes("your_gmail")) {
       console.log(
-        `\n📧 EMAIL [NOT SENT — no credentials]: TO: ${toEmail} | ${subject}\n`,
+        `\n📧 EMAIL [NOT SENT — missing credentials]: TO: ${toEmail} | ${subject}\n`,
       );
       return false;
     }
 
-    const emailPromise = transporter.sendMail({
-      from: `"${senderName}" <${process.env.EMAIL_USER.trim()}>`,
-      to: toEmail,
-      subject,
-      html: htmlContent,
+    // Port 465 (SSL)
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: { user, pass },
+      tls: { rejectUnauthorized: false },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
 
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(
-        () => reject(new Error("Email dispatch timeout (15s limit)")),
-        15000,
-      ),
-    );
+    try {
+      await transporter.sendMail({
+        from: `"${senderName}" <${user}>`,
+        to: toEmail,
+        subject,
+        html: htmlContent,
+      });
+      console.log(`✅ Email sent (Port 465 SSL) → ${toEmail}`);
+      return true;
+    } catch (err465) {
+      console.warn(`⚠️ Port 465 failed (${err465.message}), attempting Port 587 STARTTLS fallback...`);
+      transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: { user, pass },
+        tls: { rejectUnauthorized: false },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
+      });
 
-    await Promise.race([emailPromise, timeoutPromise]);
-    console.log(`✅ Email sent → ${toEmail}`);
-    return true;
+      await transporter.sendMail({
+        from: `"${senderName}" <${user}>`,
+        to: toEmail,
+        subject,
+        html: htmlContent,
+      });
+      console.log(`✅ Email sent (Port 587 STARTTLS Fallback) → ${toEmail}`);
+      return true;
+    }
   } catch (err) {
     console.error(`❌ Email failed → ${toEmail}:`, err.message);
     return false;
