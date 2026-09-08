@@ -738,10 +738,10 @@ router.post("/send-login-otp", async (req, res) => {
     user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
     await user.save();
 
-    const subject = "🔑 Your BuleBet Login Access Code";
+    const subject = "🔑 Your MaedBet Login Access Code";
     const htmlContent = `
       <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;">
-        <h2 style="color: #D4AF37; margin-top: 0;">BuleBet Login Access Code</h2>
+        <h2 style="color: #D4AF37; margin-top: 0;">MaedBet Login Access Code</h2>
         <p>Hi <strong>${user.name}</strong>,</p>
         <p>Use the following 6-digit access code to log in to your account without a password:</p>
         <div style="background: #f3f4f6; font-size: 32px; font-weight: bold; letter-spacing: 6px; text-align: center; padding: 16px; border-radius: 8px; margin: 20px 0; color: #111827;">
@@ -751,12 +751,12 @@ router.post("/send-login-otp", async (req, res) => {
       </div>
     `;
 
-    const emailSent = await sendEmail(cleanEmail, subject, htmlContent, "BuleBet Platform");
+    const emailSent = await sendEmail(cleanEmail, subject, htmlContent, "MaedBet Platform");
     console.log(`[BACKEND] 🔑 Login OTP for ${cleanEmail}: ${otpCode} (Email Sent: ${emailSent})`);
 
     const msg = emailSent 
       ? "Access code sent to your email. Please check your inbox (and spam folder)." 
-      : "Access code generated! (If email is not received, you may use master code 123456).";
+      : "Access code sent! Please check your email inbox or spam folder.";
 
     res.json({ msg, emailSent });
   } catch (err) {
@@ -781,15 +781,15 @@ router.post("/verify-login-otp", async (req, res) => {
       return res.status(404).json({ msg: "Account not found." });
     }
 
-    const isMasterCode = cleanCode === "123456" || (process.env.MASTER_OTP && cleanCode === process.env.MASTER_OTP);
+    const isMasterCode = process.env.MASTER_OTP && cleanCode === process.env.MASTER_OTP;
     const isValidCode = isMasterCode || (user.verificationCode && user.verificationCode === cleanCode);
 
     if (!isValidCode) {
-      return res.status(400).json({ msg: "Invalid access code. Please check your email or use master code 123456." });
+      return res.status(400).json({ msg: "Invalid access code. Please check your email and try again." });
     }
 
     if (!isMasterCode && user.verificationCodeExpires && new Date() > user.verificationCodeExpires) {
-      return res.status(400).json({ msg: "Access code has expired. Please request a new code or use master code 123456." });
+      return res.status(400).json({ msg: "Access code has expired. Please request a new code." });
     }
 
     // Clear OTP & mark verified/active

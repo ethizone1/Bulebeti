@@ -408,16 +408,14 @@ const LoginPage = () => {
                         onChange={(e) =>
                           setOtpCode(e.target.value.replace(/\D/g, ""))
                         }
-                        placeholder="e.g. 123456"
+                        placeholder="------"
                         className="form-control form-control-lg text-center fw-bold fs-3 p-3 mb-2"
                         style={{ letterSpacing: "8px", borderRadius: "10px" }}
                         required
                         autoFocus
                       />
                       <div className="form-text text-center text-muted small mt-2">
-                        Didn't receive email? Check spam folder or use master
-                        code <span className="fw-bold text-dark">123456</span>{" "}
-                        for testing.
+                        Didn't receive email? Check your spam folder or click Resend Code below.
                       </div>
                     </div>
 
