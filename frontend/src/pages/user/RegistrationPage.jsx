@@ -1041,34 +1041,34 @@ const RegistrationPage = () => {
               boxShadow: "0 25px 60px rgba(0, 0, 0, 0.4)",
             }}
           >
-            {/* ── CHOSEN PLAN HEADER (NAME AND PRICE ONLY) ── */}
+            {/* ── CHOSEN PLAN HEADER (WHITE BACKGROUND FOR ALL PLANS) ── */}
             {(() => {
               const currentTierInfo = TIER_DETAILS[formData.subscriptionTier] || TIER_DETAILS.Gold;
               return (
                 <div
                   style={{
-                    background: currentTierInfo.bg,
-                    color: currentTierInfo.textColor || "#000000",
-                    padding: "20px 24px",
+                    backgroundColor: "#ffffff",
+                    color: "#111827",
+                    padding: "24px 28px 16px 28px",
                     position: "relative",
-                    borderBottom: `3px solid ${currentTierInfo.border}`,
+                    borderBottom: "1px solid var(--platinum, #e5e7eb)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
                   }}
                 >
                   <div>
-                    <h2 style={{ margin: 0, fontSize: "24px", fontWeight: "800" }}>
-                      {currentTierInfo.title} — <span style={{ color: currentTierInfo.color === "#d4af37" ? "var(--gold)" : currentTierInfo.color }}>{currentTierInfo.price}</span>
+                    <h2 style={{ margin: 0, fontSize: "24px", fontWeight: "800", color: "#111827" }}>
+                      {currentTierInfo.title} — <span style={{ color: "var(--gold, #d4af37)" }}>{currentTierInfo.price}</span>
                     </h2>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsRegisterModalOpen(false)}
                     style={{
-                      background: "rgba(255, 255, 255, 0.25)",
-                      border: "none",
-                      color: currentTierInfo.textColor || "#000000",
+                      backgroundColor: "#f3f4f6",
+                      border: "1px solid #e5e7eb",
+                      color: "#374151",
                       width: "36px",
                       height: "36px",
                       borderRadius: "50%",
@@ -1078,6 +1078,7 @@ const RegistrationPage = () => {
                       alignItems: "center",
                       justifyContent: "center",
                       fontWeight: "bold",
+                      transition: "all 0.2s ease",
                     }}
                     title="Close Modal"
                   >
