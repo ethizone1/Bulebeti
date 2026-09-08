@@ -7,7 +7,7 @@ import BuleBetLogo from "./BuleBetLogo";
 
 // Super-admin contact details (platform support)
 const SUPER_ADMIN_CONTACT = {
-  name: "BuleBet Support",
+  name: "MaedBet Support",
   phone: "+1 (240) 441-1075",
   whatsapp: "+12404411075",
   email: "ethizone1@gmail.com",

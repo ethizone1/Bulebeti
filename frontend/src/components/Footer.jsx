@@ -11,7 +11,6 @@ const Footer = () => {
 
   const isRestaurantPage =
     Boolean(restaurantName) &&
-    location.pathname !== "/bulebeti/login" &&
     location.pathname !== "/login" &&
     location.pathname !== "/register";
 

@@ -102,7 +102,7 @@ const AIChatWidget = ({ role = 'customer', restaurantName = 'the restaurant' }) 
         >
           <img
             src="/bulebet_light_emblem.png"
-            alt="BuleBet AI"
+            alt="MaedBet AI"
             style={{ width: '40px', height: '40px', objectFit: 'contain' }}
           />
         </button>
@@ -136,7 +136,7 @@ const AIChatWidget = ({ role = 'customer', restaurantName = 'the restaurant' }) 
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <img
                 src="/bulebet_light_emblem.png"
-                alt="BuleBet AI"
+                alt="MaedBet AI"
                 style={{
                   width: '32px',
                   height: '32px',

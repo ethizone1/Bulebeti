@@ -574,7 +574,7 @@ const RegistrationPage = () => {
                 marginBottom: "12px",
               }}
             >
-              {t("landing_pricing_title") || "Select Your BuleBet Hub Tier"}
+              {t("landing_pricing_title") || "Select Your MaedBet Hub Tier"}
             </h2>
             <p
               style={{
