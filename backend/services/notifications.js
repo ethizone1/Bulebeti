@@ -1,4 +1,4 @@
-// bulebeti Notification Service
+// MaedBet Notification Service
 // Uses Nodemailer (Gmail) for both Email AND SMS (via email-to-SMS gateways)
 // Configure credentials in backend/.env
 
@@ -97,7 +97,7 @@ const sendEmail = async (
   }
 };
 
-const sendSMS = async (toPhone, textMessage, senderName = "bulebeti") => {
+const sendSMS = async (toPhone, textMessage, senderName = "MaedBet") => {
   // 1. Try Twilio if credentials are set in .env
   if (
     process.env.TWILIO_ACCOUNT_SID &&
@@ -380,7 +380,7 @@ const notifyStatusUpdate = async (
       <div style="font-family: sans-serif; max-width: 560px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
         <div style="background: #1f2937; padding: 24px; text-align: center;">
           <h2 style="color: #D4AF37; margin: 0;">${restaurantName}</h2>
-          <p style="color: #9ca3af; margin: 4px 0 0; font-size: 13px;">Powered by bulebeti</p>
+          <p style="color: #9ca3af; margin: 4px 0 0; font-size: 13px;">Powered by MaedBet</p>
         </div>
         <div style="padding: 28px;">
           <h3 style="margin-top: 0;">${msg.headline}</h3>
@@ -395,7 +395,7 @@ const notifyStatusUpdate = async (
           <p style="color: #6b7280; font-size: 13px;">${msg.note}</p>
         </div>
         <div style="background: #f3f4f6; padding: 14px; text-align: center; font-size: 12px; color: #9ca3af;">
-          © bulebeti Platform — This is an automated message.
+          © MaedBet Platform — This is an automated message.
         </div>
       </div>
     `;
@@ -439,7 +439,7 @@ const notifyStatusUpdate = async (
       <div style="font-family: sans-serif; max-width: 560px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
         <div style="background: #1f2937; padding: 24px; text-align: center;">
           <h2 style="color: #D4AF37; margin: 0;">${restaurantName}</h2>
-          <p style="color: #9ca3af; margin: 4px 0 0; font-size: 13px;">Powered by bulebeti</p>
+          <p style="color: #9ca3af; margin: 4px 0 0; font-size: 13px;">Powered by MaedBet</p>
         </div>
         <div style="padding: 28px;">
           <h3 style="margin-top: 0;">${msg.headline}</h3>
@@ -453,13 +453,13 @@ const notifyStatusUpdate = async (
           <p style="color: #6b7280; font-size: 13px;">${msg.note}</p>
         </div>
         <div style="background: #f3f4f6; padding: 14px; text-align: center; font-size: 12px; color: #9ca3af;">
-          © bulebeti Platform — This is an automated message.
+          © MaedBet Platform — This is an automated message.
         </div>
       </div>
     `;
     sms = msg.smsText;
   } else if (type === "Order") {
-    const restaurantName = details.restaurantName || "bulebeti Partner";
+    const restaurantName = details.restaurantName || "MaedBet Partner";
     const customerName =
       details.customerName || details.guestName || "Customer";
     const itemsSummary =
@@ -510,7 +510,7 @@ const notifyStatusUpdate = async (
       <div style="font-family: sans-serif; max-width: 560px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
         <div style="background: #1f2937; padding: 24px; text-align: center;">
           <h2 style="color: #D4AF37; margin: 0;">${restaurantName}</h2>
-          <p style="color: #9ca3af; margin: 4px 0 0; font-size: 13px;">Powered by bulebeti</p>
+          <p style="color: #9ca3af; margin: 4px 0 0; font-size: 13px;">Powered by MaedBet</p>
         </div>
         <div style="padding: 28px;">
           <h3 style="margin-top: 0; color: #111827;">${msg.headline}</h3>
@@ -522,7 +522,7 @@ const notifyStatusUpdate = async (
           <p style="color: #6b7280; font-size: 13px;">${msg.note}</p>
         </div>
         <div style="background: #f3f4f6; padding: 14px; text-align: center; font-size: 12px; color: #9ca3af;">
-          © bulebeti Platform — This is an automated message.
+          © MaedBet Platform — This is an automated message.
         </div>
       </div>
     `;

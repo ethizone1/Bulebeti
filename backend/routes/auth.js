@@ -365,7 +365,7 @@ router.post("/register", async (req, res) => {
       const dupField = Object.keys(err.keyPattern || err.keyValue || {})[0];
       if (dupField === "email") {
         return res.status(400).json({
-          msg: `The email address '${finalEmail}' is already registered on BuleBet. Please click 'Login' above to sign in or reset your password.`,
+          msg: `The email address '${finalEmail}' is already registered on MaedBet. Please click 'Login' above to sign in or reset your password.`,
         });
       }
       return res.status(400).json({
@@ -500,10 +500,10 @@ router.post("/resend-verification", async (req, res) => {
     user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
     await user.save();
 
-    const subject = "🔑 New Verification Code - BuleBet Account";
+    const subject = "🔑 New Verification Code - MaedBet Account";
     const htmlContent = `
       <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;">
-        <h2 style="color: #D4AF37; margin-top: 0;">BuleBet Verification Code</h2>
+        <h2 style="color: #D4AF37; margin-top: 0;">MaedBet Verification Code</h2>
         <p>Hi <strong>${user.name}</strong>,</p>
         <p>Here is your new 6-digit confirmation code:</p>
         <div style="background: #f3f4f6; font-size: 32px; font-weight: bold; letter-spacing: 6px; text-align: center; padding: 16px; border-radius: 8px; margin: 20px 0; color: #111827;">
@@ -512,7 +512,7 @@ router.post("/resend-verification", async (req, res) => {
         <p style="font-size: 13px; color: #6b7280;">This code will expire in 15 minutes.</p>
       </div>
     `;
-    await sendEmail(cleanEmail, subject, htmlContent, "BuleBet Platform");
+    await sendEmail(cleanEmail, subject, htmlContent, "MaedBet Platform");
     console.log(`[BACKEND] 🔑 New verification code generated for ${cleanEmail}: ${newCode}`);
 
     res.json({ msg: "A new 6-digit verification code has been sent to your email." });
