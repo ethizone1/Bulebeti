@@ -1041,7 +1041,7 @@ const RegistrationPage = () => {
               boxShadow: "0 25px 60px rgba(0, 0, 0, 0.4)",
             }}
           >
-            {/* ── DYNAMIC CHOSEN PLAN DESCRIPTION BANNER ── */}
+            {/* ── CHOSEN PLAN HEADER (NAME AND PRICE ONLY) ── */}
             {(() => {
               const currentTierInfo = TIER_DETAILS[formData.subscriptionTier] || TIER_DETAILS.Gold;
               return (
@@ -1049,18 +1049,23 @@ const RegistrationPage = () => {
                   style={{
                     background: currentTierInfo.bg,
                     color: currentTierInfo.textColor || "#000000",
-                    padding: "28px 24px",
+                    padding: "20px 24px",
                     position: "relative",
                     borderBottom: `3px solid ${currentTierInfo.border}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                   }}
                 >
+                  <div>
+                    <h2 style={{ margin: 0, fontSize: "24px", fontWeight: "800" }}>
+                      {currentTierInfo.title} — <span style={{ color: currentTierInfo.color === "#d4af37" ? "var(--gold)" : currentTierInfo.color }}>{currentTierInfo.price}</span>
+                    </h2>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setIsRegisterModalOpen(false)}
                     style={{
-                      position: "absolute",
-                      top: "16px",
-                      right: "16px",
                       background: "rgba(255, 255, 255, 0.25)",
                       border: "none",
                       color: currentTierInfo.textColor || "#000000",
@@ -1078,81 +1083,6 @@ const RegistrationPage = () => {
                   >
                     ✕
                   </button>
-
-                  <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                    <span
-                      style={{
-                        backgroundColor: currentTierInfo.color,
-                        color: "#ffffff",
-                        padding: "4px 12px",
-                        borderRadius: "14px",
-                        fontSize: "11px",
-                        fontWeight: "800",
-                        letterSpacing: "0.5px",
-                      }}
-                    >
-                      {currentTierInfo.badge}
-                    </span>
-                    <div style={{ fontSize: "14px", opacity: 0.9, marginRight: "40px" }}>
-                      Selected Tier:{" "}
-                      <select
-                        value={formData.subscriptionTier}
-                        onChange={(e) => handleSelectTier(e.target.value)}
-                        style={{
-                          padding: "4px 12px",
-                          borderRadius: "8px",
-                          fontWeight: "700",
-                          border: "1px solid rgba(0,0,0,0.2)",
-                          backgroundColor: "#ffffff",
-                          color: "#000000",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <option value="Basic">Basic (Free)</option>
-                        <option value="Gold">Gold ($149/yr)</option>
-                        <option value="Platinum">Platinum ($399/yr)</option>
-                        <option value="Premium">Premium VIP ($699/yr)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <h2 style={{ margin: "6px 0 4px 0", fontSize: "28px", fontWeight: "900" }}>
-                    {currentTierInfo.title} — <span style={{ color: currentTierInfo.color === "#d4af37" ? "var(--gold)" : currentTierInfo.color }}>{currentTierInfo.price}</span>
-                  </h2>
-                  <div style={{ fontSize: "13px", opacity: 0.8, marginBottom: "14px" }}>
-                    {currentTierInfo.regular}
-                  </div>
-
-                  <div
-                    style={{
-                      backgroundColor: "rgba(255, 255, 255, 0.18)",
-                      backdropFilter: "blur(4px)",
-                      padding: "14px 18px",
-                      borderRadius: "12px",
-                      fontSize: "14px",
-                      lineHeight: "1.5",
-                      borderLeft: `4px solid ${currentTierInfo.color}`,
-                    }}
-                  >
-                    <strong>✨ You Selected the {currentTierInfo.title}:</strong> {currentTierInfo.description}
-                  </div>
-
-                  <div className="d-flex flex-wrap gap-2 mt-3">
-                    {currentTierInfo.features.map((f, i) => (
-                      <span
-                        key={i}
-                        style={{
-                          backgroundColor: "rgba(255, 255, 255, 0.25)",
-                          padding: "4px 12px",
-                          borderRadius: "8px",
-                          fontSize: "12px",
-                          fontWeight: "600",
-                        }}
-                      >
-                        {f}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               );
             })()}
