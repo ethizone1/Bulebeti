@@ -615,7 +615,7 @@ const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
             <div style={{ textAlign: "center", marginBottom: "24px" }}>
               <div style={{ fontSize: "48px", marginBottom: "12px" }}>🎧</div>
               <h3 style={{ margin: 0, fontSize: "20px", fontWeight: "800" }}>
-                Contact bulebeti Support
+                Contact MaedBet Support
               </h3>
               <p
                 style={{

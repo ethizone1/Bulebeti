@@ -319,7 +319,7 @@ const AdminLayout = ({ children }) => {
                     color: "var(--gold)",
                   }}
                 >
-                  {restaurant?.name || "bulebeti Restaurant"}
+                  {restaurant?.name || "MaedBet Restaurant"}
                 </div>
                 <div
                   style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)" }}

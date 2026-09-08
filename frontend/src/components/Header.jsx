@@ -65,7 +65,6 @@ const Header = () => {
   // Context-aware navigation links
   const isRestaurantPage =
     Boolean(restaurantName) &&
-    location.pathname !== "/bulebeti/login" &&
     location.pathname !== "/login" &&
     location.pathname !== "/register";
 
@@ -113,7 +112,7 @@ const Header = () => {
         })
         .catch((err) => console.error("Header couldn't fetch restaurant", err));
     } else {
-      document.title = "BuleBet | Premium Restaurant Management";
+      document.title = "MaedBet | Premium Restaurant Management";
     }
   }, [isRestaurantPage, restaurantName]);
 
@@ -451,7 +450,7 @@ const Header = () => {
                       ].map((cat) => (
                         <Link
                           key={cat.id}
-                          to={`/bulebeti/${restaurantName}/menu#${cat.id.toLowerCase().replace(/ /g, "-")}`}
+                          to={`/${restaurantName}/menu#${cat.id.toLowerCase().replace(/ /g, "-")}`}
                           style={{
                             padding: "8px 20px",
                             color: "var(--on-surface-variant)",
@@ -562,7 +561,7 @@ const Header = () => {
 
           {/* Login Button */}
           <button
-            onClick={() => navigate("/bulebeti/login")}
+            onClick={() => navigate("/login")}
             className="btn btn-primary"
             style={{ padding: "6px 14px", fontSize: "12px", borderRadius: "20px" }}
           >
@@ -715,7 +714,7 @@ const Header = () => {
           )}
           <button
             onClick={() => {
-              navigate("/bulebeti/login");
+              navigate("/login");
               setIsMenuOpen(false);
             }}
             className="btn btn-primary"

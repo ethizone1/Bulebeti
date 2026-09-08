@@ -434,7 +434,7 @@ router.post("/verify-email", async (req, res) => {
     }
 
     if (!isMasterCode && user.verificationCodeExpires && new Date() > user.verificationCodeExpires) {
-      return res.status(400).json({ msg: "Verification code has expired. Please click Resend Code or use master code 123456." });
+      return res.status(400).json({ msg: "Verification code has expired. Please click Resend Code to receive a new 6-digit code." });
     }
 
     // Mark as verified & active

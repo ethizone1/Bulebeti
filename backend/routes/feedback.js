@@ -42,7 +42,7 @@ router.post("/", async (req, res) => {
         const twilioToken = process.env.TWILIO_AUTH_TOKEN;
         const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
 
-        const smsBody = `You have received new feedback from ${feedback.customer || "a customer"}. Rating: ${feedback.rating} stars. Check your bulebeti admin dashboard.`;
+        const smsBody = `You have received new feedback from ${feedback.customer || "a customer"}. Rating: ${feedback.rating} stars. Check your MaedBet admin dashboard.`;
 
         if (twilioSid && twilioToken && twilioPhone) {
           const twilio = require("twilio");

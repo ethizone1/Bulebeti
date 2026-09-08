@@ -364,7 +364,7 @@ router.put("/:slug/request-upgrade", auth, async (req, res) => {
     const superAdminPhone = "+12404411075";
 
     // 1. Email & SMS to Super Admin
-    const superAdminSubject = `[bulebeti Alert] 🎫 Plan Upgrade Requested: ${restaurant.name} (${formattedTier})`;
+    const superAdminSubject = `[MaedBet Alert] 🎫 Plan Upgrade Requested: ${restaurant.name} (${formattedTier})`;
     const superAdminHtml = `
       <h2>Plan Upgrade Request Alert!</h2>
       <p>Restaurant <strong>${restaurant.name}</strong> (${restaurant.slug}) has requested an upgrade to the <strong>${formattedTier} Plan</strong>.</p>
@@ -377,19 +377,19 @@ router.put("/:slug/request-upgrade", auth, async (req, res) => {
       </ul>
       <p>Log in to Super Admin Dashboard to approve or manage this request.</p>
     `;
-    const superAdminSms = `[bulebeti Alert]: Restaurant ${restaurant.name} (Owner: ${owner ? owner.name : "Owner"}, Phone: ${ownerPhone}) requested ${formattedTier} plan upgrade. Check Super Admin dashboard.`;
+    const superAdminSms = `[MaedBet Alert]: Restaurant ${restaurant.name} (Owner: ${owner ? owner.name : "Owner"}, Phone: ${ownerPhone}) requested ${formattedTier} plan upgrade. Check Super Admin dashboard.`;
 
     sendEmail(
       superAdminEmail,
       superAdminSubject,
       superAdminHtml,
-      "bulebeti Platform",
+      "MaedBet Platform",
     );
-    sendSMS(superAdminPhone, superAdminSms, "bulebeti Platform");
+    sendSMS(superAdminPhone, superAdminSms, "MaedBet Platform");
 
     // 2. Email & SMS to Restaurant Owner
     if (ownerEmail) {
-      const ownerSubject = `[bulebeti] Upgrade Request Received: ${formattedTier} Plan for ${restaurant.name}`;
+      const ownerSubject = `[MaedBet] Upgrade Request Received: ${formattedTier} Plan for ${restaurant.name}`;
       const ownerHtml = `
         <h2>Hi ${owner ? owner.name : "Restaurant Owner"},</h2>
         <p>Your request to upgrade <strong>${restaurant.name}</strong> to the <strong>${formattedTier} Plan</strong> has been received!</p>
@@ -398,7 +398,7 @@ router.put("/:slug/request-upgrade", auth, async (req, res) => {
       sendEmail(ownerEmail, ownerSubject, ownerHtml, restaurant.name);
     }
     if (ownerPhone && ownerPhone !== "N/A") {
-      const ownerSms = `[bulebeti]: Your upgrade request to ${formattedTier} plan for ${restaurant.name} has been received! Super Admin has been notified and will activate it shortly.`;
+      const ownerSms = `[MaedBet]: Your upgrade request to ${formattedTier} plan for ${restaurant.name} has been received! Super Admin has been notified and will activate it shortly.`;
       sendSMS(ownerPhone, ownerSms, restaurant.name);
     }
 
@@ -439,7 +439,7 @@ router.put(
         try {
           const congratsInquiry = new Inquiry({
             name: "Super Admin Platform System",
-            email: "admin@bulebeti.com",
+            email: "admin@maedbet.com",
             subject: "🎉 Subscription Upgrade Approved!",
             message: `Congratulations! Your request to upgrade ${restaurant.name} to the ${targetTier} Plan has been APPROVED by the Super Admin team. All features of the ${targetTier} Plan are now fully unlocked for your hub!`,
             status: "Resolved",
@@ -468,9 +468,9 @@ router.put(
         try {
           const rejectionInquiry = new Inquiry({
             name: "Super Admin Platform System",
-            email: "admin@bulebeti.com",
+            email: "admin@maedbet.com",
             subject: "Subscription Upgrade Request Status",
-            message: `Your request to upgrade ${restaurant.name} to the ${requestedTier} Plan was reviewed by the Super Admin team and not approved at this time. Please contact support@bulebeti.com for further details.`,
+            message: `Your request to upgrade ${restaurant.name} to the ${requestedTier} Plan was reviewed by the Super Admin team and not approved at this time. Please contact support@maedbet.com for further details.`,
             status: "Resolved",
             restaurantId: restaurant._id,
           });

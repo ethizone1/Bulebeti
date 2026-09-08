@@ -26,9 +26,9 @@ router.post("/", async (req, res) => {
     } = req.body;
 
     let restaurantId = null;
-    let adminEmail = "admin@bulebeti.com";
+    let adminEmail = "admin@maedbet.com";
     let adminPhone = "N/A";
-    let restaurantName = "bulebeti Partners";
+    let restaurantName = "MaedBet Partners";
 
     if (restaurantSlug) {
       const restaurant = await Restaurant.findOne({ slug: restaurantSlug });
@@ -127,7 +127,7 @@ router.put("/:id", auth, async (req, res) => {
 
     // Fire notification only when status actually changed
     if (status !== previousStatus) {
-      let restaurantName = "bulebeti Partners";
+      let restaurantName = "MaedBet Partners";
       if (cateringRequest.restaurantId) {
         const restaurant = await Restaurant.findById(
           cateringRequest.restaurantId,

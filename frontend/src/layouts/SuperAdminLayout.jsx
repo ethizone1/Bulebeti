@@ -18,7 +18,7 @@ const SuperAdminLayout = ({ children }) => {
     }
 
     if (!token || !storedUser || storedUser.role !== "super-admin") {
-      navigate("/bulebeti/login", { replace: true });
+      navigate("/login", { replace: true });
     } else {
       setIsAuthorized(true);
     }
@@ -277,7 +277,7 @@ const SuperAdminLayout = ({ children }) => {
             onClick={() => {
               localStorage.removeItem("token");
               localStorage.removeItem("user");
-              navigate("/bulebeti/login", { replace: true });
+              navigate("/login", { replace: true });
             }}
             style={{
               background: "transparent",

@@ -107,14 +107,14 @@ router.post("/:slug/team", auth, verifyOwnerOrManager, async (req, res) => {
 
     // Dispatch real Email and SMS notifications
     const frontendHost = process.env.FRONTEND_URL || "http://localhost:5173";
-    const inviteUrl = `${frontendHost}/bulebeti/activate?email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&restaurant=${encodeURIComponent(restaurant.slug)}`;
+    const inviteUrl = `${frontendHost}/activate?email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&restaurant=${encodeURIComponent(restaurant.slug)}`;
 
     const emailSubject = `🔑 Sub-Admin Invitation to Manage ${restaurant.name}`;
     const emailHtml = `
       <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; background: #ffffff;">
         <h2 style="color: #D4AF37; margin-top: 0;">You've Been Invited!</h2>
         <p>Hi,</p>
-        <p>You have been added as a <strong>Sub-Admin</strong> for <strong>${restaurant.name}</strong> on BuleBet Hub.</p>
+        <p>You have been added as a <strong>Sub-Admin</strong> for <strong>${restaurant.name}</strong> on MaedBet Hub.</p>
         <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 0 0 8px 0;"><strong>Login Email:</strong> ${email}</p>
           <p style="margin: 0 0 8px 0;"><strong>Login Phone:</strong> ${phone}</p>
@@ -134,7 +134,7 @@ router.post("/:slug/team", auth, verifyOwnerOrManager, async (req, res) => {
         `${restaurant.name} Admin`,
       );
       if (phone) {
-        const smsMsg = `[BuleBet] You were invited as a Sub-Admin for ${restaurant.name}. Login: ${email || phone} / Password: ${isNewUser ? tempPass : "(existing)"}. Activate at: ${inviteUrl}`;
+        const smsMsg = `[MaedBet] You were invited as a Sub-Admin for ${restaurant.name}. Login: ${email || phone} / Password: ${isNewUser ? tempPass : "(existing)"}. Activate at: ${inviteUrl}`;
         await sendSMS(phone, smsMsg, restaurant.name);
       }
     } catch (e) {

@@ -76,7 +76,7 @@ router.post("/", async (req, res) => {
 
     // Trigger Notification
     notifyAdminAndCustomer(adminEmail, adminPhone, email, phone, type, {
-      restaurantName: restaurant ? restaurant.name : "bulebeti Partner",
+      restaurantName: restaurant ? restaurant.name : "MaedBet Partner",
       guestName,
       customerName: guestName,
       date,
@@ -160,7 +160,7 @@ const updateReservationStatusHandler = async (req, res) => {
 
       notifyStatusUpdate(type, status, reservation.email, reservation.phone, {
         restaurantId: reservation.restaurantId,
-        restaurantName: restaurant ? restaurant.name : "bulebeti Partner",
+        restaurantName: restaurant ? restaurant.name : "MaedBet Partner",
         guestName: reservation.guestName,
         customerName: reservation.guestName,
         date: reservation.date,
