@@ -23,6 +23,7 @@ const RegistrationPage = () => {
     subscriptionTier: "Gold",
   });
 
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [prefilledAlert, setPrefilledAlert] = useState("");
   const [unfilledFields, setUnfilledFields] = useState([]);
   const [upgradeSuccess, setUpgradeSuccess] = useState(false);
@@ -30,6 +31,60 @@ const RegistrationPage = () => {
   const [loading, setLoading] = useState(false);
   const [googleToken, setGoogleToken] = useState(null);
   const [googleUserEmail, setGoogleUserEmail] = useState("");
+
+  const TIER_DETAILS = {
+    Basic: {
+      title: "Basic Plan",
+      price: "Free",
+      regular: "Regular $99/year (Save $99)",
+      badge: "🥈 FREE STARTER",
+      color: "#4b5563",
+      bg: "linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)",
+      textColor: "#1f2937",
+      description: "Includes 1 Admin Account, Up to 20 Menu Items, and Standard Digital Menu.",
+      features: ["✓ 1 Admin Account", "✓ Up to 20 Menu Items", "✓ Standard Digital Menu Layout"],
+    },
+    Gold: {
+      title: "Gold Plan",
+      price: "$149/year",
+      regular: "Regular $250/year (Save $101)",
+      badge: "🥇 POPULAR CHOICE",
+      color: "#b45309",
+      bg: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
+      textColor: "#78350f",
+      description: "Includes Up to 3 Admins, Unlimited Food & Beverage Menus, and Reservation SMS Alerts.",
+      features: ["✓ Up to 3 Admin Accounts", "✓ Unlimited Food & Beverage Menus", "✓ Reservation SMS Alerts"],
+    },
+    Platinum: {
+      title: "Platinum Plan",
+      price: "$399/year",
+      regular: "Regular $500/year (Save $101)",
+      badge: "💎 MOST POPULAR",
+      color: "#92400e",
+      bg: "linear-gradient(135deg, #fffbe6 0%, #fef3c7 100%)",
+      textColor: "#78350f",
+      description: "Includes Online Ordering E-commerce, Multi-Location Support, and Custom Signature Layouts.",
+      features: ["✓ Everything in Gold", "✓ Online Ordering E-commerce", "✓ Multi-Location Support", "✓ Custom Signature Layouts"],
+    },
+    Premium: {
+      title: "Premium VIP Plan",
+      price: "$699/year",
+      regular: "Regular $1,000/year (Save $301)",
+      badge: "👑 ULTIMATE VIP TIER",
+      color: "#d4af37",
+      bg: "linear-gradient(135deg, #18181b 0%, #000000 100%)",
+      textColor: "#ffffff",
+      description: "Includes Everything in Platinum plus Edit/Delete Customer Feedback, Multi-Node E-commerce, Unlimited Locations & Menus, and 24/7 Dedicated Priority Concierge.",
+      features: [
+        "✓ Everything in Platinum Tier",
+        "✓ Multi-Node E-commerce",
+        "✓ Edit & Delete Customer Feedback",
+        "✓ Unlimited Locations & Menus",
+        "✓ Testimonials & Gallery Modules",
+        "✓ 24/7 Dedicated Priority Concierge",
+      ],
+    },
+  };
 
   // Email verification modal states
   const [showVerificationModal, setShowVerificationModal] = useState(false);
@@ -88,7 +143,12 @@ const RegistrationPage = () => {
         ["Basic", "Gold", "Platinum", "Premium"].includes(formatted)
       ) {
         chosenTier = formatted;
+        setIsRegisterModalOpen(true);
       }
+    }
+
+    if (paramRestSlug) {
+      setIsRegisterModalOpen(true);
     }
 
     let storedUser = safeGetJson("user");
@@ -148,12 +208,6 @@ const RegistrationPage = () => {
           setPrefilledAlert(
             `✦ Upgrading / Selected Plan: ${chosenTier}. Your existing restaurant details are loaded below.`
           );
-          setTimeout(() => {
-            const formElement = document.getElementById("registration-form");
-            if (formElement) {
-              formElement.scrollIntoView({ behavior: "smooth" });
-            }
-          }, 350);
         } else {
           setPrefilledAlert("");
         }
@@ -167,10 +221,7 @@ const RegistrationPage = () => {
 
   const handleSelectTier = (tier) => {
     setFormData((prev) => ({ ...prev, subscriptionTier: tier }));
-    const formElement = document.getElementById("registration-form");
-    if (formElement) {
-      formElement.scrollIntoView({ behavior: "smooth" });
-    }
+    setIsRegisterModalOpen(true);
   };
 
   const validateForm = () => {
@@ -957,471 +1008,610 @@ const RegistrationPage = () => {
         </div>
       </section>
 
-      {/* ─── REGISTRATION FORM CONTAINER ─── */}
-      <div id="registration-form" className="container" style={{ maxWidth: "800px", paddingBottom: "40px" }}>
+      {/* ─── REGISTRATION FORM MODAL WITH CHOSEN PLAN DESCRIPTION ─── */}
+      {isRegisterModalOpen && (
         <div
-          className="card shadow-sm border-0"
+          onClick={() => setIsRegisterModalOpen(false)}
           style={{
-            borderRadius: "var(--radius-lg)",
-            backgroundColor: "var(--surface)",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(8px)",
+            zIndex: 9990,
+            overflowY: "auto",
+            padding: "24px 16px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-start",
           }}
         >
-          <div className="card-body p-4 p-md-5">
-            <h2 className="text-center mb-3">
-              {t("reg_title") || "Register Your Restaurant"}
-            </h2>
-            <p className="text-center text-muted mb-4">
-              {t("reg_subtitle") || "Enter details to get started"}
-            </p>
-
-            {prefilledAlert && (
-              <div
-                className="alert border-0 shadow-sm rounded-4 p-3 mb-4"
-                style={{
-                  backgroundColor: "rgba(212, 175, 55, 0.12)",
-                  color: "#92400e",
-                  borderLeft: "4px solid var(--gold)",
-                }}
-              >
+          <div
+            id="registration-form"
+            onClick={(e) => e.stopPropagation()}
+            className="card shadow-lg border-0 my-4"
+            style={{
+              maxWidth: "820px",
+              width: "100%",
+              borderRadius: "24px",
+              overflow: "hidden",
+              backgroundColor: "#ffffff",
+              boxShadow: "0 25px 60px rgba(0, 0, 0, 0.4)",
+            }}
+          >
+            {/* ── DYNAMIC CHOSEN PLAN DESCRIPTION BANNER ── */}
+            {(() => {
+              const currentTierInfo = TIER_DETAILS[formData.subscriptionTier] || TIER_DETAILS.Gold;
+              return (
                 <div
                   style={{
-                    fontWeight: "700",
-                    fontSize: "14px",
-                    marginBottom: "4px",
+                    background: currentTierInfo.bg,
+                    color: currentTierInfo.textColor || "#000000",
+                    padding: "28px 24px",
+                    position: "relative",
+                    borderBottom: `3px solid ${currentTierInfo.border}`,
                   }}
                 >
-                  {prefilledAlert}
-                </div>
-                {unfilledFields.length > 0 ? (
-                  <div style={{ fontSize: "13px", color: "#b45309" }}>
-                    ⚠️ <strong>Action Required:</strong> Please complete the remaining missing field(s):{" "}
-                    <span style={{ fontWeight: "700" }}>
-                      {unfilledFields.join(", ")}
-                    </span>.
-                  </div>
-                ) : (
-                  <div style={{ fontSize: "13px", color: "#15803d" }}>
-                    ✅ All required fields are pre-filled! Click submit to confirm your new plan.
-                  </div>
-                )}
-              </div>
-            )}
+                  <button
+                    type="button"
+                    onClick={() => setIsRegisterModalOpen(false)}
+                    style={{
+                      position: "absolute",
+                      top: "16px",
+                      right: "16px",
+                      background: "rgba(255, 255, 255, 0.25)",
+                      border: "none",
+                      color: currentTierInfo.textColor || "#000000",
+                      width: "36px",
+                      height: "36px",
+                      borderRadius: "50%",
+                      fontSize: "18px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: "bold",
+                    }}
+                    title="Close Modal"
+                  >
+                    ✕
+                  </button>
 
-            {error && (
-              <div className="alert alert-danger text-center" role="alert">
-                {error}
-              </div>
-            )}
-
-            {!isUpgradeMode && (
-              <>
-                <div className="mb-4 text-center">
-                  <div
-                    id="googleSignupButton"
-                    className="mx-auto"
-                    style={{ maxWidth: "400px", minHeight: "44px" }}
-                  ></div>
-                  {googleToken && (
-                    <div
-                      className="alert alert-success mt-2 d-inline-block p-2"
-                      role="alert"
-                      style={{ fontSize: "13px" }}
+                  <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                    <span
+                      style={{
+                        backgroundColor: currentTierInfo.color,
+                        color: "#ffffff",
+                        padding: "4px 12px",
+                        borderRadius: "14px",
+                        fontSize: "11px",
+                        fontWeight: "800",
+                        letterSpacing: "0.5px",
+                      }}
                     >
-                      Linked Google Account: <strong>{googleUserEmail}</strong>.
-                      Name and email prefilled. Password is now optional!
+                      {currentTierInfo.badge}
+                    </span>
+                    <div style={{ fontSize: "14px", opacity: 0.9, marginRight: "40px" }}>
+                      Selected Tier:{" "}
+                      <select
+                        value={formData.subscriptionTier}
+                        onChange={(e) => handleSelectTier(e.target.value)}
+                        style={{
+                          padding: "4px 12px",
+                          borderRadius: "8px",
+                          fontWeight: "700",
+                          border: "1px solid rgba(0,0,0,0.2)",
+                          backgroundColor: "#ffffff",
+                          color: "#000000",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <option value="Basic">Basic (Free)</option>
+                        <option value="Gold">Gold ($149/yr)</option>
+                        <option value="Platinum">Platinum ($399/yr)</option>
+                        <option value="Premium">Premium VIP ($699/yr)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <h2 style={{ margin: "6px 0 4px 0", fontSize: "28px", fontWeight: "900" }}>
+                    {currentTierInfo.title} — <span style={{ color: currentTierInfo.color === "#d4af37" ? "var(--gold)" : currentTierInfo.color }}>{currentTierInfo.price}</span>
+                  </h2>
+                  <div style={{ fontSize: "13px", opacity: 0.8, marginBottom: "14px" }}>
+                    {currentTierInfo.regular}
+                  </div>
+
+                  <div
+                    style={{
+                      backgroundColor: "rgba(255, 255, 255, 0.18)",
+                      backdropFilter: "blur(4px)",
+                      padding: "14px 18px",
+                      borderRadius: "12px",
+                      fontSize: "14px",
+                      lineHeight: "1.5",
+                      borderLeft: `4px solid ${currentTierInfo.color}`,
+                    }}
+                  >
+                    <strong>✨ You Selected the {currentTierInfo.title}:</strong> {currentTierInfo.description}
+                  </div>
+
+                  <div className="d-flex flex-wrap gap-2 mt-3">
+                    {currentTierInfo.features.map((f, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          backgroundColor: "rgba(255, 255, 255, 0.25)",
+                          padding: "4px 12px",
+                          borderRadius: "8px",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                        }}
+                      >
+                        {f}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div className="card-body p-4 p-md-5">
+              <h2 className="text-center mb-3">
+                {t("reg_title") || "Register Your Restaurant"}
+              </h2>
+              <p className="text-center text-muted mb-4">
+                {t("reg_subtitle") || "Enter details to get started"}
+              </p>
+
+              {prefilledAlert && (
+                <div
+                  className="alert border-0 shadow-sm rounded-4 p-3 mb-4"
+                  style={{
+                    backgroundColor: "rgba(212, 175, 55, 0.12)",
+                    color: "#92400e",
+                    borderLeft: "4px solid var(--gold)",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontWeight: "700",
+                      fontSize: "14px",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    {prefilledAlert}
+                  </div>
+                  {unfilledFields.length > 0 ? (
+                    <div style={{ fontSize: "13px", color: "#b45309" }}>
+                      ⚠️ <strong>Action Required:</strong> Please complete the remaining missing field(s):{" "}
+                      <span style={{ fontWeight: "700" }}>
+                        {unfilledFields.join(", ")}
+                      </span>.
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: "13px", color: "#15803d" }}>
+                      ✅ All required fields are pre-filled! Click submit to confirm your new plan.
                     </div>
                   )}
                 </div>
+              )}
 
-                <div className="text-center my-3 text-muted position-relative">
-                  <hr style={{ borderColor: "var(--platinum)" }} />
-                  <span
-                    className="position-absolute top-50 start-50 translate-middle px-3"
-                    style={{ backgroundColor: "var(--surface)", fontSize: "13px" }}
-                  >
-                    {t("login_or") || "OR"} COMPLETE WITH PROFILE DETAILS
-                  </span>
+              {error && (
+                <div className="alert alert-danger text-center" role="alert">
+                  {error}
                 </div>
-              </>
-            )}
+              )}
 
-            <form onSubmit={handleSubmit}>
-              <div className="row g-3">
-                <div className="col-md-6">
-                  <label className="form-label fw-bold">
-                    {t("reg_rest_name") || "Restaurant Name"}
-                  </label>
-                  <input
-                    type="text"
-                    name="restaurantName"
-                    value={formData.restaurantName}
-                    onChange={handleChange}
-                    required
-                    placeholder={t("reg_rest_name_ph") || "e.g. Gourmet Hub"}
-                    className="form-control p-3"
-                  />
-                </div>
-
-                <div className="col-md-6">
-                  <label className="form-label fw-bold">
-                    {t("reg_owner_name") || "Owner Name"}
-                  </label>
-                  <input
-                    type="text"
-                    name="ownerName"
-                    value={formData.ownerName}
-                    onChange={handleChange}
-                    required
-                    placeholder={t("reg_owner_name_ph") || "e.g. John Doe"}
-                    className="form-control p-3"
-                  />
-                </div>
-
-                <div className="col-12">
-                  <label className="form-label fw-bold">Restaurant Logo</label>
-                  <div
-                    className="p-3 text-center bg-white"
-                    style={{
-                      border: "1px dashed var(--platinum)",
-                      borderRadius: "var(--radius-md)",
-                      position: "relative",
-                    }}
-                  >
-                    {formData.logoBase64 ? (
-                      <div>
-                        <img
-                          src={formData.logoBase64}
-                          alt="Logo Preview"
-                          className="img-fluid mb-2"
-                          style={{ maxHeight: "80px", borderRadius: "4px" }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setFormData({ ...formData, logoBase64: null })
-                          }
-                          className="btn btn-sm btn-outline-danger d-block mx-auto"
-                        >
-                          Remove Logo
-                        </button>
+              {!isUpgradeMode && (
+                <>
+                  <div className="mb-4 text-center">
+                    <div
+                      id="googleSignupButton"
+                      className="mx-auto"
+                      style={{ maxWidth: "400px", minHeight: "44px" }}
+                    ></div>
+                    {googleToken && (
+                      <div
+                        className="alert alert-success mt-2 d-inline-block p-2"
+                        role="alert"
+                        style={{ fontSize: "13px" }}
+                      >
+                        Linked Google Account: <strong>{googleUserEmail}</strong>.
+                        Name and email prefilled. Password is now optional!
                       </div>
-                    ) : (
-                      <>
-                        <div className="fs-3 mb-1">📸</div>
-                        <div className="small text-muted">
-                          Click to upload logo
-                        </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files[0];
-                            if (file) {
-                              const reader = new FileReader();
-                              reader.onloadend = () => {
-                                setFormData({
-                                  ...formData,
-                                  logoBase64: reader.result,
-                                });
-                              };
-                              reader.readAsDataURL(file);
-                            }
-                          }}
-                          style={{
-                            position: "absolute",
-                            inset: 0,
-                            width: "100%",
-                            height: "100%",
-                            opacity: 0,
-                            cursor: "pointer",
-                          }}
-                        />
-                      </>
                     )}
                   </div>
-                </div>
 
+                  <div className="text-center my-3 text-muted position-relative">
+                    <hr style={{ borderColor: "var(--platinum)" }} />
+                    <span
+                      className="position-absolute top-50 start-50 translate-middle px-3"
+                      style={{ backgroundColor: "#ffffff", fontSize: "13px" }}
+                    >
+                      {t("login_or") || "OR"} COMPLETE WITH PROFILE DETAILS
+                    </span>
+                  </div>
+                </>
+              )}
 
+              <form onSubmit={handleSubmit}>
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">
+                      {t("reg_rest_name") || "Restaurant Name"}
+                    </label>
+                    <input
+                      type="text"
+                      name="restaurantName"
+                      value={formData.restaurantName}
+                      onChange={handleChange}
+                      required
+                      placeholder={t("reg_rest_name_ph") || "e.g. Gourmet Hub"}
+                      className="form-control p-3"
+                    />
+                  </div>
 
-                {!isUpgradeMode && (
-                  <>
-                    <div className="col-md-6">
-                      <label className="form-label fw-bold">
-                        {t("reg_email") || "Email Address"}
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        placeholder={t("reg_email_ph") || "owner@example.com"}
-                        className="form-control p-3"
-                      />
-                    </div>
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">
+                      {t("reg_owner_name") || "Owner Name"}
+                    </label>
+                    <input
+                      type="text"
+                      name="ownerName"
+                      value={formData.ownerName}
+                      onChange={handleChange}
+                      required
+                      placeholder={t("reg_owner_name_ph") || "e.g. John Doe"}
+                      className="form-control p-3"
+                    />
+                  </div>
 
-                    <div className="col-md-6">
-                      <label className="form-label fw-bold">Phone Number</label>
-                      <input
-                        type="text"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        required
-                        placeholder="Enter phone number"
-                        className="form-control p-3"
-                      />
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-bold">Password</label>
-                      <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required={!googleToken}
-                        disabled={!!googleToken}
-                        placeholder={
-                          googleToken
-                            ? "Password not required (Signed in via Google)"
-                            : "Choose a strong password"
-                        }
-                        className="form-control p-3"
-                      />
-                    </div>
-
-                    <div className="col-md-6">
-                      <label className="form-label fw-bold">Confirm Password</label>
-                      <input
-                        type="password"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        required={!googleToken}
-                        disabled={!!googleToken}
-                        placeholder={
-                          googleToken
-                            ? "Password not required (Signed in via Google)"
-                            : "Re-enter your password"
-                        }
-                        className="form-control p-3"
-                      />
-                    </div>
-                  </>
-                )}
-
-                <div className="col-md-6">
-                  <label className="form-label fw-bold">
-                    {t("reg_cuisine") || "Cuisine Type"}
-                  </label>
-                  <select
-                    name="cuisineType"
-                    value={formData.cuisineType}
-                    onChange={handleChange}
-                    className="form-select p-3"
-                  >
-                    <option value="fine-dining">
-                      {t("reg_cuisine_fine") || "Fine Dining"}
-                    </option>
-                    <option value="casual">
-                      {t("reg_cuisine_casual") || "Casual Dining"}
-                    </option>
-                    <option value="bistro">
-                      {t("reg_cuisine_bistro") || "Bistro"}
-                    </option>
-                    <option value="luxury">
-                      {t("reg_cuisine_luxury") || "Luxury"}
-                    </option>
-                  </select>
-                </div>
-
-                <div className="col-md-6">
-                  <label className="form-label fw-bold">
-                    Menu Layout Style
-                  </label>
-                  <select
-                    name="menuLayout"
-                    value={formData.menuLayout || "image-left"}
-                    onChange={handleChange}
-                    className="form-select p-3"
-                  >
-                    <option value="image-left">
-                      Image Left (Classic List)
-                    </option>
-                    <option value="image-right">
-                      Image Right (Modern List)
-                    </option>
-                    <option value="image-top">Image Top (Card Grid)</option>
-                    <option value="image-bottom">
-                      Image Bottom (Magazine Style)
-                    </option>
-                    <option value="text-centered">
-                      Text Centered (No Images)
-                    </option>
-                  </select>
-                </div>
-
-                <div className="col-12">
-                  <div className="p-3 bg-light rounded border border-dashed">
-                    <div className="small fw-bold text-muted mb-2 text-center text-uppercase">
-                      Live Preview
-                    </div>
+                  <div className="col-12">
+                    <label className="form-label fw-bold">Restaurant Logo</label>
                     <div
-                      className="bg-white p-3 rounded shadow-sm d-flex"
+                      className="p-3 text-center bg-white"
                       style={{
-                        flexDirection:
-                          formData.menuLayout === "image-top"
-                            ? "column"
-                            : formData.menuLayout === "image-bottom"
-                              ? "column-reverse"
-                              : formData.menuLayout === "image-right"
-                                ? "row-reverse"
-                                : "row",
-                        gap: "16px",
-                        alignItems:
-                          formData.menuLayout &&
-                          formData.menuLayout.includes("image") &&
-                          !formData.menuLayout.includes("top") &&
-                          !formData.menuLayout.includes("bottom")
-                            ? "center"
-                            : "stretch",
-                        textAlign:
-                          formData.menuLayout === "text-centered"
-                            ? "center"
-                            : "left",
-                        display:
-                          formData.menuLayout === "text-centered"
-                            ? "block"
-                            : "flex",
+                        border: "1px dashed var(--platinum)",
+                        borderRadius: "var(--radius-md)",
+                        position: "relative",
                       }}
                     >
-                      {formData.menuLayout !== "text-centered" && (
-                        <div
-                          className="bg-secondary bg-opacity-25 rounded d-flex align-items-center justify-content-center flex-shrink-0"
-                          style={{
-                            width:
-                              formData.menuLayout &&
-                              (formData.menuLayout.includes("top") ||
-                                formData.menuLayout.includes("bottom"))
-                                ? "100%"
-                                : "80px",
-                            height:
-                              formData.menuLayout &&
-                              (formData.menuLayout.includes("top") ||
-                                formData.menuLayout.includes("bottom"))
-                                ? "120px"
-                                : "80px",
-                          }}
-                        >
-                          <span className="fs-4">🖼️</span>
+                      {formData.logoBase64 ? (
+                        <div>
+                          <img
+                            src={formData.logoBase64}
+                            alt="Logo Preview"
+                            className="img-fluid mb-2"
+                            style={{ maxHeight: "80px", borderRadius: "4px" }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFormData({ ...formData, logoBase64: null })
+                            }
+                            className="btn btn-sm btn-outline-danger d-block mx-auto"
+                          >
+                            Remove Logo
+                          </button>
                         </div>
+                      ) : (
+                        <>
+                          <div className="fs-3 mb-1">📸</div>
+                          <div className="small text-muted">
+                            Click to upload logo
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  setFormData({
+                                    ...formData,
+                                    logoBase64: reader.result,
+                                  });
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            style={{
+                              position: "absolute",
+                              inset: 0,
+                              width: "100%",
+                              height: "100%",
+                              opacity: 0,
+                              cursor: "pointer",
+                            }}
+                          />
+                        </>
                       )}
-                      <div className="flex-grow-1">
-                        <div
-                          className="fw-bold mb-1"
-                          style={{ fontSize: "14px", color: "var(--primary)" }}
-                        >
-                          Sample Menu Item
-                        </div>
-                        <div className="small text-muted mb-2">
-                          A delicious sample description of the food.
-                        </div>
-                        <div
-                          className="fw-bold"
-                          style={{ color: "var(--gold)", fontSize: "14px" }}
-                        >
-                          $24.00
+                    </div>
+                  </div>
+
+                  {!isUpgradeMode && (
+                    <>
+                      <div className="col-md-6">
+                        <label className="form-label fw-bold">
+                          {t("reg_email") || "Email Address"}
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          required
+                          placeholder={t("reg_email_ph") || "owner@example.com"}
+                          className="form-control p-3"
+                        />
+                      </div>
+
+                      <div className="col-md-6">
+                        <label className="form-label fw-bold">Phone Number</label>
+                        <input
+                          type="text"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          required
+                          placeholder="Enter phone number"
+                          className="form-control p-3"
+                        />
+                      </div>
+
+                      <div className="col-md-6">
+                        <label className="form-label fw-bold">Password</label>
+                        <input
+                          type="password"
+                          name="password"
+                          value={formData.password}
+                          onChange={handleChange}
+                          required={!googleToken}
+                          disabled={!!googleToken}
+                          placeholder={
+                            googleToken
+                              ? "Password not required (Signed in via Google)"
+                              : "Choose a strong password"
+                          }
+                          className="form-control p-3"
+                        />
+                      </div>
+
+                      <div className="col-md-6">
+                        <label className="form-label fw-bold">Confirm Password</label>
+                        <input
+                          type="password"
+                          name="confirmPassword"
+                          value={formData.confirmPassword}
+                          onChange={handleChange}
+                          required={!googleToken}
+                          disabled={!!googleToken}
+                          placeholder={
+                            googleToken
+                              ? "Password not required (Signed in via Google)"
+                              : "Re-enter your password"
+                          }
+                          className="form-control p-3"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">
+                      {t("reg_cuisine") || "Cuisine Type"}
+                    </label>
+                    <select
+                      name="cuisineType"
+                      value={formData.cuisineType}
+                      onChange={handleChange}
+                      className="form-select p-3"
+                    >
+                      <option value="fine-dining">
+                        {t("reg_cuisine_fine") || "Fine Dining"}
+                      </option>
+                      <option value="casual">
+                        {t("reg_cuisine_casual") || "Casual Dining"}
+                      </option>
+                      <option value="bistro">
+                        {t("reg_cuisine_bistro") || "Bistro"}
+                      </option>
+                      <option value="luxury">
+                        {t("reg_cuisine_luxury") || "Luxury"}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div className="col-md-6">
+                    <label className="form-label fw-bold">
+                      Menu Layout Style
+                    </label>
+                    <select
+                      name="menuLayout"
+                      value={formData.menuLayout || "image-left"}
+                      onChange={handleChange}
+                      className="form-select p-3"
+                    >
+                      <option value="image-left">
+                        Image Left (Classic List)
+                      </option>
+                      <option value="image-right">
+                        Image Right (Modern List)
+                      </option>
+                      <option value="image-top">Image Top (Card Grid)</option>
+                      <option value="image-bottom">
+                        Image Bottom (Magazine Style)
+                      </option>
+                      <option value="text-centered">
+                        Text Centered (No Images)
+                      </option>
+                    </select>
+                  </div>
+
+                  <div className="col-12">
+                    <div className="p-3 bg-light rounded border border-dashed">
+                      <div className="small fw-bold text-muted mb-2 text-center text-uppercase">
+                        Live Preview
+                      </div>
+                      <div
+                        className="bg-white p-3 rounded shadow-sm d-flex"
+                        style={{
+                          flexDirection:
+                            formData.menuLayout === "image-top"
+                              ? "column"
+                              : formData.menuLayout === "image-bottom"
+                                ? "column-reverse"
+                                : formData.menuLayout === "image-right"
+                                  ? "row-reverse"
+                                  : "row",
+                          gap: "16px",
+                          alignItems:
+                            formData.menuLayout &&
+                            formData.menuLayout.includes("image") &&
+                            !formData.menuLayout.includes("top") &&
+                            !formData.menuLayout.includes("bottom")
+                              ? "center"
+                              : "stretch",
+                          textAlign:
+                            formData.menuLayout === "text-centered"
+                              ? "center"
+                              : "left",
+                          display:
+                            formData.menuLayout === "text-centered"
+                              ? "block"
+                              : "flex",
+                        }}
+                      >
+                        {formData.menuLayout !== "text-centered" && (
+                          <div
+                            className="bg-secondary bg-opacity-25 rounded d-flex align-items-center justify-content-center flex-shrink-0"
+                            style={{
+                              width:
+                                formData.menuLayout &&
+                                (formData.menuLayout.includes("top") ||
+                                  formData.menuLayout.includes("bottom"))
+                                  ? "100%"
+                                  : "80px",
+                              height:
+                                formData.menuLayout &&
+                                (formData.menuLayout.includes("top") ||
+                                  formData.menuLayout.includes("bottom"))
+                                  ? "120px"
+                                  : "80px",
+                            }}
+                          >
+                            <span className="fs-4">🖼️</span>
+                          </div>
+                        )}
+                        <div className="flex-grow-1">
+                          <div
+                            className="fw-bold mb-1"
+                            style={{ fontSize: "14px", color: "var(--primary)" }}
+                          >
+                            Sample Menu Item
+                          </div>
+                          <div className="small text-muted mb-2">
+                            A delicious sample description of the food.
+                          </div>
+                          <div
+                            className="fw-bold"
+                            style={{ color: "var(--gold)", fontSize: "14px" }}
+                          >
+                            $24.00
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="col-12">
-                  <label className="form-label fw-bold">
-                    {t("reg_location") || "Location"}
-                  </label>
-                  <div className="position-relative">
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleChange}
-                      required
-                      placeholder={t("reg_location_ph") || "e.g. 123 Main St"}
-                      className="form-control p-3 pe-5"
-                    />
+                  <div className="col-12">
+                    <label className="form-label fw-bold">
+                      {t("reg_location") || "Location"}
+                    </label>
+                    <div className="position-relative">
+                      <input
+                        type="text"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        required
+                        placeholder={t("reg_location_ph") || "e.g. 123 Main St"}
+                        className="form-control p-3 pe-5"
+                      />
+                      <div
+                        className="position-absolute text-primary"
+                        style={{
+                          right: "16px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                          cursor: "pointer",
+                        }}
+                        title={t("reg_google_verify")}
+                      >
+                        <i className="fa-solid fa-location-dot"></i>
+                      </div>
+                    </div>
                     <div
-                      className="position-absolute text-primary"
+                      className="d-flex align-items-center gap-2 mt-2 p-2 rounded"
                       style={{
-                        right: "16px",
-                        top: "50%",
-                        transform: "translateY(-50%)",
-                        cursor: "pointer",
+                        backgroundColor: "#e8f0fe",
+                        border: "1px solid #c2d7fa",
                       }}
-                      title={t("reg_google_verify")}
                     >
-                      <i className="fa-solid fa-location-dot"></i>
+                      <div className="text-primary">
+                        <i className="fa-solid fa-map-location-dot"></i>
+                      </div>
+                      <div
+                        className="small fw-medium"
+                        style={{ color: "#1967d2" }}
+                      >
+                        {t("reg_google_connected") ||
+                          "Google Maps verified location"}
+                      </div>
                     </div>
                   </div>
-                  <div
-                    className="d-flex align-items-center gap-2 mt-2 p-2 rounded"
+
+                  <div className="col-12 mt-4">
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="btn btn-primary w-100 p-3 fw-bold"
+                      style={{ opacity: loading ? 0.7 : 1 }}
+                    >
+                      {loading
+                        ? isUpgradeMode
+                          ? "Submitting Upgrade Request..."
+                          : "Creating Account..."
+                        : isUpgradeMode
+                        ? `Submit Upgrade Request to Super Admin ✦`
+                        : t("reg_submit") || "Create Account"}
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              {!isUpgradeMode && (
+                <p className="text-center mt-4 small text-muted">
+                  {t("reg_already") || "Already have an account?"}{" "}
+                  <Link
+                    to="/maedbet/login"
                     style={{
-                      backgroundColor: "#e8f0fe",
-                      border: "1px solid #c2d7fa",
+                      color: "var(--gold)",
+                      fontWeight: "600",
+                      textDecoration: "none",
                     }}
                   >
-                    <div className="text-primary">
-                      <i className="fa-solid fa-map-location-dot"></i>
-                    </div>
-                    <div
-                      className="small fw-medium"
-                      style={{ color: "#1967d2" }}
-                    >
-                      {t("reg_google_connected") ||
-                        "Google Maps verified location"}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col-12 mt-4">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="btn btn-primary w-100 p-3 fw-bold"
-                    style={{ opacity: loading ? 0.7 : 1 }}
-                  >
-                    {loading
-                      ? isUpgradeMode
-                        ? "Submitting Upgrade Request..."
-                        : "Creating Account..."
-                      : isUpgradeMode
-                      ? `Submit Upgrade Request to Super Admin ✦`
-                      : t("reg_submit") || "Create Account"}
-                  </button>
-                </div>
-              </div>
-            </form>
-
-            {!isUpgradeMode && (
-              <p className="text-center mt-4 small text-muted">
-                {t("reg_already") || "Already have an account?"}{" "}
-                <Link
-                  to="/maedbet/login"
-                  style={{
-                    color: "var(--gold)",
-                    fontWeight: "600",
-                    textDecoration: "none",
-                  }}
-                >
-                  {t("reg_login") || "Login"}
-                </Link>
-              </p>
-            )}
+                    {t("reg_login") || "Login"}
+                  </Link>
+                </p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ─── EMAIL VERIFICATION CONFIRMATION MODAL ─── */}
       {showVerificationModal && (
