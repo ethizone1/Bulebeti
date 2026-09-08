@@ -1596,6 +1596,18 @@ const RegistrationPage = () => {
                 A 6-digit confirmation code was sent to:
               </p>
               <div className="fw-bold text-white small mt-1">{pendingEmail}</div>
+              <div
+                className="mt-2 p-2 rounded text-center"
+                style={{
+                  backgroundColor: "rgba(254, 240, 138, 0.15)",
+                  border: "1px solid rgba(254, 240, 138, 0.3)",
+                  fontSize: "12px",
+                  color: "#fef08a",
+                  fontWeight: "600",
+                }}
+              >
+                ⚠️ Please check both your <strong>Inbox</strong> and <strong>Spam / Junk</strong> folder!
+              </div>
             </div>
 
             <div className="card-body p-4">
@@ -1635,6 +1647,9 @@ const RegistrationPage = () => {
                     required
                     autoFocus
                   />
+                  <div className="form-text text-center text-muted small mt-2">
+                    Didn't receive email? Please check your <strong>Spam / Junk</strong> folder or click <strong>Resend Code</strong> below.
+                  </div>
                 </div>
 
                 <button
