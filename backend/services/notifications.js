@@ -84,6 +84,54 @@ const sendEmail = async (
   senderName = "MaedBet",
 ) => {
   try {
+    // 0. Try Resend HTTP API if RESEND_API_KEY is configured
+    if (process.env.RESEND_API_KEY) {
+      try {
+        const https = require("https");
+        const fromEmail = process.env.RESEND_FROM || "onboarding@resend.dev";
+        const reqData = JSON.stringify({
+          from: `${senderName} <${fromEmail}>`,
+          to: [toEmail],
+          subject: subject,
+          html: htmlContent,
+        });
+
+        const resendPromise = new Promise((resolve, reject) => {
+          const req = https.request(
+            "https://api.resend.com/emails",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${process.env.RESEND_API_KEY.trim()}`,
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(reqData),
+              },
+            },
+            (res) => {
+              let body = "";
+              res.on("data", (chunk) => (body += chunk));
+              res.on("end", () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                  console.log(`✅ Email sent via Resend HTTP API → ${toEmail}`);
+                  resolve(true);
+                } else {
+                  reject(new Error(`Resend API HTTP ${res.statusCode}: ${body}`));
+                }
+              });
+            },
+          );
+          req.on("error", (err) => reject(err));
+          req.write(reqData);
+          req.end();
+        });
+
+        const success = await resendPromise;
+        if (success) return true;
+      } catch (resendErr) {
+        console.warn(`⚠️ Resend API failed (${resendErr.message}), falling back to SMTP...`);
+      }
+    }
+
     const user = (process.env.EMAIL_USER || "").trim();
     const pass = (process.env.EMAIL_PASS || "").replace(/\s+/g, "");
 
