@@ -15,6 +15,15 @@ const User = require("../models/User");
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+// Custom DNS lookup to strictly enforce IPv4 resolution and prevent Render container ENETUNREACH IPv6 errors
+const ipv4Lookup = (hostname, options, callback) => {
+  if (typeof options === "function") {
+    callback = options;
+    options = {};
+  }
+  dns.lookup(hostname, { family: 4 }, callback);
+};
+
 // Strip all non-digit characters from a phone number
 const cleanPhone = (phone) => (phone || "").replace(/\D/g, "");
 
@@ -52,6 +61,7 @@ const getTransporter = () => {
     host: "smtp.gmail.com",
     port: 465,
     secure: true,
+    lookup: ipv4Lookup,
     family: 4,
     auth: {
       user: process.env.EMAIL_USER.trim(),
@@ -84,11 +94,12 @@ const sendEmail = async (
       return false;
     }
 
-    // Port 465 (SSL) - Forced IPv4
+    // Port 465 (SSL) - Forced IPv4 Lookup
     let transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
       secure: true,
+      lookup: ipv4Lookup,
       family: 4,
       auth: { user, pass },
       tls: { rejectUnauthorized: false },
@@ -112,6 +123,7 @@ const sendEmail = async (
         host: "smtp.gmail.com",
         port: 587,
         secure: false,
+        lookup: ipv4Lookup,
         family: 4,
         auth: { user, pass },
         tls: { rejectUnauthorized: false },
@@ -133,6 +145,7 @@ const sendEmail = async (
         console.warn(`⚠️ Port 587 failed (${err587.message}), attempting Gmail Service fallback...`);
         transporter = nodemailer.createTransport({
           service: "gmail",
+          lookup: ipv4Lookup,
           family: 4,
           auth: { user, pass },
           tls: { rejectUnauthorized: false },
