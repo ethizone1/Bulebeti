@@ -4,6 +4,12 @@
 
 require("dotenv").config();
 const nodemailer = require("nodemailer");
+const dns = require("dns");
+
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder("ipv4first");
+}
+
 const Restaurant = require("../models/Restaurant");
 const User = require("../models/User");
 
@@ -46,6 +52,7 @@ const getTransporter = () => {
     host: "smtp.gmail.com",
     port: 465,
     secure: true,
+    family: 4,
     auth: {
       user: process.env.EMAIL_USER.trim(),
       pass: cleanPass,
@@ -77,16 +84,17 @@ const sendEmail = async (
       return false;
     }
 
-    // Port 465 (SSL)
+    // Port 465 (SSL) - Forced IPv4
     let transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
       secure: true,
+      family: 4,
       auth: { user, pass },
       tls: { rejectUnauthorized: false },
-      connectionTimeout: 10000,
-      greetingTimeout: 10000,
-      socketTimeout: 10000,
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 8000,
     });
 
     try {
@@ -96,19 +104,20 @@ const sendEmail = async (
         subject,
         html: htmlContent,
       });
-      console.log(`✅ Email sent (Port 465 SSL) → ${toEmail}`);
+      console.log(`✅ Email sent (Port 465 SSL IPv4) → ${toEmail}`);
       return true;
     } catch (err465) {
-      console.warn(`⚠️ Port 465 failed (${err465.message}), attempting Port 587 STARTTLS fallback...`);
+      console.warn(`⚠️ Port 465 failed (${err465.message}), attempting Port 587 STARTTLS IPv4 fallback...`);
       transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 587,
         secure: false,
+        family: 4,
         auth: { user, pass },
         tls: { rejectUnauthorized: false },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 10000,
+        connectionTimeout: 8000,
+        greetingTimeout: 8000,
+        socketTimeout: 8000,
       });
 
       try {
@@ -118,12 +127,13 @@ const sendEmail = async (
           subject,
           html: htmlContent,
         });
-        console.log(`✅ Email sent (Port 587 STARTTLS Fallback) → ${toEmail}`);
+        console.log(`✅ Email sent (Port 587 STARTTLS IPv4 Fallback) → ${toEmail}`);
         return true;
       } catch (err587) {
         console.warn(`⚠️ Port 587 failed (${err587.message}), attempting Gmail Service fallback...`);
         transporter = nodemailer.createTransport({
           service: "gmail",
+          family: 4,
           auth: { user, pass },
           tls: { rejectUnauthorized: false },
           connectionTimeout: 8000,
