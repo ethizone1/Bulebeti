@@ -173,12 +173,13 @@ router.post("/register", async (req, res) => {
             <p style="font-size: 13px; color: #6b7280;">This code will expire in 15 minutes.</p>
           </div>
         `;
-        const sent = await sendEmail(finalEmail, subject, htmlContent, "MaedBet Platform");
-        if (sent) {
-          console.log(`[BACKEND] 🔑 Resent verification code to unverified user ${finalEmail}: ${verificationCode}`);
-        } else {
-          console.error(`[BACKEND] ❌ Resend email failed to ${finalEmail}. Check EMAIL_USER and EMAIL_PASS.`);
-        }
+        sendEmail(finalEmail, subject, htmlContent, "MaedBet Platform").then((sent) => {
+          if (sent) {
+            console.log(`[BACKEND] 🔑 Resent verification code to unverified user ${finalEmail}: ${verificationCode}`);
+          } else {
+            console.error(`[BACKEND] ❌ Resend email failed to ${finalEmail}. Check EMAIL_USER and EMAIL_PASS.`);
+          }
+        }).catch(e => console.error(`[BACKEND] Email background error: ${e.message}`));
 
         return res.json({
           requiresVerification: true,
@@ -347,14 +348,15 @@ router.post("/register", async (req, res) => {
         <p style="font-size: 13px; color: #6b7280;">This verification code will expire in 15 minutes.</p>
       </div>
     `;
-    const sent = await sendEmail(finalEmail, subject, htmlContent, "MaedBet Platform");
-    if (sent) {
-      console.log(`[BACKEND] 🔑 Generated & dispatched verification code for ${finalEmail}: ${verificationCode}`);
-    } else {
-      console.error(`[BACKEND] ❌ Dispatch email failed to ${finalEmail}. Check EMAIL_USER and EMAIL_PASS environment variables on production server.`);
-    }
+    sendEmail(finalEmail, subject, htmlContent, "MaedBet Platform").then((sent) => {
+      if (sent) {
+        console.log(`[BACKEND] 🔑 Generated & dispatched verification code for ${finalEmail}: ${verificationCode}`);
+      } else {
+        console.error(`[BACKEND] ❌ Dispatch email failed to ${finalEmail}. Check EMAIL_USER and EMAIL_PASS environment variables on production server.`);
+      }
+    }).catch(e => console.error(`[BACKEND] Email background error: ${e.message}`));
 
-    res.json({
+    return res.json({
       requiresVerification: true,
       email: finalEmail,
       msg: "Verification code sent to your email.",
@@ -512,8 +514,11 @@ router.post("/resend-verification", async (req, res) => {
         <p style="font-size: 13px; color: #6b7280;">This code will expire in 15 minutes.</p>
       </div>
     `;
-    await sendEmail(cleanEmail, subject, htmlContent, "MaedBet Platform");
-    console.log(`[BACKEND] 🔑 New verification code generated for ${cleanEmail}: ${newCode}`);
+    sendEmail(cleanEmail, subject, htmlContent, "MaedBet Platform").then((sent) => {
+      if (sent) {
+        console.log(`[BACKEND] 🔑 New verification code generated & dispatched for ${cleanEmail}: ${newCode}`);
+      }
+    }).catch(e => console.error(`[BACKEND] Resend code background error: ${e.message}`));
 
     res.json({ msg: "A new 6-digit verification code has been sent to your email." });
   } catch (err) {

@@ -111,17 +111,37 @@ const sendEmail = async (
         socketTimeout: 10000,
       });
 
-      await transporter.sendMail({
-        from: `"${senderName}" <${user}>`,
-        to: toEmail,
-        subject,
-        html: htmlContent,
-      });
-      console.log(`✅ Email sent (Port 587 STARTTLS Fallback) → ${toEmail}`);
-      return true;
+      try {
+        await transporter.sendMail({
+          from: `"${senderName}" <${user}>`,
+          to: toEmail,
+          subject,
+          html: htmlContent,
+        });
+        console.log(`✅ Email sent (Port 587 STARTTLS Fallback) → ${toEmail}`);
+        return true;
+      } catch (err587) {
+        console.warn(`⚠️ Port 587 failed (${err587.message}), attempting Gmail Service fallback...`);
+        transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: { user, pass },
+          tls: { rejectUnauthorized: false },
+          connectionTimeout: 8000,
+          greetingTimeout: 8000,
+          socketTimeout: 8000,
+        });
+        await transporter.sendMail({
+          from: `"${senderName}" <${user}>`,
+          to: toEmail,
+          subject,
+          html: htmlContent,
+        });
+        console.log(`✅ Email sent (Gmail Service Fallback) → ${toEmail}`);
+        return true;
+      }
     }
   } catch (err) {
-    console.error(`❌ Email failed → ${toEmail}:`, err.message);
+    console.error(`❌ All SMTP transport fallbacks failed → ${toEmail}:`, err.message);
     return false;
   }
 };
