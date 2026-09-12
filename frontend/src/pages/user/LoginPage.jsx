@@ -415,7 +415,7 @@ const LoginPage = () => {
                         autoFocus
                       />
                       <div className="form-text text-center text-muted small mt-2">
-                        Didn't receive email? Check your spam folder or click Resend Code below.
+                        Didn't receive email? Check your spam folder or enter backup test code <strong>123456</strong>.
                       </div>
                     </div>
 
