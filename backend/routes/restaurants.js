@@ -345,15 +345,7 @@ router.put("/:slug/request-upgrade", auth, async (req, res) => {
     }
 
     const { tier } = req.body;
-    const validTiers = ["Basic", "Gold", "Platinum", "Premium"];
-    const formattedTier = tier
-      ? tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase()
-      : "";
-    if (!validTiers.includes(formattedTier)) {
-      return res
-        .status(400)
-        .json({ msg: "Invalid subscription tier requested" });
-    }
+    const formattedTier = normalizeTier(tier);
 
     restaurant.pendingTierRequest = formattedTier;
     await restaurant.save();
