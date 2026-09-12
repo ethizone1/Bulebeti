@@ -137,14 +137,12 @@ const RegistrationPage = () => {
 
     let chosenTier = "Gold";
     if (paramTier) {
-      const formatted =
-        paramTier.charAt(0).toUpperCase() + paramTier.slice(1).toLowerCase();
-      if (
-        ["Basic", "Gold", "Platinum", "Premium"].includes(formatted)
-      ) {
-        chosenTier = formatted;
-        setIsRegisterModalOpen(true);
-      }
+      const lower = paramTier.toLowerCase();
+      if (lower.includes("premium")) chosenTier = "Premium";
+      else if (lower.includes("platinum")) chosenTier = "Platinum";
+      else if (lower.includes("gold")) chosenTier = "Gold";
+      else if (lower.includes("basic")) chosenTier = "Basic";
+      setIsRegisterModalOpen(true);
     }
 
     if (paramRestSlug) {

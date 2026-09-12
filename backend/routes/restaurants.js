@@ -246,43 +246,48 @@ router.post("/", auth, async (req, res) => {
       );
     }
 
+    const normalizeTier = (t) => {
+      if (!t) return "Basic";
+      const str = String(t).trim();
+      if (str.toLowerCase().includes("premium")) return "Premium";
+      if (str.toLowerCase().includes("platinum")) return "Platinum";
+      if (str.toLowerCase().includes("gold")) return "Gold";
+      return "Basic";
+    };
+
     // Check sister restaurant limits
     const userRestaurants = await Restaurant.find({ ownerId: req.user.id });
     if (userRestaurants.length > 0) {
-      let highestTier = "Basic";
       const tierRank = {
         Basic: 0,
-        Silver: 1,
-        Gold: 2,
-        Platinum: 3,
-        Premium: 4,
+        Gold: 1,
+        Platinum: 2,
+        Premium: 3,
       };
 
+      const requestedTier = normalizeTier(subscriptionTier);
+      let effectiveHighestTier = requestedTier;
+
       userRestaurants.forEach((r) => {
-        const t =
-          r.subscriptionTier === "Basic"
-            ? "Silver"
-            : r.subscriptionTier || "Platinum";
-        if (tierRank[t] > tierRank[highestTier]) {
-          highestTier = t;
+        const existingNormTier = normalizeTier(r.subscriptionTier);
+        if (tierRank[existingNormTier] > tierRank[effectiveHighestTier]) {
+          effectiveHighestTier = existingNormTier;
         }
       });
 
-      let maxAllowed = 1; // Default for Silver/Gold
-      if (highestTier === "Platinum") maxAllowed = 4; // 1 main + 3 sisters
-      if (highestTier === "Premium") maxAllowed = 8; // 1 main + 7 sisters
+      let maxAllowed = 1; // Basic: 1 main restaurant
+      if (effectiveHighestTier === "Gold") maxAllowed = 2; // 1 main + 1 sister
+      if (effectiveHighestTier === "Platinum") maxAllowed = 5; // 1 main + 4 sisters
+      if (effectiveHighestTier === "Premium") maxAllowed = 999; // Unlimited
 
       if (userRestaurants.length >= maxAllowed) {
         return res.status(403).json({
-          msg: `You have reached the maximum number of sister restaurants for your ${highestTier} plan. Please upgrade to add more.`,
+          msg: `You have reached the maximum limit of ${maxAllowed} restaurant location(s) for the ${effectiveHighestTier} plan. Please upgrade your plan to add more.`,
         });
       }
     }
 
-    const initialTier =
-      req.user && req.user.role === "super-admin"
-        ? subscriptionTier || "Basic"
-        : "Basic";
+    const initialTier = normalizeTier(subscriptionTier);
 
     const newRestaurant = new Restaurant({
       name,

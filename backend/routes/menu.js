@@ -34,7 +34,7 @@ router.post('/', auth, requireRestaurantOwnership, async (req, res) => {
     // Check tier limit for Basic plan (Max 20 menu items)
     const Restaurant = require('../models/Restaurant');
     const restaurant = await Restaurant.findById(restaurantId);
-    if (restaurant && (restaurant.subscriptionTier === 'Basic' || restaurant.subscriptionTier === 'Silver')) {
+    if (restaurant && (!restaurant.subscriptionTier || restaurant.subscriptionTier === 'Basic' || restaurant.subscriptionTier === 'Silver')) {
       const currentCount = await MenuItem.countDocuments({ restaurantId });
       if (currentCount >= 20) {
         return res.status(403).json({

@@ -153,18 +153,24 @@ router.post("/:slug/team", auth, verifyOwnerOrManager, async (req, res) => {
     }
 
     // Check tier limits
-    const currentTier =
-      restaurant.subscriptionTier === "Basic"
-        ? "Silver"
-        : restaurant.subscriptionTier || "Platinum";
-    let maxTeam = 0;
-    if (currentTier === "Gold") maxTeam = 2;
-    if (currentTier === "Platinum") maxTeam = 4;
+    const normalizeTier = (t) => {
+      if (!t) return "Basic";
+      const str = String(t).trim();
+      if (str.toLowerCase().includes("premium")) return "Premium";
+      if (str.toLowerCase().includes("platinum")) return "Platinum";
+      if (str.toLowerCase().includes("gold")) return "Gold";
+      return "Basic";
+    };
+
+    const currentTier = normalizeTier(restaurant.subscriptionTier);
+    let maxTeam = 1; // Basic: 1 admin
+    if (currentTier === "Gold") maxTeam = 3;
+    if (currentTier === "Platinum") maxTeam = 10;
     if (currentTier === "Premium") maxTeam = 999;
 
     if (restaurant.admins.length >= maxTeam) {
       return res.status(403).json({
-        msg: `You have reached the maximum number of team members (${maxTeam}) for your ${currentTier} plan. Please upgrade to add more.`,
+        msg: `You have reached the maximum number of team members (${maxTeam}) for the ${currentTier} plan. Please upgrade to add more.`,
       });
     }
 
