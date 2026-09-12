@@ -291,7 +291,7 @@ router.post("/register", async (req, res) => {
       }
 
       return res.status(400).json({
-        msg: `The email address '${finalEmail}' is already registered on BuleBet. Please enter your correct account password to attach this restaurant to your account, or click 'Login' above to sign in first.`,
+        msg: `The email address '${finalEmail}' is already registered on MaedBet. Please enter your correct account password to attach this restaurant to your account, or click 'Login' above to sign in first.`,
       });
     }
 
