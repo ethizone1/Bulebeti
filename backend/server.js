@@ -153,12 +153,42 @@ app.get(["/", "/api/health", "/healthz", "/health"], (req, res) => {
     mongoose.connection.readyState === 1 ? "connected" : "disconnected";
   res.status(200).json({
     status: "healthy",
-    service: "Bulebet Backend API",
+    service: "MaedBet Backend API",
     environment: process.env.NODE_ENV || "development",
     database: dbStatus,
     uptimeSeconds: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
   });
+});
+
+// Live Diagnostic Route for Email Dispatch
+app.get("/api/test-email-status", async (req, res) => {
+  const { sendEmail } = require("./services/notifications");
+  const targetEmail = req.query.email || process.env.EMAIL_USER || "ethizone1@gmail.com";
+  
+  try {
+    const sent = await sendEmail(
+      targetEmail,
+      "🧪 MaedBet Production Email Test",
+      `<h3>Email Dispatch Test</h3><p>Time: ${new Date().toISOString()}</p>`,
+      "MaedBet Platform"
+    );
+
+    res.json({
+      success: sent,
+      targetEmail,
+      emailUserConfigured: Boolean(process.env.EMAIL_USER),
+      emailPassConfigured: Boolean(process.env.EMAIL_PASS),
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message,
+      targetEmail,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Global Centralized Error Handler (No stack trace leaks)
