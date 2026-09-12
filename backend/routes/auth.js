@@ -1016,4 +1016,28 @@ router.delete("/users/:userId", auth, async (req, res) => {
   }
 });
 
+// Test Email Diagnostic Route
+router.get("/test-email", async (req, res) => {
+  try {
+    const to = req.query.to || "addmy01@gmail.com";
+    const { sendEmail } = require("../services/notifications");
+    const result = await sendEmail(
+      to,
+      "🧪 Diagnostic Test Email from MaedBet Render Server",
+      `<h1>MaedBet Diagnostic Test</h1><p>Sent at ${new Date().toISOString()}</p>`
+    );
+    res.json({
+      to,
+      success: result,
+      env: {
+        EMAIL_USER: process.env.EMAIL_USER ? "SET" : "UNSET",
+        EMAIL_PASS: process.env.EMAIL_PASS ? "SET" : "UNSET",
+        RESEND_API_KEY: process.env.RESEND_API_KEY ? "SET" : "UNSET"
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
