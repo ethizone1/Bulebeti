@@ -7,6 +7,32 @@ const https = require("https");
 const { sendEmail } = require("../services/notifications");
 const auth = require("../middleware/auth");
 
+router.get("/test-email-status", async (req, res) => {
+  const targetEmail = req.query.email || process.env.EMAIL_USER || "ethizone1@gmail.com";
+  try {
+    const sent = await sendEmail(
+      targetEmail,
+      "🧪 MaedBet Production Email Test",
+      `<h3>Email Dispatch Test</h3><p>Time: ${new Date().toISOString()}</p>`,
+      "MaedBet Platform"
+    );
+    res.json({
+      success: sent,
+      targetEmail,
+      emailUserConfigured: Boolean(process.env.EMAIL_USER),
+      emailPassConfigured: Boolean(process.env.EMAIL_PASS),
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message,
+      targetEmail,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // Validation helper functions
 const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
