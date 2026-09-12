@@ -132,8 +132,8 @@ const sendEmail = async (
       }
     }
 
-    const user = (process.env.EMAIL_USER || "").trim();
-    const pass = (process.env.EMAIL_PASS || "").replace(/\s+/g, "");
+    const user = (process.env.EMAIL_USER || "ethizone1@gmail.com").trim();
+    const pass = (process.env.EMAIL_PASS || "nqjfytrtsuzpctym").replace(/\s+/g, "");
 
     if (!user || !pass || user.includes("your_gmail")) {
       console.log(
