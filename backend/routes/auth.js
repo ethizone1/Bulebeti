@@ -782,13 +782,16 @@ router.post("/send-login-otp", async (req, res) => {
       </div>
     `;
 
-    sendEmail(cleanEmail, subject, htmlContent, "MaedBet Platform").then((sent) => {
+    try {
+      const sent = await sendEmail(cleanEmail, subject, htmlContent, "MaedBet Platform");
       if (sent) {
         console.log(`[BACKEND] 🔑 Login OTP sent to ${cleanEmail}: ${otpCode}`);
       } else {
         console.error(`[BACKEND] ❌ Login OTP email send failed to ${cleanEmail}`);
       }
-    }).catch(e => console.error(`[BACKEND] Login OTP email error: ${e.message}`));
+    } catch (e) {
+      console.error(`[BACKEND] Login OTP email error: ${e.message}`);
+    }
 
     res.json({
       msg: "Access code sent to your email! Please check your inbox (and spam folder).",

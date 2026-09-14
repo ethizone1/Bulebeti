@@ -9,7 +9,7 @@ dotenv.config();
 const MONGO_URI =
   process.env.MONGODB_URI ||
   process.env.MONGO_URI ||
-  "mongodb://localhost:27017/bulebeti";
+  "mongodb://localhost:27017/maedbet";
 const PORT = 5001;
 
 async function runTests() {

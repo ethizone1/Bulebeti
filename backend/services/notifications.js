@@ -88,7 +88,7 @@ const sendEmail = async (
     if (process.env.RESEND_API_KEY) {
       try {
         const https = require("https");
-        const fromEmail = process.env.RESEND_FROM || "onboarding@resend.dev";
+        const fromEmail = (process.env.RESEND_FROM || "onboarding@resend.dev").trim();
         const reqData = JSON.stringify({
           from: `${senderName} <${fromEmail}>`,
           to: [toEmail],
@@ -128,7 +128,11 @@ const sendEmail = async (
         const success = await resendPromise;
         if (success) return true;
       } catch (resendErr) {
-        console.warn(`⚠️ Resend API failed (${resendErr.message}), falling back to SMTP...`);
+        console.warn(`⚠️ Resend API failed (${resendErr.message}).`);
+        if (resendErr.message.includes("403")) {
+          console.warn(`⚠️ Resend 403 Error: On unverified domains (onboarding@resend.dev), Resend only permits sending emails to the account owner email.`);
+        }
+        console.warn(`⚠️ Falling back to SMTP... (Note: Cloud hosts like Render block SMTP ports 465/587)`);
       }
     }
 

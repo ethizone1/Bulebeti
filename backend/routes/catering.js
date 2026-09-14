@@ -61,15 +61,22 @@ router.post("/", async (req, res) => {
     );
 
     // Trigger Notification
-    notifyAdminAndCustomer(adminEmail, adminPhone, email, phone, "Catering", {
-      restaurantName,
-      eventType,
-      date,
-      location,
-      guestCount,
-      name,
-      details,
-    });
+    await notifyAdminAndCustomer(
+      adminEmail,
+      adminPhone,
+      email,
+      phone,
+      "Catering",
+      {
+        restaurantName,
+        eventType,
+        date,
+        location,
+        guestCount,
+        name,
+        details,
+      },
+    );
 
     res.json(savedRequest);
   } catch (err) {
@@ -135,7 +142,7 @@ router.put("/:id", auth, async (req, res) => {
         if (restaurant) restaurantName = restaurant.name;
       }
 
-      notifyStatusUpdate(
+      await notifyStatusUpdate(
         "Catering",
         status,
         cateringRequest.email,

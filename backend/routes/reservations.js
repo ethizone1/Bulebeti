@@ -75,7 +75,7 @@ router.post("/", async (req, res) => {
         : "Online Order";
 
     // Trigger Notification
-    notifyAdminAndCustomer(adminEmail, adminPhone, email, phone, type, {
+    await notifyAdminAndCustomer(adminEmail, adminPhone, email, phone, type, {
       restaurantName: restaurant ? restaurant.name : "MaedBet Partner",
       guestName,
       customerName: guestName,
@@ -158,16 +158,22 @@ const updateReservationStatusHandler = async (req, res) => {
         .includes("ONLINE ORDER");
       const type = isOrder ? "Order" : "Reservation";
 
-      notifyStatusUpdate(type, status, reservation.email, reservation.phone, {
-        restaurantId: reservation.restaurantId,
-        restaurantName: restaurant ? restaurant.name : "MaedBet Partner",
-        guestName: reservation.guestName,
-        customerName: reservation.guestName,
-        date: reservation.date,
-        time: reservation.time,
-        guests: reservation.guests,
-        specialRequests: reservation.specialRequests,
-      });
+      await notifyStatusUpdate(
+        type,
+        status,
+        reservation.email,
+        reservation.phone,
+        {
+          restaurantId: reservation.restaurantId,
+          restaurantName: restaurant ? restaurant.name : "MaedBet Partner",
+          guestName: reservation.guestName,
+          customerName: reservation.guestName,
+          date: reservation.date,
+          time: reservation.time,
+          guests: reservation.guests,
+          specialRequests: reservation.specialRequests,
+        },
+      );
     }
 
     res.json(reservation);
