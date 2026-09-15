@@ -1,9 +1,15 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { ClerkProvider } from "@clerk/clerk-react";
 import "./index.css";
 import App from "./App.jsx";
 
-// Auto-redirect legacy domain to bulebeti.com
+const PUBLISHABLE_KEY =
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ||
+  import.meta.env.VITE_CLERK_KEY ||
+  "pk_test_bXVsdGlwbGUtbWFjYXctNzguY2xlcmsuYWNjb3VudHMuZGV2JA";
+
+// Auto-redirect legacy domain if needed
 if (
   typeof window !== "undefined" &&
   (window.location.hostname.includes("bulebeti.com") ||
@@ -16,6 +22,8 @@ if (
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <App />
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+      <App />
+    </ClerkProvider>
   </StrictMode>,
 );

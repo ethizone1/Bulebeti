@@ -893,6 +893,34 @@ router.all("/seed", async (req, res) => {
 // SUPER ADMIN USER MANAGEMENT ENDPOINTS
 // ─────────────────────────────────────────────────────────────────────────────
 
+// @route   GET /api/auth/me
+// @desc    Get currently authenticated MongoDB user profile via Clerk middleware
+// @access  Private
+router.get("/me", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ msg: "User profile not found in database." });
+    }
+    res.json({
+      user: {
+        id: user._id.toString(),
+        clerkUserId: user.clerkUserId,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        status: user.status,
+        restaurantId: user.restaurantId ? user.restaurantId.toString() : null,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (err) {
+    console.error("[GET ME ERROR]", err.message);
+    res.status(500).json({ msg: "Server error retrieving user profile." });
+  }
+});
+
 // @route   GET /api/auth/users
 // @desc    Get list of all registered users (Super Admin only)
 // @access  Private (Super Admin)

@@ -124,6 +124,15 @@ app.use("/api/auth", authLimiter);
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ limit: "5mb", extended: true }));
 
+// Register Clerk Authentication Middleware
+try {
+  const { clerkMiddleware } = require("@clerk/express");
+  app.use(clerkMiddleware());
+  console.log("🔒 [AUTH] Clerk middleware registered.");
+} catch (e) {
+  console.warn("⚠️ [AUTH] @clerk/express middleware skipped or running in fallback mode");
+}
+
 // Activity Logging (Sanitizing output)
 app.use((req, res, next) => {
   console.log(
