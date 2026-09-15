@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useSignIn, useAuth } from "@clerk/clerk-react";
+import { useSignIn, useSignUp, useAuth } from "@clerk/clerk-react";
 import { useLanguage } from "../../context/LanguageContext";
 import BuleBetLogo from "../../components/BuleBetLogo";
 
 const LoginPage = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const { isLoaded, signIn, setActive } = useSignIn();
+  const { isLoaded: isSignInLoaded, signIn, setActive: setSignInActive } = useSignIn();
+  const { isLoaded: isSignUpLoaded, signUp, setActive: setSignUpActive } = useSignUp();
   const { isSignedIn } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -16,22 +17,24 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [authFlowMode, setAuthFlowMode] = useState("signin"); // 'signin' or 'signup'
 
-  // Step 1: Request 6-Digit Email OTP from Clerk
+  // Step 1: Request 6-Digit Email OTP from Clerk (Auto-detect SignIn vs SignUp)
   const handleSendOtp = async (e) => {
     e.preventDefault();
-    if (!isLoaded || !email.trim()) return;
+    if (!isSignInLoaded || !isSignUpLoaded || !email.trim()) return;
 
+    const cleanEmail = email.trim().toLowerCase();
     setLoading(true);
     setError("");
     setSuccessMsg("");
 
+    // Try Sign-In first
     try {
       const result = await signIn.create({
-        identifier: email.trim().toLowerCase(),
+        identifier: cleanEmail,
       });
 
-      // Find email_code factor
       const emailCodeFactor = result.supportedFirstFactors?.find(
         (factor) => factor.strategy === "email_code"
       );
@@ -41,20 +44,49 @@ const LoginPage = () => {
           strategy: "email_code",
           emailAddressId: emailCodeFactor.emailAddressId,
         });
+        setAuthFlowMode("signin");
         setVerifying(true);
-        setSuccessMsg(`Access code sent to ${email.trim()}. Please check your inbox (and spam folder).`);
-      } else {
-        // Fallback if password or direct factor required
-        setError("Email verification code strategy unavailable for this account.");
+        setSuccessMsg(`Access code sent to ${cleanEmail}. Check your inbox (and spam folder).`);
+        return;
       }
-    } catch (err) {
-      console.error("[CLERK LOGIN OTP ERROR]", err);
-      setError(
-        err.errors?.[0]?.longMessage ||
-          err.errors?.[0]?.message ||
-          err.message ||
-          "Failed to send verification code. Please check your email address."
-      );
+    } catch (signInErr) {
+      console.log("[CLERK SIGNIN TRY FAILED]", signInErr.message || signInErr);
+      const isNotFound =
+        signInErr.errors?.[0]?.code === "form_identifier_not_found" ||
+        signInErr.message?.includes("Couldn't find your account");
+
+      if (isNotFound) {
+        // Fallback: Account doesn't exist in Clerk yet — trigger SignUp!
+        try {
+          await signUp.create({
+            emailAddress: cleanEmail,
+          });
+          await signUp.prepareEmailAddressVerification({
+            strategy: "email_code",
+          });
+          setAuthFlowMode("signup");
+          setVerifying(true);
+          setSuccessMsg(`Welcome! Access code sent to ${cleanEmail}. Check your inbox (and spam folder).`);
+          return;
+        } catch (signUpErr) {
+          console.error("[CLERK SIGNUP ERROR]", signUpErr);
+          setError(
+            signUpErr.errors?.[0]?.longMessage ||
+              signUpErr.errors?.[0]?.message ||
+              signUpErr.message ||
+              "Failed to send verification code."
+          );
+          return;
+        }
+      } else {
+        setError(
+          signInErr.errors?.[0]?.longMessage ||
+            signInErr.errors?.[0]?.message ||
+            signInErr.message ||
+            "Failed to send verification code."
+        );
+        return;
+      }
     } finally {
       setLoading(false);
     }
@@ -63,22 +95,36 @@ const LoginPage = () => {
   // Step 2: Verify 6-Digit Code with Clerk Provider
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    if (!isLoaded || !code.trim()) return;
+    if (!code.trim()) return;
 
     setLoading(true);
     setError("");
 
     try {
-      const result = await signIn.attemptFirstFactor({
-        strategy: "email_code",
-        code: code.trim(),
-      });
+      if (authFlowMode === "signin") {
+        const result = await signIn.attemptFirstFactor({
+          strategy: "email_code",
+          code: code.trim(),
+        });
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        navigate("/");
+        if (result.status === "complete") {
+          await setSignInActive({ session: result.createdSessionId });
+          navigate("/");
+        } else {
+          setError("Verification incomplete. Please follow additional authentication steps.");
+        }
       } else {
-        setError("Verification incomplete. Please follow additional authentication steps.");
+        // SignUp Mode Verification
+        const result = await signUp.attemptEmailAddressVerification({
+          code: code.trim(),
+        });
+
+        if (result.status === "complete") {
+          await setSignUpActive({ session: result.createdSessionId });
+          navigate("/");
+        } else {
+          setError("Verification incomplete. Please check your verification code.");
+        }
       }
     } catch (err) {
       console.error("[CLERK VERIFY OTP ERROR]", err);
@@ -118,7 +164,7 @@ const LoginPage = () => {
         <div style={{ textAlign: "center", marginBottom: "28px" }}>
           <BuleBetLogo style={{ height: "48px", margin: "0 auto 16px" }} />
           <h2 style={{ fontSize: "24px", fontWeight: "800", color: "#0f172a", margin: 0 }}>
-            Welcome Back
+            Welcome to MaedBet
           </h2>
           <p style={{ fontSize: "14px", color: "#64748b", marginTop: "6px" }}>
             {!verifying
@@ -298,7 +344,7 @@ const LoginPage = () => {
             color: "#64748b",
           }}
         >
-          Don't have an account?{" "}
+          Want to add your restaurant?{" "}
           <Link
             to="/register"
             style={{ color: "#d4af37", fontWeight: "600", textDecoration: "none" }}
