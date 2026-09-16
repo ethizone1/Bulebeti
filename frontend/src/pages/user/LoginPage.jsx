@@ -92,13 +92,14 @@ const LoginPage = () => {
     }
   };
 
-  const handleRedirectByRole = async (token) => {
+  const handleRedirectByRole = async () => {
     try {
+      const jwtToken = await getToken();
       const API_URL = import.meta.env.VITE_API_URL || "";
       const res = await fetch(`${API_URL}/api/auth/me`, {
         headers: {
-          Authorization: `Bearer ${token || ""}`,
-          "x-auth-token": token || "",
+          Authorization: `Bearer ${jwtToken || ""}`,
+          "x-auth-token": jwtToken || "",
         },
       });
 
@@ -140,10 +141,10 @@ const LoginPage = () => {
         const sessionId = result.createdSessionId || signIn.createdSessionId;
         if (sessionId) {
           await setSignInActive({ session: sessionId });
-          handleRedirectByRole(sessionId);
+          setTimeout(() => handleRedirectByRole(), 300);
         } else if (result.status === "complete") {
           await setSignInActive({ session: result.createdSessionId });
-          handleRedirectByRole(result.createdSessionId);
+          setTimeout(() => handleRedirectByRole(), 300);
         } else {
           setError("Verification incomplete. Please check your verification code.");
         }
@@ -158,12 +159,12 @@ const LoginPage = () => {
         const sessionId = result.createdSessionId || signUp.createdSessionId;
         if (sessionId) {
           await setSignUpActive({ session: sessionId });
-          handleRedirectByRole(sessionId);
+          setTimeout(() => handleRedirectByRole(), 300);
         } else if (result.status === "complete" || result.verifications?.emailAddress?.status === "verified") {
           if (signUp.createdSessionId) {
             await setSignUpActive({ session: signUp.createdSessionId });
           }
-          handleRedirectByRole(signUp.createdSessionId);
+          setTimeout(() => handleRedirectByRole(), 300);
         } else {
           setError(`Verification status: ${result.status || "incomplete"}. Please check your verification code.`);
         }
