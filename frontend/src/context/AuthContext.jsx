@@ -32,7 +32,14 @@ export const AuthProvider = ({ children }) => {
 
       try {
         setLoading(true);
-        const token = await getToken();
+
+        let token = null;
+        for (let attempt = 0; attempt < 5; attempt++) {
+          token = await getToken();
+          if (token) break;
+          await new Promise((r) => setTimeout(r, 250));
+        }
+
         const API_URL = import.meta.env.VITE_API_URL || "";
 
         const response = await fetch(`${API_URL}/api/auth/me`, {

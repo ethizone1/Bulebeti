@@ -902,6 +902,13 @@ router.get("/me", auth, async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "User profile not found in database." });
     }
+
+    const Restaurant = require("../models/Restaurant");
+    const restaurant = await Restaurant.findOne({ ownerId: user._id });
+    const adminOf = await Restaurant.findOne({ "admins.user": user._id });
+    const slug = restaurant ? restaurant.slug : adminOf ? adminOf.slug : null;
+    const restId = user.restaurantId ? user.restaurantId.toString() : (restaurant ? restaurant._id.toString() : adminOf ? adminOf._id.toString() : null);
+
     res.json({
       user: {
         id: user._id.toString(),
@@ -911,7 +918,8 @@ router.get("/me", auth, async (req, res) => {
         phone: user.phone,
         role: user.role,
         status: user.status,
-        restaurantId: user.restaurantId ? user.restaurantId.toString() : null,
+        restaurantId: restId,
+        restaurantSlug: slug,
         createdAt: user.createdAt,
       },
     });

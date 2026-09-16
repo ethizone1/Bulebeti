@@ -9,7 +9,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { isLoaded: isSignInLoaded, signIn, setActive: setSignInActive } = useSignIn();
   const { isLoaded: isSignUpLoaded, signUp, setActive: setSignUpActive } = useSignUp();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, getToken } = useAuth();
 
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -94,7 +94,17 @@ const LoginPage = () => {
 
   const handleRedirectByRole = async () => {
     try {
-      const jwtToken = await getToken();
+      let jwtToken = null;
+      for (let attempt = 0; attempt < 6; attempt++) {
+        try {
+          jwtToken = await getToken();
+          if (jwtToken) break;
+        } catch (tErr) {
+          console.warn("[TOKEN FETCH RETRY]", tErr);
+        }
+        await new Promise((r) => setTimeout(r, 250));
+      }
+
       const API_URL = import.meta.env.VITE_API_URL || "";
       const res = await fetch(`${API_URL}/api/auth/me`, {
         headers: {
@@ -110,7 +120,7 @@ const LoginPage = () => {
           navigate("/super-admin");
           return;
         }
-        if (user.role === "admin" || user.restaurantId) {
+        if (user.role === "admin" || user.restaurantId || user.restaurantSlug) {
           navigate(user.restaurantSlug ? `/maedbet/${user.restaurantSlug}/admin` : "/maedbet/default/admin");
           return;
         }
