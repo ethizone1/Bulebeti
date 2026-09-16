@@ -92,6 +92,36 @@ const LoginPage = () => {
     }
   };
 
+  const handleRedirectByRole = async (token) => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || "";
+      const res = await fetch(`${API_URL}/api/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${token || ""}`,
+          "x-auth-token": token || "",
+        },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const user = data.user;
+        if (user.role === "super-admin" || user.role === "sub-admin") {
+          navigate("/super-admin");
+          return;
+        }
+        if (user.role === "admin" || user.restaurantId) {
+          navigate(user.restaurantSlug ? `/maedbet/${user.restaurantSlug}/admin` : "/maedbet/default/admin");
+          return;
+        }
+        navigate("/profile");
+        return;
+      }
+    } catch (err) {
+      console.error("[ROLE REDIRECT ERROR]", err);
+    }
+    navigate("/profile");
+  };
+
   // Step 2: Verify 6-Digit Code with Clerk Provider
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
@@ -110,10 +140,10 @@ const LoginPage = () => {
         const sessionId = result.createdSessionId || signIn.createdSessionId;
         if (sessionId) {
           await setSignInActive({ session: sessionId });
-          navigate("/");
+          handleRedirectByRole(sessionId);
         } else if (result.status === "complete") {
           await setSignInActive({ session: result.createdSessionId });
-          navigate("/");
+          handleRedirectByRole(result.createdSessionId);
         } else {
           setError("Verification incomplete. Please check your verification code.");
         }
@@ -128,12 +158,12 @@ const LoginPage = () => {
         const sessionId = result.createdSessionId || signUp.createdSessionId;
         if (sessionId) {
           await setSignUpActive({ session: sessionId });
-          navigate("/");
+          handleRedirectByRole(sessionId);
         } else if (result.status === "complete" || result.verifications?.emailAddress?.status === "verified") {
           if (signUp.createdSessionId) {
             await setSignUpActive({ session: signUp.createdSessionId });
           }
-          navigate("/");
+          handleRedirectByRole(signUp.createdSessionId);
         } else {
           setError(`Verification status: ${result.status || "incomplete"}. Please check your verification code.`);
         }
