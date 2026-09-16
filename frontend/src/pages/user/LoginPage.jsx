@@ -123,15 +123,19 @@ const LoginPage = () => {
           code: code.trim(),
         });
 
+        console.log("[CLERK SIGNUP VERIFY RESULT]", result);
+
         const sessionId = result.createdSessionId || signUp.createdSessionId;
         if (sessionId) {
           await setSignUpActive({ session: sessionId });
           navigate("/");
-        } else if (result.status === "complete") {
-          await setSignUpActive({ session: result.createdSessionId });
+        } else if (result.status === "complete" || result.verifications?.emailAddress?.status === "verified") {
+          if (signUp.createdSessionId) {
+            await setSignUpActive({ session: signUp.createdSessionId });
+          }
           navigate("/");
         } else {
-          setError("Verification incomplete. Please check your verification code.");
+          setError(`Verification status: ${result.status || "incomplete"}. Please check your verification code.`);
         }
       }
     } catch (err) {
