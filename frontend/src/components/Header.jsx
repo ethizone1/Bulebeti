@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuthContext } from "../context/AuthContext";
 import { setDynamicFavicon } from "../utils/favicon";
 import BuleBetLogo from "./BuleBetLogo";
 import config from "../config";
 
 const Header = () => {
   const { language, toggleLanguage, t } = useLanguage();
+  const { isSignedIn, mongoUser, logout } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
   const { restaurantName } = useParams(); // Removing default fallback to make it accurate
@@ -559,14 +561,52 @@ const Header = () => {
             </span>
           </button>
 
-          {/* Login Button */}
-          <button
-            onClick={() => navigate("/login")}
-            className="btn btn-primary"
-            style={{ padding: "6px 14px", fontSize: "12px", borderRadius: "20px" }}
-          >
-            {t("nav_login")}
-          </button>
+          {/* Auth Button / User Profile Control */}
+          {isSignedIn ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <button
+                onClick={() => {
+                  if (mongoUser?.role === "super-admin" || mongoUser?.role === "sub-admin") {
+                    navigate("/super-admin");
+                  } else if (mongoUser?.role === "admin" || mongoUser?.restaurantId) {
+                    navigate(mongoUser?.restaurantSlug ? `/maedbet/${mongoUser.restaurantSlug}/admin` : "/maedbet/default/admin");
+                  } else {
+                    navigate("/profile");
+                  }
+                }}
+                className="btn btn-primary"
+                style={{ padding: "6px 14px", fontSize: "12px", borderRadius: "20px" }}
+              >
+                {mongoUser?.role === "super-admin"
+                  ? "👑 Super Admin"
+                  : mongoUser?.role === "admin"
+                  ? "✦ Admin Dashboard"
+                  : "👤 My Profile"}
+              </button>
+              <button
+                onClick={logout}
+                style={{
+                  background: "none",
+                  border: "1px solid var(--platinum)",
+                  padding: "4px 8px",
+                  borderRadius: "20px",
+                  cursor: "pointer",
+                  fontSize: "11px",
+                  color: "#6b7280",
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate("/login")}
+              className="btn btn-primary"
+              style={{ padding: "6px 14px", fontSize: "12px", borderRadius: "20px" }}
+            >
+              {t("nav_login")}
+            </button>
+          )}
 
 
 

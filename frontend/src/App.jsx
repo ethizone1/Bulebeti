@@ -5,6 +5,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import SuperAdminLayout from "./layouts/SuperAdminLayout";
 import ScrollToTop from "./components/ScrollToTop";
 import { LanguageProvider } from "./context/LanguageContext";
+import { AuthProvider } from "./context/AuthContext";
 
 // User Pages
 import LandingPage from "./pages/user/LandingPage";
@@ -167,7 +168,8 @@ const AdminPage = ({ element: Element, minTier }) => {
 function App() {
   return (
     <LanguageProvider>
-      <Router>
+      <AuthProvider>
+        <Router>
         <ScrollToTop />
         <Routes>
           {/* Customer Routes */}
@@ -667,6 +669,7 @@ function App() {
           />
         </Routes>
       </Router>
+      </AuthProvider>
     </LanguageProvider>
   );
 }
