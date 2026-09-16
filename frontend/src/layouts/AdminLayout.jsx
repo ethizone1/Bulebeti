@@ -26,11 +26,18 @@ const AdminLayout = ({ children }) => {
   }, [navigate]);
 
   useEffect(() => {
-    if (window.location.pathname.startsWith("/maedbet/") || window.location.pathname.startsWith("/bulebeti/")) {
+    if (
+      window.location.pathname.startsWith("/maedbet/") ||
+      window.location.pathname.startsWith("/bulebeti/")
+    ) {
       const cleanPath = window.location.pathname
         .replace(/^\/maedbet\//, "/")
         .replace(/^\/bulebeti\//, "/");
-      window.history.replaceState(null, "", cleanPath + window.location.search + window.location.hash);
+      window.history.replaceState(
+        null,
+        "",
+        cleanPath + window.location.search + window.location.hash,
+      );
     }
   }, []);
 

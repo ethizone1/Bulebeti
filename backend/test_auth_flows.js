@@ -1,10 +1,11 @@
+const path = require("path");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const express = require("express");
 const bcrypt = require("bcrypt");
 const User = require("./models/User");
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 const MONGO_URI =
   process.env.MONGODB_URI ||

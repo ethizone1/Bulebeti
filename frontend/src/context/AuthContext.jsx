@@ -58,7 +58,10 @@ export const AuthProvider = ({ children }) => {
             setError(null);
           }
         } else {
-          console.warn("[AUTH CONTEXT] Backend user sync status:", response.status);
+          console.warn(
+            "[AUTH CONTEXT] Backend user sync status:",
+            response.status,
+          );
           if (isMounted) {
             // Fallback basic user structure from Clerk identity while backend sync completes
             setMongoUser({
@@ -87,7 +90,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       isMounted = false;
     };
-  }, [isLoaded, isSignedIn, clerkUser]);
+  }, [isLoaded, isSignedIn, clerkUser, getToken]);
 
   const handleLogout = async () => {
     try {
@@ -103,7 +106,7 @@ export const AuthProvider = ({ children }) => {
   const getAuthToken = async () => {
     try {
       return await getToken();
-    } catch (err) {
+    } catch {
       return null;
     }
   };

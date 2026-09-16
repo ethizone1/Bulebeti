@@ -124,13 +124,25 @@ app.use("/api/auth", authLimiter);
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ limit: "5mb", extended: true }));
 
-// Register Clerk Authentication Middleware
-try {
-  const { clerkMiddleware } = require("@clerk/express");
-  app.use(clerkMiddleware());
-  console.log("🔒 [AUTH] Clerk middleware registered.");
-} catch (e) {
-  console.warn("⚠️ [AUTH] @clerk/express middleware skipped or running in fallback mode");
+// Register Clerk Authentication Middleware only when keys are present
+const hasClerkConfig = Boolean(
+  process.env.CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY,
+);
+
+if (hasClerkConfig) {
+  try {
+    const { clerkMiddleware } = require("@clerk/express");
+    app.use(clerkMiddleware());
+    console.log("🔒 [AUTH] Clerk middleware registered.");
+  } catch (e) {
+    console.warn(
+      "⚠️ [AUTH] @clerk/express middleware skipped or running in fallback mode",
+    );
+  }
+} else {
+  console.warn(
+    "⚠️ [AUTH] Clerk keys not configured; continuing without Clerk middleware.",
+  );
 }
 
 // Activity Logging (Sanitizing output)
@@ -173,14 +185,15 @@ app.get(["/", "/api/health", "/healthz", "/health"], (req, res) => {
 // Live Diagnostic Route for Email Dispatch
 app.get("/api/test-email-status", async (req, res) => {
   const { sendEmail } = require("./services/notifications");
-  const targetEmail = req.query.email || process.env.EMAIL_USER || "ethizone1@gmail.com";
-  
+  const targetEmail =
+    req.query.email || process.env.EMAIL_USER || "ethizone1@gmail.com";
+
   try {
     const sent = await sendEmail(
       targetEmail,
       "🧪 MaedBet Production Email Test",
       `<h3>Email Dispatch Test</h3><p>Time: ${new Date().toISOString()}</p>`,
-      "MaedBet Platform"
+      "MaedBet Platform",
     );
 
     res.json({
@@ -188,14 +201,14 @@ app.get("/api/test-email-status", async (req, res) => {
       targetEmail,
       emailUserConfigured: Boolean(process.env.EMAIL_USER),
       emailPassConfigured: Boolean(process.env.EMAIL_PASS),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (err) {
     res.status(500).json({
       success: false,
       error: err.message,
       targetEmail,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 });

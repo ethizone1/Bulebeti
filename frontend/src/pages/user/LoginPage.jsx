@@ -1,15 +1,21 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useSignIn, useSignUp, useAuth } from "@clerk/clerk-react";
-import { useLanguage } from "../../context/LanguageContext";
 import BuleBetLogo from "../../components/BuleBetLogo";
 
 const LoginPage = () => {
-  const { t } = useLanguage();
   const navigate = useNavigate();
-  const { isLoaded: isSignInLoaded, signIn, setActive: setSignInActive } = useSignIn();
-  const { isLoaded: isSignUpLoaded, signUp, setActive: setSignUpActive } = useSignUp();
-  const { isSignedIn, getToken } = useAuth();
+  const {
+    isLoaded: isSignInLoaded,
+    signIn,
+    setActive: setSignInActive,
+  } = useSignIn();
+  const {
+    isLoaded: isSignUpLoaded,
+    signUp,
+    setActive: setSignUpActive,
+  } = useSignUp();
+  const { getToken } = useAuth();
 
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -36,7 +42,7 @@ const LoginPage = () => {
       });
 
       const emailCodeFactor = result.supportedFirstFactors?.find(
-        (factor) => factor.strategy === "email_code"
+        (factor) => factor.strategy === "email_code",
       );
 
       if (emailCodeFactor) {
@@ -46,7 +52,9 @@ const LoginPage = () => {
         });
         setAuthFlowMode("signin");
         setVerifying(true);
-        setSuccessMsg(`Access code sent to ${cleanEmail}. Check your inbox (and spam folder).`);
+        setSuccessMsg(
+          `Access code sent to ${cleanEmail}. Check your inbox (and spam folder).`,
+        );
         return;
       }
     } catch (signInErr) {
@@ -66,7 +74,9 @@ const LoginPage = () => {
           });
           setAuthFlowMode("signup");
           setVerifying(true);
-          setSuccessMsg(`Welcome! Access code sent to ${cleanEmail}. Check your inbox (and spam folder).`);
+          setSuccessMsg(
+            `Welcome! Access code sent to ${cleanEmail}. Check your inbox (and spam folder).`,
+          );
           return;
         } catch (signUpErr) {
           console.error("[CLERK SIGNUP ERROR]", signUpErr);
@@ -74,7 +84,7 @@ const LoginPage = () => {
             signUpErr.errors?.[0]?.longMessage ||
               signUpErr.errors?.[0]?.message ||
               signUpErr.message ||
-              "Failed to send verification code."
+              "Failed to send verification code.",
           );
           return;
         }
@@ -83,7 +93,7 @@ const LoginPage = () => {
           signInErr.errors?.[0]?.longMessage ||
             signInErr.errors?.[0]?.message ||
             signInErr.message ||
-            "Failed to send verification code."
+            "Failed to send verification code.",
         );
         return;
       }
@@ -121,7 +131,11 @@ const LoginPage = () => {
           return;
         }
         if (user.role === "admin" || user.restaurantId || user.restaurantSlug) {
-          navigate(user.restaurantSlug ? `/maedbet/${user.restaurantSlug}/admin` : "/maedbet/default/admin");
+          navigate(
+            user.restaurantSlug
+              ? `/maedbet/${user.restaurantSlug}/admin`
+              : "/maedbet/default/admin",
+          );
           return;
         }
         navigate("/profile");
@@ -156,7 +170,9 @@ const LoginPage = () => {
           await setSignInActive({ session: result.createdSessionId });
           setTimeout(() => handleRedirectByRole(), 300);
         } else {
-          setError("Verification incomplete. Please check your verification code.");
+          setError(
+            "Verification incomplete. Please check your verification code.",
+          );
         }
       } else {
         // SignUp Mode Verification
@@ -170,13 +186,18 @@ const LoginPage = () => {
         if (sessionId) {
           await setSignUpActive({ session: sessionId });
           setTimeout(() => handleRedirectByRole(), 300);
-        } else if (result.status === "complete" || result.verifications?.emailAddress?.status === "verified") {
+        } else if (
+          result.status === "complete" ||
+          result.verifications?.emailAddress?.status === "verified"
+        ) {
           if (signUp.createdSessionId) {
             await setSignUpActive({ session: signUp.createdSessionId });
           }
           setTimeout(() => handleRedirectByRole(), 300);
         } else {
-          setError(`Verification status: ${result.status || "incomplete"}. Please check your verification code.`);
+          setError(
+            `Verification status: ${result.status || "incomplete"}. Please check your verification code.`,
+          );
         }
       }
     } catch (err) {
@@ -185,7 +206,7 @@ const LoginPage = () => {
         err.errors?.[0]?.longMessage ||
           err.errors?.[0]?.message ||
           err.message ||
-          "Invalid or expired verification code. Please try again."
+          "Invalid or expired verification code. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -216,7 +237,14 @@ const LoginPage = () => {
       >
         <div style={{ textAlign: "center", marginBottom: "28px" }}>
           <BuleBetLogo style={{ height: "48px", margin: "0 auto 16px" }} />
-          <h2 style={{ fontSize: "24px", fontWeight: "800", color: "#0f172a", margin: 0 }}>
+          <h2
+            style={{
+              fontSize: "24px",
+              fontWeight: "800",
+              color: "#0f172a",
+              margin: 0,
+            }}
+          >
             Welcome to MaedBet
           </h2>
           <p style={{ fontSize: "14px", color: "#64748b", marginTop: "6px" }}>
@@ -400,7 +428,11 @@ const LoginPage = () => {
           Want to add your restaurant?{" "}
           <Link
             to="/register"
-            style={{ color: "#d4af37", fontWeight: "600", textDecoration: "none" }}
+            style={{
+              color: "#d4af37",
+              fontWeight: "600",
+              textDecoration: "none",
+            }}
           >
             Register Your Restaurant →
           </Link>

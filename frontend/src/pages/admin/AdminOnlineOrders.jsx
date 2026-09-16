@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useLanguage } from "../../context/LanguageContext";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
 
 const AdminOnlineOrders = () => {
-  const { t } = useLanguage();
   const { restaurantName } = useParams();
   const { tier, searchQuery } = useAdmin();
   const [orders, setOrders] = useState([]);

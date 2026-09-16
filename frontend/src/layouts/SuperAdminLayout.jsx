@@ -10,10 +10,11 @@ const SuperAdminLayout = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    let storedUser = null;
+    let storedUser;
+
     try {
       storedUser = JSON.parse(localStorage.getItem("user") || "null");
-    } catch (e) {
+    } catch {
       storedUser = null;
     }
 

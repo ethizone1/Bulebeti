@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const BuleBetLogo = ({
   size = 40,
   variant = "combo", // "combo" | "emblem" | "full" | "title" | "text"
-  showSubtitle = true,
+  _showSubtitle = true,
   linkTo = "/",
   style = {},
   className = "",
@@ -143,4 +143,3 @@ const BuleBetLogo = ({
 };
 
 export default BuleBetLogo;
-

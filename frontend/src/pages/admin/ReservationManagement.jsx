@@ -19,6 +19,8 @@ const ReservationManagement = () => {
   const isGoldOrAbove =
     tier === "Gold" || tier === "Platinum" || tier === "Premium";
 
+  const [categoryFilter, setCategoryFilter] = useState("All");
+
   const fetchReservations = useCallback(async () => {
     try {
       setLoading(true);
@@ -112,8 +114,6 @@ const ReservationManagement = () => {
         return { backgroundColor: "#f1f3f4", color: "#5f6368" };
     }
   };
-
-  const [categoryFilter, setCategoryFilter] = useState("All");
 
   // Apply filters
   const filtered = reservations.filter((r) => {

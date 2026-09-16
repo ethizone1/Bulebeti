@@ -3,7 +3,6 @@ import { NavLink, Link, useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import config from "../config";
 import PlansComparisonModal from "./PlansComparisonModal";
-import BuleBetLogo from "./BuleBetLogo";
 
 // Super-admin contact details (platform support)
 const SUPER_ADMIN_CONTACT = {
