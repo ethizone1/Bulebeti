@@ -107,11 +107,15 @@ const LoginPage = () => {
           code: code.trim(),
         });
 
-        if (result.status === "complete") {
+        const sessionId = result.createdSessionId || signIn.createdSessionId;
+        if (sessionId) {
+          await setSignInActive({ session: sessionId });
+          navigate("/");
+        } else if (result.status === "complete") {
           await setSignInActive({ session: result.createdSessionId });
           navigate("/");
         } else {
-          setError("Verification incomplete. Please follow additional authentication steps.");
+          setError("Verification incomplete. Please check your verification code.");
         }
       } else {
         // SignUp Mode Verification
@@ -119,7 +123,11 @@ const LoginPage = () => {
           code: code.trim(),
         });
 
-        if (result.status === "complete") {
+        const sessionId = result.createdSessionId || signUp.createdSessionId;
+        if (sessionId) {
+          await setSignUpActive({ session: sessionId });
+          navigate("/");
+        } else if (result.status === "complete") {
           await setSignUpActive({ session: result.createdSessionId });
           navigate("/");
         } else {
