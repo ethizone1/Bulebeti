@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const MenuManagement = ({ _currentTier = "Platinum" }) => {
   const { t } = useLanguage();
@@ -75,7 +76,7 @@ const MenuManagement = ({ _currentTier = "Platinum" }) => {
     if (!itemToUpdate) return;
 
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/menu/${id}`, {
         method: "PUT",
         headers: {
@@ -116,7 +117,7 @@ const MenuManagement = ({ _currentTier = "Platinum" }) => {
     );
 
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/menu/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "x-auth-token": token },
@@ -146,7 +147,7 @@ const MenuManagement = ({ _currentTier = "Platinum" }) => {
     setMenuItems((prev) => prev.filter((item) => item.id !== id));
 
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/menu/${id}`, {
         method: "DELETE",
         headers: { "x-auth-token": token },
@@ -201,7 +202,7 @@ const MenuManagement = ({ _currentTier = "Platinum" }) => {
 
   const cloneToRestaurant = async (item) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/menu`, {
         method: "POST",
         headers: {

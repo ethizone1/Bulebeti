@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const DEFAULT_INGREDIENTS = [
   "Injera",
@@ -205,7 +206,7 @@ const EditMenuItem = () => {
 
     try {
       setSaving(true);
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/menu/${itemId}`, {
         method: "PUT",
         headers: {

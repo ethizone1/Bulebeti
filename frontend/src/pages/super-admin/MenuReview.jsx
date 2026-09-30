@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const MenuReview = () => {
   const [globalMenu, setGlobalMenu] = useState([]);
@@ -39,7 +40,7 @@ const MenuReview = () => {
 
   const handleApprove = async (id) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/menu/${id}`, {
         method: "PUT",
         headers: {

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import QRCodeModal from "../../components/QRCodeModal";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const RestaurantManagement = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const RestaurantManagement = () => {
     setCreateError("");
 
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(
         `${config.API_URL}/api/restaurants/admin-create`,
         {
@@ -98,7 +99,7 @@ const RestaurantManagement = () => {
   const toggleStatus = async (id, currentStatus) => {
     const nextStatus = currentStatus === "Active" ? "Inactive" : "Active";
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(
         `${config.API_URL}/api/restaurants/admin/edit/${id}`,
         {
@@ -132,7 +133,7 @@ const RestaurantManagement = () => {
     if (!window.confirm(`Approve upgrade for "${name}" to ${targetTier} Plan?`))
       return;
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(
         `${config.API_URL}/api/restaurants/admin/upgrade/${id}`,
         {
@@ -170,7 +171,7 @@ const RestaurantManagement = () => {
     )
       return;
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(
         `${config.API_URL}/api/restaurants/admin/upgrade/${id}`,
         {
@@ -200,7 +201,7 @@ const RestaurantManagement = () => {
   const handleEditSave = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(
         `${config.API_URL}/api/restaurants/admin/edit/${editingRestaurant._id}`,
         {

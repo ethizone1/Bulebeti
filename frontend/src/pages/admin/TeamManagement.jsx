@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const AVAILABLE_PERMISSIONS = [
   { id: "manage_menu", label: "Menu & Gallery", minTier: "Basic" },
@@ -44,7 +45,7 @@ const TeamManagement = () => {
   const fetchTeam = useCallback(async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(
         `${config.API_URL}/api/restaurants/${restaurantName}/team`,
         {
@@ -96,7 +97,7 @@ const TeamManagement = () => {
 
     setAdding(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(
         `${config.API_URL}/api/restaurants/${restaurantName}/team`,
         {
@@ -138,7 +139,7 @@ const TeamManagement = () => {
 
   const handleUpdatePermissions = async (userId, updatedPermissions) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(
         `${config.API_URL}/api/restaurants/${restaurantName}/team/${userId}`,
         {
@@ -165,7 +166,7 @@ const TeamManagement = () => {
     if (!window.confirm("Are you sure you want to remove this team member?"))
       return;
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(
         `${config.API_URL}/api/restaurants/${restaurantName}/team/${userId}`,
         {
@@ -198,7 +199,7 @@ const TeamManagement = () => {
   const handleSaveProfile = async (userId) => {
     setSavingProfile(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(
         `${config.API_URL}/api/restaurants/${restaurantName}/team/${userId}/profile`,
         {

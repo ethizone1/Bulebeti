@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const EditEvent = () => {
   const navigate = useNavigate();
@@ -124,7 +125,7 @@ const EditEvent = () => {
     setError("");
 
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/events/${eventId}`, {
         method: "PUT",
         headers: {

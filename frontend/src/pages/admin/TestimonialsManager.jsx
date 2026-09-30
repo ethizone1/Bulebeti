@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const TestimonialsManager = () => {
   const { restaurantName } = useParams();
@@ -38,7 +39,7 @@ const TestimonialsManager = () => {
     try {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const response = await fetch(
         `${config.API_URL}/api/testimonials/restaurant/${restaurantName}/admin`,
         {
@@ -155,7 +156,7 @@ const TestimonialsManager = () => {
     setActionLoadingId(id);
     const newStatus = currentStatus === "Approved" ? "Pending" : "Approved";
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const response = await fetch(`${config.API_URL}/api/testimonials/${id}`, {
         method: "PUT",
         headers: {
@@ -192,7 +193,7 @@ const TestimonialsManager = () => {
     }
     setActionLoadingId(id);
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const response = await fetch(`${config.API_URL}/api/testimonials/${id}`, {
         method: "DELETE",
         headers: {
@@ -228,7 +229,7 @@ const TestimonialsManager = () => {
   const handleUpdate = async (id) => {
     setActionLoadingId(id);
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const response = await fetch(`${config.API_URL}/api/testimonials/${id}`, {
         method: "PUT",
         headers: {

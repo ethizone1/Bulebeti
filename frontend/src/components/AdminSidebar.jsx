@@ -3,6 +3,7 @@ import { NavLink, Link, useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import config from "../config";
 import PlansComparisonModal from "./PlansComparisonModal";
+import { getAuthToken } from "../utils/authToken";
 
 // Super-admin contact details (platform support)
 const SUPER_ADMIN_CONTACT = {
@@ -47,7 +48,7 @@ const AdminSidebar = ({ currentTier = "Basic", _onTierChange }) => {
   const _handleRequestUpgrade = async (targetTier) => {
     setRequestingUpgrade(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       if (!token) return;
 
       const res = await fetch(

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
 import config from "../config";
+import { getAuthToken } from "../utils/authToken";
 
 const PlansComparisonModal = ({
   isOpen,
@@ -19,7 +20,7 @@ const PlansComparisonModal = ({
   if (!isOpen) return null;
 
   const handleSelectPlan = async (tierKey) => {
-    const token = localStorage.getItem("token");
+    const token = (await getAuthToken());
     if (restaurantSlug && token) {
       setSubmittingTier(tierKey);
       setErrorInfo("");

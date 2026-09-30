@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const AdminOnlineOrders = () => {
   const { restaurantName } = useParams();
@@ -23,7 +24,7 @@ const AdminOnlineOrders = () => {
       const res = await fetch(
         `${config.API_URL}/api/reservations/restaurant/${restaurantName}`,
         {
-          headers: { "x-auth-token": localStorage.getItem("token") },
+          headers: { "x-auth-token": (await getAuthToken()) },
         },
       );
       if (res.ok) {
@@ -65,7 +66,7 @@ const AdminOnlineOrders = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            "x-auth-token": localStorage.getItem("token"),
+            "x-auth-token": (await getAuthToken()),
           },
           body: JSON.stringify({ status: newStatus }),
         },

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const EventsManager = () => {
   const { t } = useLanguage();
@@ -42,7 +43,7 @@ const EventsManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this event?")) return;
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/events/${id}`, {
         method: "DELETE",
         headers: {

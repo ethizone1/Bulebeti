@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const DEFAULT_INGREDIENTS = [
   "Injera",
@@ -129,7 +130,7 @@ const AddMenuItem = () => {
       const restaurant = await restRes.json();
 
       // 2. Post to backend
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const response = await fetch(`${config.API_URL}/api/menu`, {
         method: "POST",
         headers: {

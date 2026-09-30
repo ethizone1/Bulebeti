@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
+import { useAuthContext } from "../context/AuthContext";
 
 const SuperAdminLayout = ({ children }) => {
   const location = useLocation();
@@ -8,22 +9,30 @@ const SuperAdminLayout = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
 
+  const { isLoaded, isSignedIn, loading, mongoUser } = useAuthContext();
+
+  // UI gate only; every super-admin API call is authorized on the server
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    let storedUser;
+    if (!isLoaded || (isSignedIn && loading)) return;
 
-    try {
-      storedUser = JSON.parse(localStorage.getItem("user") || "null");
-    } catch {
-      storedUser = null;
+    let role = isSignedIn ? mongoUser?.role : null;
+    if (!isSignedIn) {
+      try {
+        const token = localStorage.getItem("token");
+        const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+        if (token && storedUser) role = storedUser.role;
+      } catch {
+        role = null;
+      }
     }
 
-    if (!token || !storedUser || storedUser.role !== "super-admin") {
-      navigate("/login", { replace: true });
-    } else {
+    if (role === "super-admin") {
       setIsAuthorized(true);
+    } else {
+      setIsAuthorized(false);
+      navigate("/login", { replace: true });
     }
-  }, [navigate]);
+  }, [isLoaded, isSignedIn, loading, mongoUser, navigate]);
 
   const { language, toggleLanguage } = useLanguage();
 

@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const LocationManagement = () => {
   const { t } = useLanguage();
@@ -16,7 +17,7 @@ const LocationManagement = () => {
     const fetchSisterRestaurants = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
+        const token = (await getAuthToken());
         if (!token) throw new Error("No auth token");
         const res = await fetch(`${config.API_URL}/api/restaurants/owner/my`, {
           headers: { "x-auth-token": token },

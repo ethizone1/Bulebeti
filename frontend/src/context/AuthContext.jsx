@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useUser, useAuth, useClerk } from "@clerk/clerk-react";
+import { setClerkTokenGetter, getAuthToken as getSharedAuthToken } from "../utils/authToken";
 
 const AuthContext = createContext(null);
 
@@ -11,6 +12,11 @@ export const AuthProvider = ({ children }) => {
   const [mongoUser, setMongoUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Expose a fresh Clerk token to API calls made outside React context
+  useEffect(() => {
+    setClerkTokenGetter(isSignedIn ? getToken : null);
+  }, [isSignedIn, getToken]);
 
   // Sync Clerk authenticated user with backend MongoDB user
   useEffect(() => {
@@ -103,13 +109,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const getAuthToken = async () => {
-    try {
-      return await getToken();
-    } catch {
-      return null;
-    }
-  };
+  const getAuthToken = getSharedAuthToken;
 
   return (
     <AuthContext.Provider

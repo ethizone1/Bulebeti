@@ -4,6 +4,7 @@ import { useLanguage } from "../../context/LanguageContext";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
 import PlansComparisonModal from "../../components/PlansComparisonModal";
+import { getAuthToken } from "../../utils/authToken";
 
 const AdminDashboard = () => {
   const { tier: currentTier } = useAdmin();
@@ -36,13 +37,13 @@ const AdminDashboard = () => {
         let restaurant = null;
         const restRes = await fetch(
           `${config.API_URL}/api/restaurants/${restaurantName}`,
-          { headers: { "x-auth-token": localStorage.getItem("token") || "" } },
+          { headers: { "x-auth-token": (await getAuthToken()) || "" } },
         );
 
         if (restRes.ok) {
           restaurant = await restRes.json();
         } else {
-          const token = localStorage.getItem("token");
+          const token = (await getAuthToken());
           if (token) {
             const myRestRes = await fetch(
               `${config.API_URL}/api/restaurants/owner/my`,
@@ -71,7 +72,7 @@ const AdminDashboard = () => {
           fetch(
             `${config.API_URL}/api/reservations/restaurant/${restaurantName}`,
             {
-              headers: { "x-auth-token": localStorage.getItem("token") },
+              headers: { "x-auth-token": (await getAuthToken()) },
             },
           ),
           fetch(`${config.API_URL}/api/catering/restaurant/${rId}`),
@@ -126,7 +127,7 @@ const AdminDashboard = () => {
 
         // 6. Sister Restaurants (formerly Locations count)
         let myRestCount = 0;
-        const token = localStorage.getItem("token");
+        const token = (await getAuthToken());
         if (token) {
           try {
             const myRestRes = await fetch(

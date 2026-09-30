@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
@@ -97,7 +98,7 @@ const CreateEvent = () => {
       if (!restaurantData) throw new Error("Restaurant data not loaded");
       const payload = { ...formData, restaurantId: restaurantData._id };
 
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/events`, {
         method: "POST",
         headers: {

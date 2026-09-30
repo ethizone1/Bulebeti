@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -14,7 +15,7 @@ const UserManagement = () => {
     try {
       setLoading(true);
       setError("");
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/auth/users`, {
         headers: {
           "x-auth-token": token,
@@ -43,7 +44,7 @@ const UserManagement = () => {
 
   const handleRoleChange = async (userId, newRole) => {
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/auth/users/${userId}/role`, {
         method: "PATCH",
         headers: {
@@ -69,7 +70,7 @@ const UserManagement = () => {
   const handleStatusToggle = async (userId, currentStatus) => {
     const nextStatus = currentStatus === "active" ? "suspended" : "active";
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/auth/users/${userId}/status`, {
         method: "PATCH",
         headers: {
@@ -98,7 +99,7 @@ const UserManagement = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       const res = await fetch(`${config.API_URL}/api/auth/users/${userId}`, {
         method: "DELETE",
         headers: {

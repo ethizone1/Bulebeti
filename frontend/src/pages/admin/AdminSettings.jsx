@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const AdminSettings = () => {
   const { t } = useLanguage();
@@ -78,7 +79,7 @@ const AdminSettings = () => {
 
     setProfileSubmitting(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       if (!token) throw new Error("No authentication token found.");
 
       const res = await fetch(
@@ -200,7 +201,7 @@ const AdminSettings = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-auth-token": localStorage.getItem("token"),
+          "x-auth-token": (await getAuthToken()),
         },
         body: JSON.stringify({ currentPassword, newPassword }),
       });
@@ -812,7 +813,7 @@ const AdminSettings = () => {
                       onClick={async () => {
                         try {
                           setMenuLayout(layout.id);
-                          const token = localStorage.getItem("token");
+                          const token = (await getAuthToken());
                           const res = await fetch(
                             `${config.API_URL}/api/restaurants/${restaurant.slug}`,
                             {

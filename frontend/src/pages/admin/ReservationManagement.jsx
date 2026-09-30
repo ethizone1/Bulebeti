@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const ReservationManagement = () => {
   const { t } = useLanguage();
@@ -27,7 +28,7 @@ const ReservationManagement = () => {
       const res = await fetch(
         `${config.API_URL}/api/reservations/restaurant/${restaurantName}`,
         {
-          headers: { "x-auth-token": localStorage.getItem("token") },
+          headers: { "x-auth-token": (await getAuthToken()) },
         },
       );
       if (res.ok) {
@@ -88,7 +89,7 @@ const ReservationManagement = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "x-auth-token": localStorage.getItem("token"),
+          "x-auth-token": (await getAuthToken()),
         },
         body: JSON.stringify({ status: newStatus }),
       });

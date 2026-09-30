@@ -5,6 +5,8 @@ import AdminNavbar from "../components/AdminNavbar";
 import AIChatWidget from "../components/AIChatWidget";
 import { setDynamicFavicon } from "../utils/favicon";
 import config from "../config";
+import { useAuthContext } from "../context/AuthContext";
+import { getAuthToken } from "../utils/authToken";
 
 export const AdminContext = createContext();
 export const useAdmin = () => useContext(AdminContext);
@@ -18,12 +20,21 @@ const AdminLayout = ({ children }) => {
   const [restaurant, setRestaurant] = useState(null);
   const currentYear = new Date().getFullYear();
 
+  const { isLoaded, isSignedIn } = useAuthContext();
+
+  // UI gate only; every admin API call is authorized on the server
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
+    if (!isLoaded || isSignedIn) return;
+    let hasLegacyToken = false;
+    try {
+      hasLegacyToken = Boolean(localStorage.getItem("token"));
+    } catch {
+      // storage unavailable; treat as signed out
+    }
+    if (!hasLegacyToken) {
       navigate("/login", { replace: true });
     }
-  }, [navigate]);
+  }, [isLoaded, isSignedIn, navigate]);
 
   useEffect(() => {
     if (
@@ -45,7 +56,7 @@ const AdminLayout = ({ children }) => {
     if (!restaurantName) return;
     const fetchRestaurant = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = (await getAuthToken());
         const res = await fetch(
           `${config.API_URL}/api/restaurants/${restaurantName}`,
           { headers: token ? { "x-auth-token": token } : {} },
@@ -92,7 +103,7 @@ const AdminLayout = ({ children }) => {
     setTier(newTier);
 
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       if (!token) return;
 
       const res = await fetch(

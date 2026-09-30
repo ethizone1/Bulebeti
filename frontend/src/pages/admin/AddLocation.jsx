@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const AddLocation = ({ currentTier }) => {
   const { t } = useLanguage();
@@ -45,7 +46,7 @@ const AddLocation = ({ currentTier }) => {
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = (await getAuthToken());
       if (!token)
         throw new Error(
           "You must be logged in to register a sister restaurant.",

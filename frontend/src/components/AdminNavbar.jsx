@@ -4,6 +4,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { useAdmin } from "../layouts/AdminLayout";
 import QRCodeModal from "./QRCodeModal";
 import config from "../config";
+import { getAuthToken } from "../utils/authToken";
 
 // Persist read notification IDs in localStorage
 const STORAGE_KEY = "bulebeti_read_notifs";
@@ -94,7 +95,7 @@ const AdminNavbar = ({ currentTier = "Basic" }) => {
           const resResp = await fetch(
             `${config.API_URL}/api/reservations/restaurant/${restaurantName}`,
             {
-              headers: { "x-auth-token": localStorage.getItem("token") },
+              headers: { "x-auth-token": (await getAuthToken()) },
             },
           );
           if (resResp.ok) {

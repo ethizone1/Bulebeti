@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
 import BuleBetLogo from "../../components/BuleBetLogo";
 import config from "../../config";
+import { getAuthToken } from "../../utils/authToken";
 
 const RegistrationPage = () => {
   const { t } = useLanguage();
@@ -375,7 +376,7 @@ const RegistrationPage = () => {
 
     if (isUpgradeMode && targetRestaurantSlug) {
       try {
-        const token = localStorage.getItem("token");
+        const token = (await getAuthToken());
         const res = await fetch(
           `${config.API_URL}/api/restaurants/${targetRestaurantSlug}/request-upgrade`,
           {
