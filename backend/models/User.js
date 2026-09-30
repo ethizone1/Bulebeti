@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   verificationCode: { type: String },
   verificationCodeExpires: { type: Date },
+  verificationAttempts: { type: Number, default: 0 },
   restaurantId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Restaurant',

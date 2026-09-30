@@ -13,23 +13,44 @@ const {
   notifyAdminAndCustomer,
   notifyStatusUpdate,
 } = require("../services/notifications");
+const { cleanStr, isEmail, isPhone, isObjectId } = require("../utils/validate");
 
 // POST a new reservation (Public)
 router.post("/", async (req, res) => {
   try {
-    const {
-      restaurantId,
-      guestName,
-      email,
-      phone,
-      date,
-      time,
-      guests,
-      specialRequests,
-    } = req.body;
+    const { restaurantId } = req.body;
+    const guestName = cleanStr(req.body.guestName, 100);
+    const email = cleanStr(req.body.email, 254).toLowerCase();
+    const rawPhone = cleanStr(req.body.phone, 30);
+    const phone = rawPhone && rawPhone !== "N/A" ? rawPhone : "N/A";
+    const date = cleanStr(req.body.date, 40);
+    const time = cleanStr(req.body.time, 40);
+    const guests = Number(req.body.guests);
+    const specialRequests = cleanStr(req.body.specialRequests, 2000);
+
+    if (!guestName || !isEmail(email) || !date || !time) {
+      return res.status(400).json({ msg: "Name, a valid email, date and time are required." });
+    }
+    if (phone !== "N/A" && !isPhone(phone)) {
+      return res.status(400).json({ msg: "Please enter a valid phone number." });
+    }
+    if (!Number.isInteger(guests) || guests < 1 || guests > 1000) {
+      return res.status(400).json({ msg: "Please enter a valid number of guests." });
+    }
+
+    // Accept a restaurant ID or slug; the restaurant must exist
+    const idOrSlug = cleanStr(restaurantId, 200);
+    const restaurant = !idOrSlug
+      ? null
+      : isObjectId(idOrSlug)
+        ? await Restaurant.findById(idOrSlug)
+        : await Restaurant.findOne({ slug: idOrSlug.toLowerCase() });
+    if (!restaurant) {
+      return res.status(404).json({ msg: "Restaurant not found." });
+    }
 
     const newReservation = new Reservation({
-      restaurantId,
+      restaurantId: restaurant._id,
       guestName,
       email,
       phone,
@@ -41,27 +62,12 @@ router.post("/", async (req, res) => {
 
     const reservation = await newReservation.save();
 
-    // Find restaurant by ID or slug
-    let restaurant = null;
-    if (restaurantId) {
-      if (restaurantId.match(/^[0-9a-fA-F]{24}$/)) {
-        restaurant = await Restaurant.findById(restaurantId);
-      } else {
-        restaurant = await Restaurant.findOne({ slug: restaurantId });
-      }
-    }
-
-    let adminEmail = "ethizone1@gmail.com";
-    let adminPhone = "+12404411075";
-    if (restaurant) {
-      const admin = await User.findById(restaurant.ownerId);
-      if (admin) {
-        adminEmail = admin.email || restaurant.email || "ethizone1@gmail.com";
-        adminPhone = admin.phone || restaurant.phone || "+12404411075";
-      } else if (restaurant.email) {
-        adminEmail = restaurant.email;
-        adminPhone = restaurant.phone || "+12404411075";
-      }
+    let adminEmail = restaurant.email || "";
+    let adminPhone = restaurant.phone || "N/A";
+    const admin = await User.findById(restaurant.ownerId);
+    if (admin) {
+      adminEmail = admin.email || adminEmail;
+      adminPhone = admin.phone || adminPhone;
     }
 
     const isOrder =
@@ -80,7 +86,7 @@ router.post("/", async (req, res) => {
 
     // Trigger Notification
     await notifyAdminAndCustomer(adminEmail, adminPhone, email, phone, type, {
-      restaurantName: restaurant ? restaurant.name : "MaedBet Partner",
+      restaurantName: restaurant.name,
       guestName,
       customerName: guestName,
       date,

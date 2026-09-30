@@ -1,11 +1,11 @@
-require("dotenv").config();
-const { sendSMS } = require("./services/notifications");
+require("dotenv").config({ path: require("path").resolve(__dirname, "../.env") });
+const { sendSMS } = require("../services/notifications");
 
 async function test() {
   const phone = process.argv[2];
   if (!phone) {
     console.log(
-      "Please provide a phone number! Usage: node test_sms.js 5551234567",
+      "Please provide a phone number! Usage: node scripts/send_test_sms.js 5551234567",
     );
     process.exit(1);
   }

@@ -8,6 +8,7 @@ const {
 } = require("../middleware/ownership");
 const Feedback = require("../models/Feedback");
 const Restaurant = require("../models/Restaurant");
+const { cleanStr, isEmail, isPhone, isObjectId } = require("../utils/validate");
 
 // Get feedback for a specific restaurant (Requires Auth & Ownership)
 router.get("/restaurant/:restaurantId", auth, async (req, res) => {
@@ -34,12 +35,43 @@ router.get("/restaurant/:restaurantId", auth, async (req, res) => {
 // Add new feedback (Public)
 router.post("/", async (req, res) => {
   try {
-    const newFeedback = new Feedback(req.body);
+    const restaurantId = cleanStr(req.body.restaurantId, 24);
+    const customer = cleanStr(req.body.customer, 100);
+    const email = cleanStr(req.body.email, 254).toLowerCase();
+    const phone = cleanStr(req.body.phone, 30);
+    const rating = Number(req.body.rating);
+    const comment = cleanStr(req.body.comment, 2000);
+    const date = cleanStr(req.body.date, 40) || new Date().toLocaleDateString();
+
+    if (!isObjectId(restaurantId) || !customer || !comment) {
+      return res.status(400).json({ msg: "Name, comment and restaurant are required." });
+    }
+    if (!isPhone(phone) || (email && !isEmail(email))) {
+      return res.status(400).json({ msg: "Please enter valid contact details." });
+    }
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return res.status(400).json({ msg: "Rating must be between 1 and 5." });
+    }
+
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) {
+      return res.status(404).json({ msg: "Restaurant not found." });
+    }
+
+    // Only customer-facing fields are accepted; status is set by the restaurant
+    const newFeedback = new Feedback({
+      restaurantId,
+      customer,
+      email,
+      phone,
+      rating,
+      comment,
+      date,
+    });
     const feedback = await newFeedback.save();
 
     // Trigger direct SMS to admin
     try {
-      const restaurant = await Restaurant.findById(req.body.restaurantId);
 
       if (restaurant && restaurant.phone) {
         const twilioSid = process.env.TWILIO_ACCOUNT_SID;

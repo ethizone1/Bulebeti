@@ -13,21 +13,33 @@ const {
   notifyAdminAndCustomer,
   notifyStatusUpdate,
 } = require("../services/notifications");
+const { cleanStr, isEmail, isPhone } = require("../utils/validate");
 
 // Create a catering request (Public)
 router.post("/", async (req, res) => {
   try {
-    const {
-      eventType,
-      guestCount,
-      date,
-      location,
-      name,
-      email,
-      phone,
-      details,
-      restaurantSlug,
-    } = req.body;
+    const eventType = cleanStr(req.body.eventType, 100);
+    const guestCount = Number(req.body.guestCount);
+    const date = cleanStr(req.body.date, 40);
+    const location = cleanStr(req.body.location, 300);
+    const name = cleanStr(req.body.name, 100);
+    const email = cleanStr(req.body.email, 254).toLowerCase();
+    const phone = cleanStr(req.body.phone, 30);
+    const details = cleanStr(req.body.details, 4000);
+    const restaurantSlug = cleanStr(req.body.restaurantSlug, 200).toLowerCase();
+
+    if (!eventType || !date || !location || !name || !isEmail(email)) {
+      return res.status(400).json({ msg: "Please fill in all required fields with a valid email." });
+    }
+    if (!isPhone(phone)) {
+      return res.status(400).json({ msg: "Please enter a valid phone number." });
+    }
+    if (!Number.isInteger(guestCount) || guestCount < 1 || guestCount > 100000) {
+      return res.status(400).json({ msg: "Please enter a valid guest count." });
+    }
+    if (Number.isNaN(new Date(date).getTime())) {
+      return res.status(400).json({ msg: "Please enter a valid event date." });
+    }
 
     let restaurantId = null;
     let adminEmail = "admin@maedbet.com";

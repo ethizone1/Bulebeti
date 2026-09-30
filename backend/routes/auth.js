@@ -4,12 +4,14 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const https = require("https");
+const crypto = require("crypto");
 const { sendEmail } = require("../services/notifications");
 const auth = require("../middleware/auth");
 const { requireRole } = require("../middleware/ownership");
 
 // Accounts in these states must never be re-activated by a login/verification flow
 const BLOCKED_STATUSES = ["suspended", "inactive"];
+const MAX_CODE_ATTEMPTS = 5;
 
 router.get("/test-email-status", auth, requireRole("super-admin"), async (req, res) => {
   const targetEmail = req.query.email || process.env.EMAIL_USER || "ethizone1@gmail.com";
@@ -97,48 +99,6 @@ function verifyGoogleToken(token) {
   });
 }
 
-// Change Password (pre-auth)
-router.post("/change-password-preauth", async (req, res) => {
-  try {
-    const { email, phone, oldPassword, newPassword } = req.body;
-
-    if (!oldPassword || !newPassword) {
-      return res.status(400).json({ msg: "Current password and new password are required." });
-    }
-
-    let user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ msg: "Account not found with this email" });
-    }
-
-    if (!user.password) {
-      return res
-        .status(400)
-        .json({
-          msg: "This account uses Google Login. Please sign in with Google.",
-        });
-    }
-
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ msg: "Invalid current password" });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-    user.password = hashedPassword;
-    if (!BLOCKED_STATUSES.includes(user.status)) user.status = "active";
-    user.isVerified = true;
-    await user.save();
-
-    res.json({ msg: "Password changed successfully" });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ msg: err.message || "Failed to change password." });
-  }
-});
-
 // Register
 router.post("/register", async (req, res) => {
   try {
@@ -180,7 +140,7 @@ router.post("/register", async (req, res) => {
     if (user) {
       // If user exists but is unverified (pending), update password & resend verification code
       if (!user.isVerified && !googleToken) {
-        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const verificationCode = crypto.randomInt(100000, 1000000).toString();
         const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
         
         if (password) {
@@ -191,6 +151,7 @@ router.post("/register", async (req, res) => {
         user.phone = finalPhone;
         user.verificationCode = verificationCode;
         user.verificationCodeExpires = verificationCodeExpires;
+        user.verificationAttempts = 0;
         await user.save();
 
         const subject = "🔐 Complete Your MaedBet Registration - Verification Code";
@@ -310,7 +271,7 @@ router.post("/register", async (req, res) => {
       hashedPassword = await bcrypt.hash(password, salt);
     }
 
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCode = crypto.randomInt(100000, 1000000).toString();
     const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
 
     const isAutoVerified = !!googleToken;
@@ -439,6 +400,16 @@ router.post("/verify-email", async (req, res) => {
     const isValidCode = user.verificationCode && user.verificationCode === cleanCode;
 
     if (!isValidCode) {
+      // Invalidate the code after repeated wrong guesses to stop brute-forcing
+      user.verificationAttempts = (user.verificationAttempts || 0) + 1;
+      if (user.verificationAttempts >= MAX_CODE_ATTEMPTS) {
+        user.verificationCode = undefined;
+        user.verificationCodeExpires = undefined;
+        user.verificationAttempts = 0;
+        await user.save();
+        return res.status(400).json({ msg: "Too many incorrect attempts. Please request a new verification code." });
+      }
+      await user.save();
       return res.status(400).json({ msg: "Invalid verification code. Please check your email inbox for the 6-digit code." });
     }
 
@@ -451,6 +422,7 @@ router.post("/verify-email", async (req, res) => {
     if (!BLOCKED_STATUSES.includes(user.status)) user.status = "active";
     user.verificationCode = undefined;
     user.verificationCodeExpires = undefined;
+    user.verificationAttempts = 0;
     await user.save();
 
     console.log(`[BACKEND] ✅ User verified & activated: ${user.name} (${user.email})`);
@@ -504,9 +476,10 @@ router.post("/resend-verification", async (req, res) => {
       return res.status(400).json({ msg: "Account is already verified. You can log in directly." });
     }
 
-    const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const newCode = crypto.randomInt(100000, 1000000).toString();
     user.verificationCode = newCode;
     user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
+    user.verificationAttempts = 0;
     await user.save();
 
     const subject = "🔑 New Verification Code - MaedBet Account";
@@ -534,173 +507,6 @@ router.post("/resend-verification", async (req, res) => {
   }
 });
 
-// Login
-router.post("/login", async (req, res) => {
-  try {
-    const { email, phone, password } = req.body;
-
-    let user = null;
-    if (email) {
-      const cleanEmail = email.trim().toLowerCase();
-      user = await User.findOne({ email: cleanEmail });
-    }
-    if (!user && phone) {
-      user = await User.findOne({ phone });
-    }
-
-    if (!user) {
-      return res.status(400).json({ msg: "Invalid Credentials" });
-    }
-
-    if (!user.password) {
-      return res
-        .status(400)
-        .json({
-          msg: "This account uses Google Login. Please sign in with Google.",
-        });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ msg: "Invalid Credentials" });
-    }
-
-    const payload = {
-      user: {
-        id: user.id,
-        role: user.role,
-      },
-    };
-
-    const requiresPasswordChange = password === "Admin.123";
-
-    const Restaurant = require("../models/Restaurant");
-    const restaurant = await Restaurant.findOne({ ownerId: user.id });
-
-    // Check if they are an admin
-    const adminOf = await Restaurant.findOne({ "admins.user": user.id });
-
-    let slug = restaurant ? restaurant.slug : adminOf ? adminOf.slug : null;
-
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: "24h" },
-      (err, token) => {
-        if (err) throw err;
-        res.json({
-          token,
-          user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-          },
-          restaurantSlug: slug,
-          requiresPasswordChange,
-        });
-      },
-    );
-  } catch (err) {
-    console.error("[AUTH LOGIN ERROR]", err.message);
-    res.status(500).json({ msg: err.message || "Authentication failed." });
-  }
-});
-
-// Google Auth Login / Signup (Auto-Signup)
-router.post("/google", async (req, res) => {
-  try {
-    const { token } = req.body;
-    if (!token) {
-      return res.status(400).json({ msg: "No token provided" });
-    }
-
-    let payload;
-    try {
-      payload = await verifyGoogleToken(token);
-    } catch (err) {
-      console.error("Google token verification failed:", err.message);
-      return res.status(400).json({ msg: "Invalid Google token" });
-    }
-
-    const { sub, email, name, picture } = payload;
-    if (!email) {
-      return res
-        .status(400)
-        .json({ msg: "Google token payload is missing email" });
-    }
-
-    // Find user by googleId or email
-    let user = await User.findOne({ $or: [{ googleId: sub }, { email }] });
-
-    if (user) {
-      // Link googleId if not present
-      let updated = false;
-      if (!user.googleId) {
-        user.googleId = sub;
-        updated = true;
-      }
-      if (!user.picture && picture) {
-        user.picture = picture;
-        updated = true;
-      }
-      if (updated) {
-        await user.save();
-      }
-    } else {
-      // Auto-signup: Create user as customer role
-      user = new User({
-        name,
-        email,
-        googleId: sub,
-        picture,
-        role: "customer",
-        status: "active",
-      });
-      await user.save();
-      console.log(
-        `[BACKEND] ✅ Google auto-registered new user: ${name} (${email}) - Role: customer`,
-      );
-    }
-
-    // Find restaurant slug if they are an admin or owner
-    const Restaurant = require("../models/Restaurant");
-    const restaurant = await Restaurant.findOne({ ownerId: user.id });
-    const adminOf = await Restaurant.findOne({ "admins.user": user.id });
-    let slug = restaurant ? restaurant.slug : adminOf ? adminOf.slug : null;
-
-    const jwtPayload = {
-      user: {
-        id: user.id,
-        role: user.role,
-      },
-    };
-
-    jwt.sign(
-      jwtPayload,
-      process.env.JWT_SECRET,
-      { expiresIn: "24h" },
-      (err, jwtToken) => {
-        if (err) throw err;
-        res.json({
-          token: jwtToken,
-          user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            picture: user.picture,
-          },
-          restaurantSlug: slug,
-        });
-      },
-    );
-  } catch (err) {
-    console.error("Google auth server error:", err.message);
-    res.status(500).json({ msg: err.message || "Google authentication failed." });
-  }
-});
-
 // Change Password
 router.post("/change-password", auth, async (req, res) => {
   try {
@@ -709,6 +515,14 @@ router.post("/change-password", auth, async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
+    }
+
+    if (!newPassword || String(newPassword).length < 8) {
+      return res.status(400).json({ msg: "New password must be at least 8 characters." });
+    }
+
+    if (!user.password || !currentPassword) {
+      return res.status(400).json({ msg: "This account has no password set. Please sign in with your email code." });
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
@@ -727,133 +541,6 @@ router.post("/change-password", auth, async (req, res) => {
   } catch (err) {
     console.error("[CHANGE PASSWORD ERROR]", err.message);
     res.status(500).json({ msg: err.message || "Failed to change password." });
-  }
-});
-
-// Send Login OTP (Passwordless Login / Forgot Password)
-router.post("/send-login-otp", async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email || !isValidEmail(email)) {
-      return res.status(400).json({ msg: "Please enter a valid email address." });
-    }
-
-    const cleanEmail = email.trim().toLowerCase();
-    let user = await User.findOne({ email: cleanEmail });
-
-    if (!user) {
-      return res.status(404).json({ msg: "No account found with this email address. Please register first." });
-    }
-
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    user.verificationCode = otpCode;
-    user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
-    await user.save();
-
-    const subject = "🔑 Your MaedBet Login Access Code";
-    const htmlContent = `
-      <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;">
-        <h2 style="color: #D4AF37; margin-top: 0;">MaedBet Login Access Code</h2>
-        <p>Hi <strong>${user.name}</strong>,</p>
-        <p>Use the following 6-digit access code to log in to your account without a password:</p>
-        <div style="background: #f3f4f6; font-size: 32px; font-weight: bold; letter-spacing: 6px; text-align: center; padding: 16px; border-radius: 8px; margin: 20px 0; color: #111827;">
-          ${otpCode}
-        </div>
-        <p style="font-size: 13px; color: #6b7280;">This access code is valid for 15 minutes. If you did not request this code, please ignore this email.</p>
-      </div>
-    `;
-
-    try {
-      const sent = await sendEmail(cleanEmail, subject, htmlContent, "MaedBet Platform");
-      if (sent) {
-        console.log(`[BACKEND] 🔑 Login OTP sent to ${cleanEmail}: ${otpCode}`);
-      } else {
-        console.error(`[BACKEND] ❌ Login OTP email send failed to ${cleanEmail}`);
-      }
-    } catch (e) {
-      console.error(`[BACKEND] Login OTP email error: ${e.message}`);
-    }
-
-    res.json({
-      msg: "Access code sent to your email! Please check your inbox (and spam folder).",
-      emailSent: true,
-    });
-  } catch (err) {
-    console.error("[SEND LOGIN OTP ERROR]", err.message);
-    res.status(500).json({ msg: err.message || "Failed to send access code." });
-  }
-});
-
-// Verify Login OTP
-router.post("/verify-login-otp", async (req, res) => {
-  try {
-    const { email, code } = req.body;
-    if (!email || !code) {
-      return res.status(400).json({ msg: "Email and access code are required." });
-    }
-
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanCode = code.toString().trim();
-
-    let user = await User.findOne({ email: cleanEmail });
-    if (!user) {
-      return res.status(404).json({ msg: "Account not found." });
-    }
-
-    const isValidCode = user.verificationCode && user.verificationCode === cleanCode;
-
-    if (!isValidCode) {
-      return res.status(400).json({ msg: "Invalid access code. Please check your email and try again." });
-    }
-
-    if (!user.verificationCodeExpires || new Date() > user.verificationCodeExpires) {
-      return res.status(400).json({ msg: "Access code has expired. Please request a new code." });
-    }
-
-    // Clear OTP & mark verified/active
-    user.isVerified = true;
-    if (!BLOCKED_STATUSES.includes(user.status)) user.status = "active";
-    user.verificationCode = undefined;
-    user.verificationCodeExpires = undefined;
-    await user.save();
-
-    console.log(`[BACKEND] ✅ User logged in via Email OTP: ${user.name} (${user.email})`);
-
-    // Find restaurant slug
-    const Restaurant = require("../models/Restaurant");
-    const restaurant = await Restaurant.findOne({ ownerId: user.id });
-    const adminOf = await Restaurant.findOne({ "admins.user": user.id });
-    let slug = restaurant ? restaurant.slug : adminOf ? adminOf.slug : null;
-
-    const payload = {
-      user: {
-        id: user.id,
-        role: user.role,
-      },
-    };
-
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: "24h" },
-      (err, token) => {
-        if (err) throw err;
-        res.json({
-          token,
-          user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            picture: user.picture,
-          },
-          restaurantSlug: slug,
-        });
-      }
-    );
-  } catch (err) {
-    console.error("[VERIFY LOGIN OTP ERROR]", err.message);
-    res.status(500).json({ msg: "Server error during access code verification." });
   }
 });
 
@@ -1020,30 +707,6 @@ router.delete("/users/:userId", auth, async (req, res) => {
   } catch (err) {
     console.error("[DELETE USER ERROR]", err.message);
     res.status(500).json({ msg: "Server error deleting user account." });
-  }
-});
-
-// Test Email Diagnostic Route
-router.get("/test-email", auth, requireRole("super-admin"), async (req, res) => {
-  try {
-    const to = req.query.to || "addmy01@gmail.com";
-    const { sendEmail } = require("../services/notifications");
-    const result = await sendEmail(
-      to,
-      "🧪 Diagnostic Test Email from MaedBet Render Server",
-      `<h1>MaedBet Diagnostic Test</h1><p>Sent at ${new Date().toISOString()}</p>`
-    );
-    res.json({
-      to,
-      success: result,
-      env: {
-        EMAIL_USER: process.env.EMAIL_USER ? "SET" : "UNSET",
-        EMAIL_PASS: process.env.EMAIL_PASS ? "SET" : "UNSET",
-        RESEND_API_KEY: process.env.RESEND_API_KEY ? "SET" : "UNSET"
-      }
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
   }
 });
 

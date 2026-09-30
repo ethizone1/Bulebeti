@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const { canManageRestaurant, restaurantHasTier, planRequiredResponse } = require('../middleware/ownership');
+const { cleanStr, isSafeUrl } = require('../utils/validate');
 const Testimonial = require('../models/Testimonial');
 const Restaurant = require('../models/Restaurant');
 
@@ -64,14 +65,27 @@ router.post('/restaurant/:identifier', async (req, res) => {
       return res.status(404).json({ msg: 'Restaurant not found' });
     }
 
+    const cleanName = cleanStr(name, 100);
+    const cleanText = cleanStr(text, 3000);
+    const numericRating = Number(rating) || 5;
+    if (!cleanName || !cleanText) {
+      return res.status(400).json({ msg: 'Name and testimonial text are required.' });
+    }
+    if (!Number.isInteger(numericRating) || numericRating < 1 || numericRating > 5) {
+      return res.status(400).json({ msg: 'Rating must be between 1 and 5.' });
+    }
+    if (mediaUrl && !isSafeUrl(mediaUrl)) {
+      return res.status(400).json({ msg: 'Media must be an http(s) link or an uploaded image.' });
+    }
+
     const newTestimonial = new Testimonial({
       restaurantId,
-      name,
-      role: role || 'Customer',
-      text,
-      rating: Number(rating) || 5,
-      mediaUrl,
-      mediaType,
+      name: cleanName,
+      role: cleanStr(role, 100) || 'Customer',
+      text: cleanText,
+      rating: numericRating,
+      mediaUrl: mediaUrl || undefined,
+      mediaType: ['image', 'video'].includes(mediaType) ? mediaType : undefined,
       status: 'Approved'
     });
 

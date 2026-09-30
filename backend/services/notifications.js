@@ -12,6 +12,16 @@ if (dns.setDefaultResultOrder) {
 
 const Restaurant = require("../models/Restaurant");
 const User = require("../models/User");
+const { escapeHtml, escapeValues } = require("../utils/validate");
+
+// Strips tag delimiters so user text can't inject markup, while staying readable in SMS
+const stripTags = (obj) =>
+  Object.fromEntries(
+    Object.entries(obj || {}).map(([k, v]) => [
+      k,
+      typeof v === "string" ? v.replace(/[<>]/g, "") : v,
+    ]),
+  );
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -326,6 +336,9 @@ const notifyAdminAndCustomer = async (
   type,
   details,
 ) => {
+  // HTML-escaped copy of user-supplied values for email bodies
+  const h = escapeValues(details);
+
   let customerSubject,
     adminSubject,
     customerHtml,
@@ -338,25 +351,25 @@ const notifyAdminAndCustomer = async (
     adminSubject = `[${details.restaurantName}] Admin - New Reservation Request: ${details.guestName}`;
 
     customerHtml = `
-      <h2>Hi ${details.guestName},</h2>
-      <p>Thank you for submitting a reservation request at <strong>${details.restaurantName}</strong>.</p>
+      <h2>Hi ${h.guestName},</h2>
+      <p>Thank you for submitting a reservation request at <strong>${h.restaurantName}</strong>.</p>
       <ul>
-        <li><strong>Date:</strong> ${details.date}</li>
-        <li><strong>Time:</strong> ${details.time}</li>
-        <li><strong>Guests:</strong> ${details.guests}</li>
-        <li><strong>Special Requests:</strong> ${details.specialRequests || "None"}</li>
+        <li><strong>Date:</strong> ${h.date}</li>
+        <li><strong>Time:</strong> ${h.time}</li>
+        <li><strong>Guests:</strong> ${h.guests}</li>
+        <li><strong>Special Requests:</strong> ${h.specialRequests || "None"}</li>
       </ul>
       <p>The restaurant will review your request and confirm your table shortly.</p>
     `;
 
     adminHtml = `
       <h2>New Reservation Request</h2>
-      <p><strong>Customer:</strong> ${details.guestName} (${customerEmail} | ${customerPhone})</p>
+      <p><strong>Customer:</strong> ${h.guestName} (${escapeHtml(customerEmail)} | ${escapeHtml(customerPhone)})</p>
       <ul>
-        <li><strong>Date:</strong> ${details.date}</li>
-        <li><strong>Time:</strong> ${details.time}</li>
-        <li><strong>Guests:</strong> ${details.guests}</li>
-        <li><strong>Special Requests:</strong> ${details.specialRequests || "None"}</li>
+        <li><strong>Date:</strong> ${h.date}</li>
+        <li><strong>Time:</strong> ${h.time}</li>
+        <li><strong>Guests:</strong> ${h.guests}</li>
+        <li><strong>Special Requests:</strong> ${h.specialRequests || "None"}</li>
       </ul>
       <p>Please log in to your Admin Dashboard to confirm or reject this request.</p>
     `;
@@ -368,25 +381,25 @@ const notifyAdminAndCustomer = async (
     adminSubject = `[${details.restaurantName}] Admin - New Catering Inquiry: ${details.eventType}`;
 
     customerHtml = `
-      <h2>Hi ${details.name},</h2>
-      <p>We have received your catering inquiry for your upcoming ${details.eventType} event.</p>
+      <h2>Hi ${h.name},</h2>
+      <p>We have received your catering inquiry for your upcoming ${h.eventType} event.</p>
       <ul>
-        <li><strong>Date:</strong> ${details.date}</li>
-        <li><strong>Location:</strong> ${details.location}</li>
-        <li><strong>Guests:</strong> ${details.guestCount}</li>
+        <li><strong>Date:</strong> ${h.date}</li>
+        <li><strong>Location:</strong> ${h.location}</li>
+        <li><strong>Guests:</strong> ${h.guestCount}</li>
       </ul>
       <p>Our events team will contact you shortly to discuss menu options and a quote.</p>
     `;
 
     adminHtml = `
       <h2>New Catering Inquiry</h2>
-      <p><strong>Customer:</strong> ${details.name} (${customerEmail} | ${customerPhone})</p>
+      <p><strong>Customer:</strong> ${h.name} (${escapeHtml(customerEmail)} | ${escapeHtml(customerPhone)})</p>
       <ul>
-        <li><strong>Event Type:</strong> ${details.eventType}</li>
-        <li><strong>Date:</strong> ${details.date}</li>
-        <li><strong>Location:</strong> ${details.location}</li>
-        <li><strong>Guests:</strong> ${details.guestCount}</li>
-        <li><strong>Additional Details:</strong> ${details.details || "None"}</li>
+        <li><strong>Event Type:</strong> ${h.eventType}</li>
+        <li><strong>Date:</strong> ${h.date}</li>
+        <li><strong>Location:</strong> ${h.location}</li>
+        <li><strong>Guests:</strong> ${h.guestCount}</li>
+        <li><strong>Additional Details:</strong> ${h.details || "None"}</li>
       </ul>
       <p>Please log in to your Admin Dashboard to follow up with this client.</p>
     `;
@@ -398,25 +411,25 @@ const notifyAdminAndCustomer = async (
     adminSubject = `[${details.restaurantName}] Admin Alert - New Online Order #${details.orderId || "ONLINE"} from ${details.customerName}`;
 
     customerHtml = `
-      <h2>Hi ${details.customerName},</h2>
-      <p>Thank you for your order at <strong>${details.restaurantName}</strong>!</p>
+      <h2>Hi ${h.customerName},</h2>
+      <p>Thank you for your order at <strong>${h.restaurantName}</strong>!</p>
       <ul>
-        <li><strong>Order Type:</strong> ${details.orderType}</li>
-        <li><strong>Total Amount:</strong> $${details.totalPrice}</li>
-        <li><strong>Items:</strong> ${details.itemsSummary}</li>
-        <li><strong>Contact Phone:</strong> ${customerPhone}</li>
+        <li><strong>Order Type:</strong> ${h.orderType}</li>
+        <li><strong>Total Amount:</strong> $${h.totalPrice}</li>
+        <li><strong>Items:</strong> ${h.itemsSummary}</li>
+        <li><strong>Contact Phone:</strong> ${escapeHtml(customerPhone)}</li>
       </ul>
       <p>Both you and the restaurant owner have received this notification. The restaurant will prepare your order shortly.</p>
     `;
 
     adminHtml = `
       <h2>New Online Order Alert!</h2>
-      <p><strong>Customer:</strong> ${details.customerName} (${customerEmail} | ${customerPhone})</p>
+      <p><strong>Customer:</strong> ${h.customerName} (${escapeHtml(customerEmail)} | ${escapeHtml(customerPhone)})</p>
       <ul>
-        <li><strong>Order Type:</strong> ${details.orderType}</li>
-        <li><strong>Total Amount:</strong> $${details.totalPrice}</li>
-        <li><strong>Items:</strong> ${details.itemsSummary}</li>
-        <li><strong>Notes / Details:</strong> ${details.notes || "None"}</li>
+        <li><strong>Order Type:</strong> ${h.orderType}</li>
+        <li><strong>Total Amount:</strong> $${h.totalPrice}</li>
+        <li><strong>Items:</strong> ${h.itemsSummary}</li>
+        <li><strong>Notes / Details:</strong> ${h.notes || "None"}</li>
       </ul>
       <p>Please review and confirm this order with the customer.</p>
     `;
@@ -457,6 +470,8 @@ const notifyStatusUpdate = async (
   customerPhone,
   details,
 ) => {
+  details = stripTags(details);
+  newStatus = String(newStatus ?? "").replace(/[<>]/g, "");
   let subject = "";
   let html = "";
   let sms = "";

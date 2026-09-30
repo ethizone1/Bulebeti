@@ -16,10 +16,16 @@ const authForAdminPersona = (req, res, next) =>
 router.post("/chat", authForAdminPersona, async (req, res) => {
   try {
     const { message, role, restaurantName } = req.body;
-    const nameStr = restaurantName || "the restaurant";
+    const nameStr =
+      typeof restaurantName === "string" && restaurantName.trim()
+        ? restaurantName.trim().slice(0, 100)
+        : "the restaurant";
 
-    if (!message) {
+    if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Message is required" });
+    }
+    if (message.length > 2000) {
+      return res.status(400).json({ error: "Message is too long (max 2000 characters)" });
     }
 
     // Security: Enforce authentication for admin persona requests

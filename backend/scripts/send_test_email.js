@@ -1,5 +1,5 @@
-require("dotenv").config();
-const { sendEmail } = require("./services/notifications");
+require("dotenv").config({ path: require("path").resolve(__dirname, "../.env") });
+const { sendEmail } = require("../services/notifications");
 
 async function test() {
   console.log("Testing with EMAIL_USER:", process.env.EMAIL_USER);

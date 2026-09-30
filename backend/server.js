@@ -117,8 +117,38 @@ const authLimiter = rateLimit({
   },
 });
 
+// Public submissions send emails/SMS and cost money, so they get tighter limits
+const publicFormLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => !isProduction,
+  message: { msg: "Too many submissions from this IP, please try again later." },
+});
+
+const aiChatLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 40,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => !isProduction,
+  message: { msg: "Too many chat messages, please try again later." },
+});
+
 app.use("/api/", generalLimiter);
 app.use("/api/auth", authLimiter);
+[
+  "/api/reservations",
+  "/api/catering",
+  "/api/feedback",
+  "/api/inquiries",
+  "/api/testimonials/restaurant/:identifier",
+  "/api/auth/register",
+  "/api/auth/verify-email",
+  "/api/auth/resend-verification",
+].forEach((path) => app.post(path, publicFormLimiter));
+app.post("/api/ai/chat", aiChatLimiter);
 
 // Payload Parsers (Restricted payload size to prevent DoS)
 app.use(express.json({ limit: "5mb" }));
@@ -182,40 +212,7 @@ app.get(["/", "/api/health", "/healthz", "/health"], (req, res) => {
   });
 });
 
-// Live Diagnostic Route for Email Dispatch
-app.get(
-  "/api/test-email-status",
-  require("./middleware/auth"),
-  require("./middleware/ownership").requireRole("super-admin"),
-  async (req, res) => {
-  const { sendEmail } = require("./services/notifications");
-  const targetEmail =
-    req.query.email || process.env.EMAIL_USER || "ethizone1@gmail.com";
-
-  try {
-    const sent = await sendEmail(
-      targetEmail,
-      "🧪 MaedBet Production Email Test",
-      `<h3>Email Dispatch Test</h3><p>Time: ${new Date().toISOString()}</p>`,
-      "MaedBet Platform",
-    );
-
-    res.json({
-      success: sent,
-      targetEmail,
-      emailUserConfigured: Boolean(process.env.EMAIL_USER),
-      emailPassConfigured: Boolean(process.env.EMAIL_PASS),
-      timestamp: new Date().toISOString(),
-    });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message,
-      targetEmail,
-      timestamp: new Date().toISOString(),
-    });
-  }
-});
+// Email diagnostics: GET /api/auth/test-email-status (super-admin only)
 
 // Global Centralized Error Handler (No stack trace leaks)
 app.use((err, req, res, next) => {

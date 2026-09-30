@@ -4,13 +4,29 @@ const Inquiry = require('../models/Inquiry');
 const auth = require('../middleware/auth');
 const { canManageRestaurant } = require('../middleware/ownership');
 const Restaurant = require('../models/Restaurant');
+const { cleanStr, isEmail, isPhone, isObjectId } = require('../utils/validate');
 
 // @route   POST /api/inquiries
 // @desc    Submit a new inquiry (Public)
 // @access  Public
 router.post('/', async (req, res) => {
   try {
-    const { name, email, phone, subject, message, restaurantId } = req.body;
+    const name = cleanStr(req.body.name, 100);
+    const email = cleanStr(req.body.email, 254).toLowerCase();
+    const phone = cleanStr(req.body.phone, 30);
+    const subject = cleanStr(req.body.subject, 200);
+    const message = cleanStr(req.body.message, 5000);
+    const restaurantId = cleanStr(req.body.restaurantId, 24);
+
+    if (!name || !isEmail(email) || !subject || !message) {
+      return res.status(400).json({ msg: 'Name, a valid email, subject and message are required.' });
+    }
+    if (phone && !isPhone(phone)) {
+      return res.status(400).json({ msg: 'Please enter a valid phone number.' });
+    }
+    if (restaurantId && !isObjectId(restaurantId)) {
+      return res.status(400).json({ msg: 'Invalid restaurant.' });
+    }
 
     const newInquiry = new Inquiry({
       name,
