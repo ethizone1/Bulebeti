@@ -8,6 +8,7 @@ let verifyToken = null;
 try {
   const clerkExpress = require("@clerk/express");
   clerkClient = clerkExpress.clerkClient;
+  verifyToken = clerkExpress.verifyToken;
 } catch (e) {
   try {
     const clerkBackend = require("@clerk/backend");
@@ -36,33 +37,21 @@ module.exports = async function (req, res, next) {
       clerkUserId = req.auth.userId;
     }
 
-    // 2. Extract clerkUserId and verified claims from token if available
+    // 2. Verify the token's signature with Clerk. Claims are only trusted after verification.
     if (!clerkUserId && token) {
       const secretKey = process.env.CLERK_SECRET_KEY;
       if (secretKey && verifyToken) {
         try {
           const verified = await verifyToken(token, { secretKey });
           clerkUserId = verified.sub;
+          if (typeof verified.email === "string" && verified.email_verified !== false) {
+            verifiedEmailFromClerk = verified.email.trim().toLowerCase();
+          }
+          if (verified.name) {
+            clerkNameFromToken = verified.name;
+          }
         } catch (err) {
           // Token verification failed or non-clerk token
-        }
-      }
-
-      // Decode payload if standard JWT format
-      if (!clerkUserId) {
-        try {
-          const decoded = jwt.decode(token);
-          if (decoded && (decoded.sub || decoded.clerkUserId)) {
-            clerkUserId = decoded.sub || decoded.clerkUserId;
-            if (decoded.email && (decoded.email_verified || decoded.email_verified === undefined)) {
-              verifiedEmailFromClerk = decoded.email.trim().toLowerCase();
-            }
-            if (decoded.name) {
-              clerkNameFromToken = decoded.name;
-            }
-          }
-        } catch (e) {
-          // Decoding failed
         }
       }
 

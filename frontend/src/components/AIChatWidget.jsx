@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import config from '../config';
+import { useAuthContext } from '../context/AuthContext';
 
 const AIChatWidget = ({ role = 'customer', restaurantName = 'the restaurant' }) => {
+  const { getAuthToken } = useAuthContext();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -46,9 +48,14 @@ const AIChatWidget = ({ role = 'customer', restaurantName = 'the restaurant' }) 
     setIsTyping(true);
 
     try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (role === 'admin') {
+        const token = await getAuthToken();
+        if (token) headers.Authorization = `Bearer ${token}`;
+      }
       const res = await fetch(`${config.API_URL}/api/ai/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ message: userMsg.text, role, restaurantName })
       });
       const data = await res.json();

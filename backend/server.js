@@ -183,7 +183,11 @@ app.get(["/", "/api/health", "/healthz", "/health"], (req, res) => {
 });
 
 // Live Diagnostic Route for Email Dispatch
-app.get("/api/test-email-status", async (req, res) => {
+app.get(
+  "/api/test-email-status",
+  require("./middleware/auth"),
+  require("./middleware/ownership").requireRole("super-admin"),
+  async (req, res) => {
   const { sendEmail } = require("./services/notifications");
   const targetEmail =
     req.query.email || process.env.EMAIL_USER || "ethizone1@gmail.com";

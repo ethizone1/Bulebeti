@@ -6,8 +6,9 @@ const jwt = require("jsonwebtoken");
 const https = require("https");
 const { sendEmail } = require("../services/notifications");
 const auth = require("../middleware/auth");
+const { requireRole } = require("../middleware/ownership");
 
-router.get("/test-email-status", async (req, res) => {
+router.get("/test-email-status", auth, requireRole("super-admin"), async (req, res) => {
   const targetEmail = req.query.email || process.env.EMAIL_USER || "ethizone1@gmail.com";
   try {
     const sent = await sendEmail(
