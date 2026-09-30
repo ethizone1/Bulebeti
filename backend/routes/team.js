@@ -3,9 +3,16 @@ const router = express.Router();
 const auth = require("../middleware/auth");
 const Restaurant = require("../models/Restaurant");
 const User = require("../models/User");
-const bcrypt = require("bcrypt");
 const { sendEmail, sendSMS } = require("../services/notifications");
 const { escapeHtml, isEmail } = require("../utils/validate");
+
+const normalizeTier = (t) => {
+  const str = String(t || "").trim().toLowerCase();
+  if (str.includes("premium")) return "Premium";
+  if (str.includes("platinum")) return "Platinum";
+  if (str.includes("gold")) return "Gold";
+  return "Basic";
+};
 
 // Middleware to check if user is Owner or Manager
 const verifyOwnerOrManager = async (req, res, next) => {
@@ -74,7 +81,9 @@ router.get("/:slug/team", auth, async (req, res) => {
 
 // POST add a new admin
 router.post("/:slug/team", auth, verifyOwnerOrManager, async (req, res) => {
-  const { email, phone, permissions } = req.body;
+  const { permissions } = req.body;
+  const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : "";
+  const phone = typeof req.body.phone === "string" ? req.body.phone.trim() : "";
   const restaurant = req.restaurant;
 
   if (!isEmail(email)) {
@@ -83,89 +92,18 @@ router.post("/:slug/team", auth, verifyOwnerOrManager, async (req, res) => {
 
   try {
     let targetUser = await User.findOne({ email });
-    const crypto = require("crypto");
-    let isNewUser = false;
-    let tempPass = null;
 
-    if (!targetUser) {
-      if (!phone) {
-        return res
-          .status(400)
-          .json({ msg: "Phone number is required to invite a new user." });
-      }
-
-      isNewUser = true;
-      tempPass = `Pass_${crypto.randomBytes(4).toString("hex")}!`;
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(tempPass, salt);
-
-      targetUser = new User({
-        name: "Pending Admin",
-        email,
-        phone,
-        password: hashedPassword,
-        role: "sub-admin",
-        status: "active",
-      });
-      await targetUser.save();
-    }
-
-    // Dispatch real Email and SMS notifications
-    const frontendHost = process.env.FRONTEND_URL || "http://localhost:5173";
-    const inviteUrl = `${frontendHost}/activate?email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&restaurant=${encodeURIComponent(restaurant.slug)}`;
-
-    const emailSubject = `🔑 Sub-Admin Invitation to Manage ${restaurant.name}`;
-    const emailHtml = `
-      <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; background: #ffffff;">
-        <h2 style="color: #D4AF37; margin-top: 0;">You've Been Invited!</h2>
-        <p>Hi,</p>
-        <p>You have been added as a <strong>Sub-Admin</strong> for <strong>${escapeHtml(restaurant.name)}</strong> on MaedBet Hub.</p>
-        <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin: 20px 0;">
-          <p style="margin: 0 0 8px 0;"><strong>Login Email:</strong> ${escapeHtml(email)}</p>
-          <p style="margin: 0 0 8px 0;"><strong>Login Phone:</strong> ${escapeHtml(phone)}</p>
-          <p style="margin: 0;"><strong>Default Temporary Password:</strong> ${isNewUser ? tempPass : "(Use your existing password)"}</p>
-        </div>
-        <p>Please click the button below to set your password and activate your account:</p>
-        <a href="${escapeHtml(inviteUrl)}" style="display: inline-block; background: #111827; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; margin: 12px 0;">Activate Account & Set Password</a>
-        <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">Or open this activation link directly:<br/><a href="${escapeHtml(inviteUrl)}">${escapeHtml(inviteUrl)}</a></p>
-      </div>
-    `;
-
-    try {
-      await sendEmail(
-        email,
-        emailSubject,
-        emailHtml,
-        `${restaurant.name} Admin`,
-      );
-      if (phone) {
-        const smsMsg = `[MaedBet] You were invited as a Sub-Admin for ${restaurant.name}. Login: ${email || phone} / Password: ${isNewUser ? tempPass : "(existing)"}. Activate at: ${inviteUrl}`;
-        await sendSMS(phone, smsMsg, restaurant.name);
-      }
-    } catch (e) {
-      console.error("[TEAM INVITE NOTIFICATION ERROR]", e.message);
-    }
-
-    if (restaurant.ownerId.toString() === targetUser._id.toString()) {
+    // Validate everything before creating accounts or sending notifications
+    if (targetUser && restaurant.ownerId.toString() === targetUser._id.toString()) {
       return res.status(400).json({ msg: "Cannot add the owner as an admin." });
     }
 
-    const alreadyAdmin = restaurant.admins.find(
-      (a) => a.user.toString() === targetUser._id.toString(),
-    );
-    if (alreadyAdmin) {
+    if (
+      targetUser &&
+      restaurant.admins.some((a) => a.user.toString() === targetUser._id.toString())
+    ) {
       return res.status(400).json({ msg: "User is already an admin." });
     }
-
-    // Check tier limits
-    const normalizeTier = (t) => {
-      if (!t) return "Basic";
-      const str = String(t).trim();
-      if (str.toLowerCase().includes("premium")) return "Premium";
-      if (str.toLowerCase().includes("platinum")) return "Platinum";
-      if (str.toLowerCase().includes("gold")) return "Gold";
-      return "Basic";
-    };
 
     const currentTier = normalizeTier(restaurant.subscriptionTier);
     let maxTeam = 1; // Basic: 1 admin
@@ -179,11 +117,49 @@ router.post("/:slug/team", auth, verifyOwnerOrManager, async (req, res) => {
       });
     }
 
+    // New members get a password-less account; they sign in with an email code
+    // and the auth middleware links that sign-in to this record by email.
+    if (!targetUser) {
+      targetUser = new User({
+        name: "Pending Admin",
+        email,
+        phone,
+        role: "sub-admin",
+        status: "active",
+      });
+      await targetUser.save();
+    }
+
     restaurant.admins.push({
       user: targetUser._id,
       permissions: permissions || [],
     });
     await restaurant.save();
+
+    const frontendHost = process.env.FRONTEND_URL || "http://localhost:5173";
+    const inviteUrl = `${frontendHost}/activate?email=${encodeURIComponent(email)}&restaurant=${encodeURIComponent(restaurant.slug)}`;
+
+    const emailSubject = `🔑 You're invited to manage ${restaurant.name}`;
+    const emailHtml = `
+      <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; background: #ffffff;">
+        <h2 style="color: #D4AF37; margin-top: 0;">You've Been Invited!</h2>
+        <p>Hi,</p>
+        <p>You have been added to the team for <strong>${escapeHtml(restaurant.name)}</strong> on MaedBet.</p>
+        <p>Sign in with <strong>${escapeHtml(email)}</strong>. We'll email you a 6-digit code; no password is needed.</p>
+        <a href="${escapeHtml(inviteUrl)}" style="display: inline-block; background: #111827; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; margin: 12px 0;">Sign in to MaedBet</a>
+        <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">Or open this link directly:<br/><a href="${escapeHtml(inviteUrl)}">${escapeHtml(inviteUrl)}</a></p>
+      </div>
+    `;
+
+    try {
+      await sendEmail(email, emailSubject, emailHtml, `${restaurant.name} Admin`);
+      if (phone) {
+        const smsMsg = `[MaedBet] You were added to the team for ${restaurant.name}. Sign in with ${email} at: ${inviteUrl}`;
+        await sendSMS(phone, smsMsg, restaurant.name);
+      }
+    } catch (e) {
+      console.error("[TEAM INVITE NOTIFICATION ERROR]", e.message);
+    }
 
     res.json(restaurant.admins);
   } catch (err) {

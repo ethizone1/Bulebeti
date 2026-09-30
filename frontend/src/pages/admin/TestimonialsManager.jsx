@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
 import { getAuthToken } from "../../utils/authToken";
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from "../../utils/uploadLimits";
 
 const TestimonialsManager = () => {
   const { restaurantName } = useParams();
@@ -99,9 +100,9 @@ const TestimonialsManager = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.size > 8 * 1024 * 1024) {
+    if (file.size > MAX_UPLOAD_BYTES) {
       alert(
-        "File is too large. Please select an image or video under 8MB to ensure it saves correctly.",
+        `File is too large. Please select an image or video under ${MAX_UPLOAD_LABEL}.`,
       );
       return;
     }
@@ -132,7 +133,10 @@ const TestimonialsManager = () => {
           body: JSON.stringify(formData),
         },
       );
-      if (!response.ok) throw new Error("Failed to submit testimonial");
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.msg || "Failed to submit testimonial");
+      }
       const newTestimonial = await response.json();
       setTestimonials([newTestimonial, ...testimonials]);
       setFormData({

@@ -87,6 +87,7 @@ function createStore() {
     store.emails.push(to);
     return true;
   };
+  notifications.sendSMS = async () => true;
 
   return store;
 }
@@ -96,6 +97,7 @@ function createApp() {
   const app = express();
   app.use(express.json());
   app.use("/api/auth", require("../routes/auth"));
+  app.use("/api/restaurants", require("../routes/team"));
   app.use("/api/restaurants", require("../routes/restaurants"));
   app.use("/api/inquiries", require("../routes/inquiries"));
   app.use("/api/events", require("../routes/events"));

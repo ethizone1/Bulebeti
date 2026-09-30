@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import config from '../../config';
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from "../../utils/uploadLimits";
 
 const GalleryManager = () => {
   const { restaurantName } = useParams();
@@ -55,8 +56,8 @@ const GalleryManager = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Image file size must be under 5MB.');
+      if (file.size > MAX_UPLOAD_BYTES) {
+        alert(`Image file size must be under ${MAX_UPLOAD_LABEL}.`);
         e.target.value = '';
         return;
       }

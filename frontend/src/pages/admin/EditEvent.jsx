@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import config from "../../config";
 import { getAuthToken } from "../../utils/authToken";
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from "../../utils/uploadLimits";
 
 const EditEvent = () => {
   const navigate = useNavigate();
@@ -344,6 +345,11 @@ const EditEvent = () => {
                 onChange={(e) => {
                   const file = e.target.files[0];
                   if (file) {
+                    if (file.size > MAX_UPLOAD_BYTES) {
+                      alert(`Image file size must be under ${MAX_UPLOAD_LABEL}.`);
+                      e.target.value = "";
+                      return;
+                    }
                     const reader = new FileReader();
                     reader.onloadend = () =>
                       setFormData({ ...formData, eventImage: reader.result });

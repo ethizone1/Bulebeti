@@ -90,13 +90,20 @@ const CateringPage = () => {
         body: JSON.stringify({ ...formData, details: detailsWithMenu, restaurantSlug: slug })
       });
 
-      if (!response.ok) throw new Error('Failed to submit request');
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.msg || 'Failed to submit request');
+      }
       setSubmitted(true);
       setSelectedItems([]);
       setFormData({ eventType: 'corporate', guestCount: '25', date: '', location: '', name: '', email: '', phone: '', details: '' });
     } catch (err) {
       console.error(err);
-      alert('There was an error submitting your request. Please try again.');
+      alert(
+        err.message && err.message !== 'Failed to fetch'
+          ? err.message
+          : 'There was an error submitting your request. Please try again.',
+      );
     }
   };
 

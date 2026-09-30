@@ -75,7 +75,7 @@ router.post('/restaurant/:identifier', async (req, res) => {
       return res.status(400).json({ msg: 'Rating must be between 1 and 5.' });
     }
     if (mediaUrl && !isSafeUrl(mediaUrl)) {
-      return res.status(400).json({ msg: 'Media must be an http(s) link or an uploaded image.' });
+      return res.status(400).json({ msg: 'Media must be an http(s) link or an uploaded image or video.' });
     }
 
     const newTestimonial = new Testimonial({

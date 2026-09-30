@@ -115,7 +115,7 @@ const TeamManagement = () => {
       );
 
       if (res.ok) {
-        const inviteLink = `${window.location.origin}/maedbet/activate?email=${encodeURIComponent(newEmail)}&phone=${encodeURIComponent(newPhone)}&restaurant=${encodeURIComponent(restaurantName)}`;
+        const inviteLink = `${window.location.origin}/activate?email=${encodeURIComponent(newEmail)}&restaurant=${encodeURIComponent(restaurantName)}`;
         setCreatedInvite({
           email: newEmail,
           phone: newPhone,

@@ -20,21 +20,16 @@ const AdminLayout = ({ children }) => {
   const [restaurant, setRestaurant] = useState(null);
   const currentYear = new Date().getFullYear();
 
-  const { isLoaded, isSignedIn } = useAuthContext();
+  const { isLoaded, isSignedIn, loading: authLoading, mongoUser } = useAuthContext();
 
-  // UI gate only; every admin API call is authorized on the server
+  // UI gate only; every admin API call is authorized on the server.
+  // Wait for AuthContext to restore either a Clerk or a legacy session.
   useEffect(() => {
-    if (!isLoaded || isSignedIn) return;
-    let hasLegacyToken = false;
-    try {
-      hasLegacyToken = Boolean(localStorage.getItem("token"));
-    } catch {
-      // storage unavailable; treat as signed out
-    }
-    if (!hasLegacyToken) {
+    if (!isLoaded || authLoading) return;
+    if (!isSignedIn && !mongoUser) {
       navigate("/login", { replace: true });
     }
-  }, [isLoaded, isSignedIn, navigate]);
+  }, [isLoaded, authLoading, isSignedIn, mongoUser, navigate]);
 
   useEffect(() => {
     if (

@@ -8,11 +8,12 @@ const isEmail = (v) => typeof v === "string" && v.length <= 254 && EMAIL_RE.test
 const isPhone = (v) => typeof v === "string" && PHONE_RE.test(v.trim());
 const isObjectId = (v) => typeof v === "string" && OBJECT_ID_RE.test(v);
 
-// Only http(s) links (or inline images) may be stored for rendering in the UI;
+// Only http(s) links (or inline images/videos) may be stored for rendering in the UI;
 // this blocks javascript: and other script-capable URLs.
 const isSafeUrl = (v) => {
-  if (typeof v !== "string" || v.length > 2_000_000) return false;
+  if (typeof v !== "string" || v.length > 5_000_000) return false;
   if (/^data:image\/(png|jpe?g|gif|webp);base64,/i.test(v)) return true;
+  if (/^data:video\/(mp4|webm|ogg|quicktime);base64,/i.test(v)) return true;
   try {
     const url = new URL(v);
     return url.protocol === "https:" || url.protocol === "http:";

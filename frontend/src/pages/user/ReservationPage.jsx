@@ -58,7 +58,8 @@ const ReservationPage = () => {
         alert('Reservation request sent successfully!');
         setFormData({ ...formData, date: '', name: '', email: '', phone: '', specialRequests: '' });
       } else {
-        alert('Failed to send reservation request.');
+        const data = await res.json().catch(() => ({}));
+        alert(data.msg || 'Failed to send reservation request.');
       }
     } catch (err) {
       console.error(err);

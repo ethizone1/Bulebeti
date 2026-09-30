@@ -57,7 +57,10 @@ const SupportForm = () => {
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to submit inquiry.");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.msg || "Failed to submit inquiry.");
+      }
 
       setSuccessMessage(
         "Your inquiry has been submitted! A member of the MaedBet team will contact you shortly.",

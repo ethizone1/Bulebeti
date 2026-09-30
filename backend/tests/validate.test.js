@@ -9,6 +9,7 @@ test("escapeHtml neutralizes markup", () => {
 test("isSafeUrl allows only http(s) links and inline images", () => {
   assert.equal(isSafeUrl("https://example.com/a.png"), true);
   assert.equal(isSafeUrl("data:image/png;base64,AAAA"), true);
+  assert.equal(isSafeUrl("data:video/mp4;base64,AAAA"), true);
   assert.equal(isSafeUrl("javascript:alert(1)"), false);
   assert.equal(isSafeUrl("data:text/html,<script>"), false);
   assert.equal(isSafeUrl("not a url"), false);

@@ -3,6 +3,7 @@ import { useLanguage } from "../../context/LanguageContext";
 import { useAdmin } from "../../layouts/AdminLayout";
 import config from "../../config";
 import { getAuthToken } from "../../utils/authToken";
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from "../../utils/uploadLimits";
 
 const AdminSettings = () => {
   const { t } = useLanguage();
@@ -143,8 +144,8 @@ const AdminSettings = () => {
   const handleLogoFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("Image file size must be under 5MB.");
+      if (file.size > MAX_UPLOAD_BYTES) {
+        alert(`Image file size must be under ${MAX_UPLOAD_LABEL}.`);
         e.target.value = "";
         return;
       }
@@ -159,8 +160,8 @@ const AdminSettings = () => {
   const handleBannerFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("Image file size must be under 5MB.");
+      if (file.size > MAX_UPLOAD_BYTES) {
+        alert(`Image file size must be under ${MAX_UPLOAD_LABEL}.`);
         e.target.value = "";
         return;
       }

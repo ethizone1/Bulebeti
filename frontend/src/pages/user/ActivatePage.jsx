@@ -1,75 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import config from "../../config";
+import React from "react";
+import { useSearchParams, Link } from "react-router-dom";
 
+// Landing page for team invitations. Invited members sign in with the email
+// they were invited with (6-digit email code); the backend links that sign-in
+// to the invited account, so no temporary password is needed.
 const ActivatePage = () => {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [oldPassword, setOldPassword] = useState("Admin.123");
-  const [newPassword, setNewPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const email = searchParams.get("email") || "";
+  const restaurant = searchParams.get("restaurant") || "";
 
-  useEffect(() => {
-    const qEmail = searchParams.get("email");
-    const qPhone = searchParams.get("phone");
-    if (qEmail) setEmail(qEmail);
-    if (qPhone) setPhone(qPhone);
-  }, [searchParams]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const response = await fetch(
-        `${config.API_URL}/api/auth/change-password`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, phone, oldPassword, newPassword }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess(true);
-        setTimeout(() => {
-          navigate("/maedbet/login");
-        }, 2000);
-      } else {
-        setError(data.msg || "Failed to change password.");
-      }
-    } catch {
-      setError("An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (success) {
-    return (
-      <div className="container min-vh-100 d-flex flex-column justify-content-center align-items-center">
-        <div
-          className="card border-0 shadow-sm rounded-4 p-5 text-center"
-          style={{ maxWidth: "400px" }}
-        >
-          <div className="text-success mb-3" style={{ fontSize: "48px" }}>
-            ✓
-          </div>
-          <h2 className="fw-bold fs-4">Password Changed!</h2>
-          <p className="text-muted small">
-            You will be redirected to the login page momentarily.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const loginUrl = email
+    ? `/login?email=${encodeURIComponent(email)}`
+    : "/login";
 
   return (
     <div className="container min-vh-100 d-flex flex-column justify-content-center align-items-center py-5">
@@ -80,90 +22,29 @@ const ActivatePage = () => {
         >
           MAEDBET
         </h1>
-        <div className="text-muted small fw-bold">CHANGE PASSWORD</div>
+        <div className="text-muted small fw-bold">TEAM INVITATION</div>
       </div>
 
       <div
         className="card border-0 shadow-sm rounded-4"
         style={{ width: "100%", maxWidth: "400px" }}
       >
-        <div className="card-body p-4 p-md-5">
-          <h2 className="fs-5 fw-bold mb-4 text-center">
-            Set Your New Password
-          </h2>
+        <div className="card-body p-4 p-md-5 text-center">
+          <h2 className="fs-5 fw-bold mb-3">You&apos;ve been invited!</h2>
+          <p className="text-muted small mb-4">
+            {restaurant ? (
+              <>
+                You were added to the team for <strong>{restaurant}</strong>.{" "}
+              </>
+            ) : null}
+            Sign in with{" "}
+            {email ? <strong>{email}</strong> : "the email you were invited with"}.
+            We&apos;ll send a 6-digit code to that address; no password is needed.
+          </p>
 
-          {error && (
-            <div className="alert alert-danger py-2 small">{error}</div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label className="form-label small fw-bold text-muted">
-                Email Address
-              </label>
-              <input
-                type="email"
-                className="form-control"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter the email you were invited with"
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label small fw-bold text-muted">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                className="form-control"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Enter the phone number you were invited with"
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label small fw-bold text-muted">
-                Current Password
-              </label>
-              <input
-                type="password"
-                className="form-control"
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                placeholder="Enter the default password from your invite"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="form-label small fw-bold text-muted">
-                New Password
-              </label>
-              <input
-                type="password"
-                className="form-control"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Create a strong new password"
-                minLength="6"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="btn btn-primary w-100 fw-bold mb-3 py-2"
-              disabled={loading}
-            >
-              {loading ? "Changing..." : "Change Password"}
-            </button>
-          </form>
-
-          <div className="text-center mt-3">
-            <Link to="/maedbet/login" className="text-decoration-none small">
-              Back to Login
-            </Link>
-          </div>
+          <Link to={loginUrl} className="btn btn-primary w-100 fw-bold py-2">
+            Continue to sign in
+          </Link>
         </div>
       </div>
     </div>

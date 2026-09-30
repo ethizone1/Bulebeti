@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useUser, useAuth, useClerk } from "@clerk/clerk-react";
+import config from "../config";
 import { setClerkTokenGetter, getAuthToken as getSharedAuthToken } from "../utils/authToken";
 
 const AuthContext = createContext(null);
@@ -26,12 +27,40 @@ export const AuthProvider = ({ children }) => {
       if (!isLoaded) return;
 
       if (!isSignedIn || !clerkUser) {
+        // No Clerk session: restore a legacy session (from restaurant sign-up)
+        // if its token is still accepted by the server, otherwise clear it.
+        let legacyUser = null;
+        let legacyToken;
+        try {
+          legacyToken = localStorage.getItem("token");
+        } catch {
+          // storage unavailable
+        }
+
+        if (legacyToken && legacyToken !== "undefined") {
+          try {
+            const API_URL = config.API_URL;
+            const res = await fetch(`${API_URL}/api/auth/me`, {
+              headers: { "x-auth-token": legacyToken },
+            });
+            if (res.ok) legacyUser = (await res.json()).user;
+          } catch {
+            legacyUser = null;
+          }
+        }
+
+        if (!legacyUser) {
+          try {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+          } catch {
+            // storage unavailable
+          }
+        }
+
         if (isMounted) {
-          setMongoUser(null);
+          setMongoUser(legacyUser);
           setLoading(false);
-          // Clean up legacy localStorage items
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
         }
         return;
       }
@@ -46,7 +75,7 @@ export const AuthProvider = ({ children }) => {
           await new Promise((r) => setTimeout(r, 250));
         }
 
-        const API_URL = import.meta.env.VITE_API_URL || "";
+        const API_URL = config.API_URL;
 
         const response = await fetch(`${API_URL}/api/auth/me`, {
           method: "GET",

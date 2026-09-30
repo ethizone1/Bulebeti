@@ -76,6 +76,7 @@ const MenuPage = () => {
   });
   const [orderSubmitting, setOrderSubmitting] = React.useState(false);
   const [orderSuccess, setOrderSuccess] = React.useState(false);
+  const [orderError, setOrderError] = React.useState("");
   const [showQuickMenuPicker, setShowQuickMenuPicker] = React.useState(true);
 
   const allMenuItems = React.useMemo(() => {
@@ -128,9 +129,10 @@ const MenuPage = () => {
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     setOrderSubmitting(true);
+    setOrderError("");
     try {
       const itemsSummary = cart.map((i) => `${i.name} (${i.qty})`).join(", ");
-      await fetch(`${config.API_URL}/api/reservations`, {
+      const res = await fetch(`${config.API_URL}/api/reservations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -146,12 +148,24 @@ const MenuPage = () => {
           guests: cart.reduce((sum, item) => sum + item.qty, 0) || 1,
           specialRequests: `ONLINE ORDER (${orderForm.orderType}): ${itemsSummary}. Total: $${totalCartPrice.toFixed(2)}. ${orderForm.specialInstructions || ""}`,
         }),
-      }).catch((err) => console.log("Order dispatch logged:", err));
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.msg || "We couldn't place your order. Please try again.");
+      }
+
+      // Only confirm once the restaurant has actually received the order
+      setOrderSuccess(true);
     } catch (err) {
       console.error("Order submission error:", err);
+      setOrderError(
+        err.message === "Failed to fetch"
+          ? "We couldn't reach the server. Please check your connection and try again."
+          : err.message,
+      );
     } finally {
       setOrderSubmitting(false);
-      setOrderSuccess(true);
     }
   };
 
@@ -1626,6 +1640,22 @@ const MenuPage = () => {
                   />
                 </div>
 
+                {orderError && (
+                  <div
+                    role="alert"
+                    style={{
+                      marginTop: "10px",
+                      padding: "10px 12px",
+                      borderRadius: "6px",
+                      backgroundColor: "#fef2f2",
+                      border: "1px solid #fecaca",
+                      color: "#b91c1c",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {orderError}
+                  </div>
+                )}
                 <div
                   style={{
                     display: "flex",

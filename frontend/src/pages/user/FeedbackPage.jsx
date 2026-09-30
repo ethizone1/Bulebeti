@@ -71,7 +71,8 @@ const FeedbackPage = () => {
         setPhone('');
         // We do not redirect so they can stay on the page
       } else {
-        alert('Failed to submit feedback. Please try again.');
+        const data = await res.json().catch(() => ({}));
+        alert(data.msg || 'Failed to submit feedback. Please try again.');
       }
     } catch (err) {
       console.error(err);

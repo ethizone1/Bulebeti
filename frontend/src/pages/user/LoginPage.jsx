@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useSignIn, useSignUp, useAuth } from "@clerk/clerk-react";
 import BuleBetLogo from "../../components/BuleBetLogo";
+import config from "../../config";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -17,7 +18,9 @@ const LoginPage = () => {
   } = useSignUp();
   const { getToken } = useAuth();
 
-  const [email, setEmail] = useState("");
+  const [searchParams] = useSearchParams();
+  // Pre-filled when arriving from a team invitation link
+  const [email, setEmail] = useState(() => searchParams.get("email") || "");
   const [code, setCode] = useState("");
   const [verifying, setVerifying] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -115,7 +118,7 @@ const LoginPage = () => {
         await new Promise((r) => setTimeout(r, 250));
       }
 
-      const API_URL = import.meta.env.VITE_API_URL || "";
+      const API_URL = config.API_URL;
       const res = await fetch(`${API_URL}/api/auth/me`, {
         headers: {
           Authorization: `Bearer ${jwtToken || ""}`,
