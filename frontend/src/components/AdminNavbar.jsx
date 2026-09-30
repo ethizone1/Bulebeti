@@ -19,7 +19,7 @@ const saveAllReadIds = (ids) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
 };
 
-const AdminNavbar = ({ currentTier = "Platinum" }) => {
+const AdminNavbar = ({ currentTier = "Basic" }) => {
   const navigate = useNavigate();
   const { restaurantName } = useParams();
   const { language, toggleLanguage } = useLanguage();

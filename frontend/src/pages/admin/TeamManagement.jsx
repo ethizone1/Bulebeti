@@ -23,7 +23,7 @@ const TeamManagement = () => {
   const { restaurantName } = useParams();
   const [team, setTeam] = useState([]);
   const [owner, setOwner] = useState(null);
-  const [restaurantTier, setRestaurantTier] = useState("Platinum"); // Default to Platinum if unknown
+  const [restaurantTier, setRestaurantTier] = useState("Basic"); // Default to Basic if unknown
   const [loading, setLoading] = useState(true);
   const { searchQuery } = useAdmin();
 

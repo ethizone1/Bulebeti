@@ -1,7 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
-const { canManageRestaurant } = require("../middleware/ownership");
+const {
+  canManageRestaurant,
+  restaurantHasTier,
+  planRequiredResponse,
+} = require("../middleware/ownership");
 const Feedback = require("../models/Feedback");
 const Restaurant = require("../models/Restaurant");
 
@@ -93,6 +97,9 @@ router.put("/:id/status", auth, async (req, res) => {
     );
     if (!authorized) {
       return res.status(403).json({ msg: "Forbidden: Access denied" });
+    }
+    if (!(await restaurantHasTier(feedback.restaurantId, "Premium", req.user.role))) {
+      return planRequiredResponse(res, "Premium");
     }
 
     feedback.status = status;

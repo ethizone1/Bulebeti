@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const { canManageRestaurant } = require('../middleware/ownership');
+const { canManageRestaurant, restaurantHasTier, planRequiredResponse } = require('../middleware/ownership');
 const Restaurant = require('../models/Restaurant');
 const Event = require('../models/Event');
 
@@ -65,6 +65,9 @@ router.post('/', auth, async (req, res) => {
     if (!authorized) {
       return res.status(403).json({ msg: 'Forbidden: You are not authorized for this restaurant' });
     }
+    if (!(await restaurantHasTier(restaurantId, "Premium", req.user.role))) {
+      return planRequiredResponse(res, "Premium");
+    }
 
     const newEvent = new Event(req.body);
     const event = await newEvent.save();
@@ -85,10 +88,16 @@ router.put('/:id', auth, async (req, res) => {
     if (!authorized) {
       return res.status(403).json({ msg: 'Forbidden: You are not authorized to update this event' });
     }
+    if (!(await restaurantHasTier(event.restaurantId, "Premium", req.user.role))) {
+      return planRequiredResponse(res, "Premium");
+    }
+
+    // An event can never be moved to another restaurant
+    const { restaurantId: _ignoredRestaurantId, _id: _ignoredId, ...updates } = req.body;
 
     event = await Event.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body },
+      { $set: updates },
       { new: true }
     );
     res.json(event);
@@ -107,6 +116,9 @@ router.delete('/:id', auth, async (req, res) => {
     const authorized = await canManageRestaurant(req.user.id, req.user.role, event.restaurantId);
     if (!authorized) {
       return res.status(403).json({ msg: 'Forbidden: You are not authorized to delete this event' });
+    }
+    if (!(await restaurantHasTier(event.restaurantId, "Premium", req.user.role))) {
+      return planRequiredResponse(res, "Premium");
     }
 
     await Event.findByIdAndDelete(req.params.id);

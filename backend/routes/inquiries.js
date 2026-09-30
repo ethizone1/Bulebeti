@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
 // @access  Private (Admin / Owner)
 router.get('/', auth, async (req, res) => {
   try {
-    if (req.user.role === 'super-admin' || req.user.role === 'admin') {
+    if (req.user.role === 'super-admin') {
       const inquiries = await Inquiry.find().sort({ createdAt: -1 });
       return res.json(inquiries);
     }

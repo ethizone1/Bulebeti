@@ -13,7 +13,7 @@ const SUPER_ADMIN_CONTACT = {
   hours: "Mon–Fri, 9am–6pm EAT",
 };
 
-const AdminSidebar = ({ currentTier = "Platinum", _onTierChange }) => {
+const AdminSidebar = ({ currentTier = "Basic", _onTierChange }) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { restaurantName } = useParams();

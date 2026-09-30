@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const { canManageRestaurant } = require('../middleware/ownership');
+const { canManageRestaurant, restaurantHasTier, planRequiredResponse } = require('../middleware/ownership');
 const Location = require('../models/Location');
 
 // Get locations for a specific restaurant (Public)
@@ -22,6 +22,9 @@ router.post('/', auth, async (req, res) => {
     const authorized = await canManageRestaurant(req.user.id, req.user.role, restaurantId);
     if (!authorized) {
       return res.status(403).json({ msg: 'Forbidden: Access denied' });
+    }
+    if (!(await restaurantHasTier(restaurantId, "Platinum", req.user.role))) {
+      return planRequiredResponse(res, "Platinum");
     }
 
     const newLocation = new Location(req.body);

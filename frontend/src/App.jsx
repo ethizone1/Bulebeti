@@ -154,7 +154,7 @@ const AdminPage = ({ element: Element, minTier }) => {
 
   const tierImportance = { Basic: 0, Gold: 1, Platinum: 2, Premium: 3 };
   const currentTierImportance =
-    tierImportance[tier] !== undefined ? tierImportance[tier] : 2; // Default to Platinum
+    tierImportance[tier] !== undefined ? tierImportance[tier] : 0; // Default to Basic
   const requiredTierImportance =
     tierImportance[minTier] !== undefined ? tierImportance[minTier] : 0; // Default to Basic
 

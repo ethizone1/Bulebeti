@@ -20,7 +20,7 @@ const RestaurantManagement = () => {
     restaurantName: "",
     ownerName: "",
     email: "",
-    password: "password123",
+    password: "",
     phone: "",
     cuisineType: "Ethiopian",
     subscriptionTier: "Gold",

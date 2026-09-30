@@ -10,7 +10,7 @@ export const AdminContext = createContext();
 export const useAdmin = () => useContext(AdminContext);
 
 const AdminLayout = ({ children }) => {
-  const [tier, setTier] = useState("Platinum");
+  const [tier, setTier] = useState("Basic");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { restaurantName } = useParams();

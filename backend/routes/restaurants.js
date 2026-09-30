@@ -7,6 +7,15 @@ const Inquiry = require("../models/Inquiry");
 const User = require("../models/User");
 const { sendEmail, sendSMS } = require("../services/notifications");
 
+const normalizeTier = (t) => {
+  if (!t) return "Basic";
+  const str = String(t).trim().toLowerCase();
+  if (str.includes("premium")) return "Premium";
+  if (str.includes("platinum")) return "Platinum";
+  if (str.includes("gold")) return "Gold";
+  return "Basic";
+};
+
 // Get all restaurants
 router.get("/", async (req, res) => {
   try {
@@ -134,8 +143,13 @@ router.post("/admin-create", auth, async (req, res) => {
     // 1. Check or Create Owner User
     let owner = await User.findOne({ email: cleanEmail });
     if (!owner) {
+      if (!password || String(password).length < 8) {
+        return res.status(400).json({
+          msg: "An initial password of at least 8 characters is required for a new owner.",
+        });
+      }
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password || "password123", salt);
+      const hashedPassword = await bcrypt.hash(password, salt);
 
       owner = new User({
         name: ownerName.trim(),
@@ -246,15 +260,6 @@ router.post("/", auth, async (req, res) => {
       );
     }
 
-    const normalizeTier = (t) => {
-      if (!t) return "Basic";
-      const str = String(t).trim();
-      if (str.toLowerCase().includes("premium")) return "Premium";
-      if (str.toLowerCase().includes("platinum")) return "Platinum";
-      if (str.toLowerCase().includes("gold")) return "Gold";
-      return "Basic";
-    };
-
     // Check sister restaurant limits
     const userRestaurants = await Restaurant.find({ ownerId: req.user.id });
     if (userRestaurants.length > 0) {
@@ -265,8 +270,8 @@ router.post("/", auth, async (req, res) => {
         Premium: 3,
       };
 
-      const requestedTier = normalizeTier(subscriptionTier);
-      let effectiveHighestTier = requestedTier;
+      // Limits are based on plans the owner already holds, not on the requested plan
+      let effectiveHighestTier = "Basic";
 
       userRestaurants.forEach((r) => {
         const existingNormTier = normalizeTier(r.subscriptionTier);
@@ -287,7 +292,12 @@ router.post("/", auth, async (req, res) => {
       }
     }
 
-    const initialTier = normalizeTier(subscriptionTier);
+    // Paid plans are only granted by the super-admin; a requested plan becomes a pending upgrade request
+    const requestedTier = normalizeTier(subscriptionTier);
+    const isSuperAdmin = req.user.role === "super-admin";
+    const initialTier = isSuperAdmin ? requestedTier : "Basic";
+    const pendingTierRequest =
+      !isSuperAdmin && requestedTier !== "Basic" ? requestedTier : "";
 
     const newRestaurant = new Restaurant({
       name,
@@ -301,6 +311,7 @@ router.post("/", auth, async (req, res) => {
       menuLayout,
       logoUrl,
       subscriptionTier: initialTier,
+      pendingTierRequest,
       ownerId: req.user.id,
     });
 
@@ -416,7 +427,7 @@ router.put("/:slug/request-upgrade", auth, async (req, res) => {
 router.put(
   "/admin/upgrade/:id",
   auth,
-  requireRole("admin", "super-admin"),
+  requireRole("super-admin"),
   async (req, res) => {
     try {
       const restaurant = await Restaurant.findById(req.params.id);
@@ -502,7 +513,7 @@ router.put(
 router.put(
   "/admin/edit/:id",
   auth,
-  requireRole("admin", "super-admin"),
+  requireRole("super-admin"),
   async (req, res) => {
     try {
       const restaurant = await Restaurant.findById(req.params.id);

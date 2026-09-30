@@ -54,7 +54,7 @@ const MenuPage = () => {
 
   const [menuCategories, setMenuCategories] = React.useState([]);
   const [_loading, setLoading] = React.useState(true);
-  const [restaurantTier, setRestaurantTier] = React.useState("Platinum");
+  const [restaurantTier, setRestaurantTier] = React.useState("Basic");
   const [restaurantPhone, setRestaurantPhone] =
     React.useState("+1 (240) 441-1075");
   const [globalImgPos, setGlobalImgPos] = React.useState("Left");

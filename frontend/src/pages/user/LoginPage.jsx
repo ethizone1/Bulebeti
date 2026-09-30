@@ -126,11 +126,11 @@ const LoginPage = () => {
       if (res.ok) {
         const data = await res.json();
         const user = data.user;
-        if (user.role === "super-admin" || user.role === "sub-admin") {
+        if (user.role === "super-admin") {
           navigate("/super-admin");
           return;
         }
-        if (user.role === "admin" || user.restaurantId || user.restaurantSlug) {
+        if (user.role === "admin" || user.role === "sub-admin" || user.restaurantId || user.restaurantSlug) {
           navigate(
             user.restaurantSlug
               ? `/maedbet/${user.restaurantSlug}/admin`

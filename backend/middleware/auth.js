@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 let clerkClient = null;
 let verifyToken = null;
 
+const BLOCKED_STATUSES = ["suspended", "inactive"];
+
 try {
   const clerkExpress = require("@clerk/express");
   clerkClient = clerkExpress.clerkClient;
@@ -63,6 +65,9 @@ module.exports = async function (req, res, next) {
             // Check if decoded.user has an ID matching MongoDB User
             const legacyUser = await User.findById(decoded.user.id);
             if (legacyUser) {
+              if (BLOCKED_STATUSES.includes(legacyUser.status)) {
+                return res.status(403).json({ msg: "Account has been suspended or disabled. Access denied." });
+              }
               req.user = {
                 id: legacyUser._id.toString(),
                 clerkUserId: legacyUser.clerkUserId || null,
@@ -118,7 +123,7 @@ module.exports = async function (req, res, next) {
           user = matchingUsers[0];
           user.clerkUserId = clerkUserId;
           user.isVerified = true;
-          user.status = "active";
+          if (!BLOCKED_STATUSES.includes(user.status)) user.status = "active";
           await user.save();
           console.log(`[ACCOUNT LINKED] Linked Clerk ID ${clerkUserId} to MongoDB User _id: ${user._id}`);
         }
@@ -143,7 +148,7 @@ module.exports = async function (req, res, next) {
     }
 
     // Check account suspension status
-    if (user.status === "suspended" || user.status === "disabled") {
+    if (BLOCKED_STATUSES.includes(user.status)) {
       return res.status(403).json({ msg: "Account has been suspended or disabled. Access denied." });
     }
 

@@ -566,9 +566,9 @@ const Header = () => {
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <button
                 onClick={() => {
-                  if (mongoUser?.role === "super-admin" || mongoUser?.role === "sub-admin") {
+                  if (mongoUser?.role === "super-admin") {
                     navigate("/super-admin");
-                  } else if (mongoUser?.role === "admin" || mongoUser?.restaurantId) {
+                  } else if (mongoUser?.role === "admin" || mongoUser?.role === "sub-admin" || mongoUser?.restaurantId) {
                     navigate(mongoUser?.restaurantSlug ? `/maedbet/${mongoUser.restaurantSlug}/admin` : "/maedbet/default/admin");
                   } else {
                     navigate("/profile");

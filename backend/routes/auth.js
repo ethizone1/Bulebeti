@@ -8,6 +8,9 @@ const { sendEmail } = require("../services/notifications");
 const auth = require("../middleware/auth");
 const { requireRole } = require("../middleware/ownership");
 
+// Accounts in these states must never be re-activated by a login/verification flow
+const BLOCKED_STATUSES = ["suspended", "inactive"];
+
 router.get("/test-email-status", auth, requireRole("super-admin"), async (req, res) => {
   const targetEmail = req.query.email || process.env.EMAIL_USER || "ethizone1@gmail.com";
   try {
@@ -76,8 +79,10 @@ function verifyGoogleToken(token) {
             const payload = JSON.parse(data);
             if (payload.error_description || payload.error) {
               reject(new Error(payload.error_description || payload.error));
-            } else if (process.env.GOOGLE_CLIENT_ID && payload.aud !== process.env.GOOGLE_CLIENT_ID) {
+            } else if (!process.env.GOOGLE_CLIENT_ID || payload.aud !== process.env.GOOGLE_CLIENT_ID) {
               reject(new Error("Google token client ID mismatch"));
+            } else if (payload.email_verified !== "true" && payload.email_verified !== true) {
+              reject(new Error("Google email is not verified"));
             } else {
               resolve(payload);
             }
@@ -123,7 +128,7 @@ router.post("/change-password-preauth", async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
     user.password = hashedPassword;
-    user.status = "active";
+    if (!BLOCKED_STATUSES.includes(user.status)) user.status = "active";
     user.isVerified = true;
     await user.save();
 
@@ -218,7 +223,7 @@ router.post("/register", async (req, res) => {
       if (googleToken && !user.googleId) {
         user.googleId = googleId;
         user.isVerified = true;
-        user.status = "active";
+        if (!BLOCKED_STATUSES.includes(user.status)) user.status = "active";
         if (picture) user.picture = picture;
         await user.save();
 
@@ -428,47 +433,22 @@ router.post("/verify-email", async (req, res) => {
     }
 
     if (user.isVerified && user.status === "active") {
-      // User is already verified, generate token and proceed
-      const payload = {
-        user: {
-          id: user.id,
-          role: user.role,
-        },
-      };
-
-      return jwt.sign(
-        payload,
-        process.env.JWT_SECRET,
-        { expiresIn: "24h" },
-        (err, token) => {
-          if (err) throw err;
-          return res.json({
-            token,
-            user: {
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              role: user.role,
-            },
-          });
-        }
-      );
+      return res.status(400).json({ msg: "This account is already verified. Please log in." });
     }
 
-    const isMasterCode = cleanCode === "123456" || (process.env.MASTER_OTP && cleanCode === process.env.MASTER_OTP);
-    const isValidCode = isMasterCode || (user.verificationCode && user.verificationCode === cleanCode);
+    const isValidCode = user.verificationCode && user.verificationCode === cleanCode;
 
     if (!isValidCode) {
       return res.status(400).json({ msg: "Invalid verification code. Please check your email inbox for the 6-digit code." });
     }
 
-    if (!isMasterCode && user.verificationCodeExpires && new Date() > user.verificationCodeExpires) {
+    if (!user.verificationCodeExpires || new Date() > user.verificationCodeExpires) {
       return res.status(400).json({ msg: "Verification code has expired. Please click Resend Code to receive a new 6-digit code." });
     }
 
     // Mark as verified & active
     user.isVerified = true;
-    user.status = "active";
+    if (!BLOCKED_STATUSES.includes(user.status)) user.status = "active";
     user.verificationCode = undefined;
     user.verificationCodeExpires = undefined;
     await user.save();
@@ -820,20 +800,19 @@ router.post("/verify-login-otp", async (req, res) => {
       return res.status(404).json({ msg: "Account not found." });
     }
 
-    const isMasterCode = cleanCode === "123456" || (process.env.MASTER_OTP && cleanCode === process.env.MASTER_OTP);
-    const isValidCode = isMasterCode || (user.verificationCode && user.verificationCode === cleanCode);
+    const isValidCode = user.verificationCode && user.verificationCode === cleanCode;
 
     if (!isValidCode) {
       return res.status(400).json({ msg: "Invalid access code. Please check your email and try again." });
     }
 
-    if (!isMasterCode && user.verificationCodeExpires && new Date() > user.verificationCodeExpires) {
+    if (!user.verificationCodeExpires || new Date() > user.verificationCodeExpires) {
       return res.status(400).json({ msg: "Access code has expired. Please request a new code." });
     }
 
     // Clear OTP & mark verified/active
     user.isVerified = true;
-    user.status = "active";
+    if (!BLOCKED_STATUSES.includes(user.status)) user.status = "active";
     user.verificationCode = undefined;
     user.verificationCodeExpires = undefined;
     await user.save();
@@ -875,18 +854,6 @@ router.post("/verify-login-otp", async (req, res) => {
   } catch (err) {
     console.error("[VERIFY LOGIN OTP ERROR]", err.message);
     res.status(500).json({ msg: "Server error during access code verification." });
-  }
-});
-
-// Auto-seed endpoint (safe & idempotent for live production initialization)
-router.all("/seed", async (req, res) => {
-  try {
-    const autoSeed = require("../services/autoSeed");
-    await autoSeed();
-    res.json({ msg: "Auto-seeding check complete! Super Admin account (ethizone1@gmail.com) is ensured." });
-  } catch (err) {
-    console.error("[SEED ROUTE ERROR]", err.message);
-    res.status(500).json({ msg: err.message || "Seeding failed." });
   }
 });
 
@@ -959,7 +926,7 @@ router.patch("/users/:userId/role", auth, async (req, res) => {
     }
 
     const { role } = req.body;
-    const validRoles = ["super-admin", "admin", "staff", "customer"];
+    const validRoles = ["super-admin", "admin", "sub-admin", "customer"];
     if (!validRoles.includes(role)) {
       return res.status(400).json({ msg: "Invalid user role specified." });
     }
@@ -1057,7 +1024,7 @@ router.delete("/users/:userId", auth, async (req, res) => {
 });
 
 // Test Email Diagnostic Route
-router.get("/test-email", async (req, res) => {
+router.get("/test-email", auth, requireRole("super-admin"), async (req, res) => {
   try {
     const to = req.query.to || "addmy01@gmail.com";
     const { sendEmail } = require("../services/notifications");

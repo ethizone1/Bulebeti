@@ -2,8 +2,9 @@ const Restaurant = require('../models/Restaurant');
 
 // Helper to check if a user is owner, admin, or super-admin for a specific restaurant
 const canManageRestaurant = async (userId, userRole, restaurantId) => {
-  // Only platform-level super-admin or sub-admin can bypass tenant isolation globally
-  if (userRole === 'super-admin' || userRole === 'sub-admin') return true;
+  // Only the platform super-admin bypasses tenant isolation.
+  // 'sub-admin' is a restaurant team member and is scoped via restaurant.admins.
+  if (userRole === 'super-admin') return true;
   if (!restaurantId) return false;
   
   const restaurant = await Restaurant.findById(restaurantId);
@@ -35,8 +36,8 @@ const requireRestaurantOwnership = async (req, res, next) => {
       return res.status(401).json({ msg: 'Unauthorized: Authentication required' });
     }
 
-    // Only platform super-admin and sub-admin bypass tenant-level checks
-    if (req.user.role === 'super-admin' || req.user.role === 'sub-admin') {
+    // Only the platform super-admin bypasses tenant-level checks
+    if (req.user.role === 'super-admin') {
       return next();
     }
 
@@ -74,4 +75,27 @@ const requireRestaurantOwnership = async (req, res, next) => {
   }
 };
 
-module.exports = { canManageRestaurant, requireRole, requireRestaurantOwnership };
+const TIER_RANK = { Basic: 0, Gold: 1, Platinum: 2, Premium: 3 };
+
+// True if the restaurant's plan includes features requiring minTier.
+// The super-admin is never restricted by plan.
+const restaurantHasTier = async (restaurantOrId, minTier, userRole) => {
+  if (userRole === 'super-admin') return true;
+  const restaurant = restaurantOrId && restaurantOrId.subscriptionTier !== undefined
+    ? restaurantOrId
+    : await Restaurant.findById(restaurantOrId).select('subscriptionTier');
+  if (!restaurant) return false;
+  const current = TIER_RANK[restaurant.subscriptionTier] ?? 0;
+  return current >= TIER_RANK[minTier];
+};
+
+const planRequiredResponse = (res, minTier) =>
+  res.status(403).json({ msg: `This feature requires the ${minTier} plan or higher. Please upgrade your plan.` });
+
+module.exports = {
+  canManageRestaurant,
+  requireRole,
+  requireRestaurantOwnership,
+  restaurantHasTier,
+  planRequiredResponse,
+};

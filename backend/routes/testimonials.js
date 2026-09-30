@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const { canManageRestaurant } = require('../middleware/ownership');
+const { canManageRestaurant, restaurantHasTier, planRequiredResponse } = require('../middleware/ownership');
 const Testimonial = require('../models/Testimonial');
 const Restaurant = require('../models/Restaurant');
 
@@ -96,6 +96,9 @@ router.put('/:id', auth, async (req, res) => {
     if (!authorized) {
       return res.status(403).json({ msg: 'Forbidden: Access denied' });
     }
+    if (!(await restaurantHasTier(testimonial.restaurantId, "Premium", req.user.role))) {
+      return planRequiredResponse(res, "Premium");
+    }
 
     const updateFields = {};
     if (status !== undefined) updateFields.status = status;
@@ -134,6 +137,9 @@ router.delete('/:id', auth, async (req, res) => {
     const authorized = await canManageRestaurant(req.user.id, req.user.role, testimonial.restaurantId);
     if (!authorized) {
       return res.status(403).json({ msg: 'Forbidden: Access denied' });
+    }
+    if (!(await restaurantHasTier(testimonial.restaurantId, "Premium", req.user.role))) {
+      return planRequiredResponse(res, "Premium");
     }
 
     await Testimonial.findByIdAndDelete(req.params.id);
