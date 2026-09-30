@@ -5,25 +5,37 @@ import "./index.css";
 import App from "./App.jsx";
 
 const PUBLISHABLE_KEY =
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ||
-  import.meta.env.VITE_CLERK_KEY ||
-  "pk_test_bXVsdGlwbGUtbWFjYXctNzguY2xlcmsuYWNjb3VudHMuZGV2JA";
+  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || import.meta.env.VITE_CLERK_KEY;
 
-// Auto-redirect legacy domain if needed
+// Send legacy domains to the current one
 if (
   typeof window !== "undefined" &&
-  (window.location.hostname.includes("bulebeti.com") ||
-    window.location.hostname.includes("bulebet.com"))
+  /(^|\.)bulebeti?\.com$/.test(window.location.hostname)
 ) {
   window.location.replace(
-    "https://bulebeti.com" + window.location.pathname + window.location.search,
+    "https://maedbet.com" + window.location.pathname + window.location.search,
   );
 }
 
+const MissingClerkKey = () => (
+  <div style={{ fontFamily: "sans-serif", maxWidth: 560, margin: "80px auto", padding: 24 }}>
+    <h2>Sign-in is not configured</h2>
+    <p>
+      <code>VITE_CLERK_PUBLISHABLE_KEY</code> is not set. Copy the publishable key
+      from your Clerk dashboard (API Keys) into <code>frontend/.env</code> and
+      restart the dev server.
+    </p>
+  </div>
+);
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <App />
-    </ClerkProvider>
+    {PUBLISHABLE_KEY ? (
+      <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+        <App />
+      </ClerkProvider>
+    ) : (
+      <MissingClerkKey />
+    )}
   </StrictMode>,
 );
