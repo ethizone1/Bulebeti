@@ -359,12 +359,13 @@ const RegistrationPage = () => {
       }),
     });
 
+    const restData = await restResponse.json().catch(() => ({}));
     if (!restResponse.ok) {
-      const restData = await restResponse.json().catch(() => ({}));
       throw new Error(restData.msg || "Failed to create restaurant profile.");
     }
 
-    navigate(`/${slug}/admin`);
+    // The server may adjust the slug (taken or reserved names), so use its value
+    navigate(`/${restData.slug || slug}/admin`);
   };
 
   const handleSubmit = async (e) => {

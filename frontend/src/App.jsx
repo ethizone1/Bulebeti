@@ -165,510 +165,173 @@ const AdminPage = ({ element: Element, minTier }) => {
   return <Element currentTier={tier} restaurant={restaurant} />;
 };
 
+// Every platform page is reachable at its plain path and under the legacy
+// /maedbet and /bulebeti prefixes.
+const PREFIXES = ["", "/maedbet", "/bulebeti"];
+const withPrefixes = (...paths) =>
+  paths.flatMap((path) => PREFIXES.map((prefix) => `${prefix}${path}`));
+
+const PLATFORM_PAGES = [
+  { paths: ["/"], Page: LandingPage },
+  { paths: withPrefixes("/register"), Page: RegistrationPage },
+  { paths: withPrefixes("/activate"), Page: ActivatePage },
+  { paths: withPrefixes("/login", "/signin", "/sign-in"), Page: LoginPage },
+  { paths: withPrefixes("/forgot-password"), Page: ForgotPassword },
+  { paths: ["/profile"], Page: UserProfile },
+  { paths: withPrefixes("/contact-us"), Page: ContactPage },
+  { paths: withPrefixes("/gallery"), Page: GalleryPage },
+  { paths: withPrefixes("/testimonials"), Page: TestimonialsPage },
+  { paths: withPrefixes("/sister-restaurants"), Page: SisterRestaurantsPage },
+  { paths: withPrefixes("/events"), Page: EventsPage },
+  { paths: withPrefixes("/events/truffle-festival"), Page: EventLandingPage },
+  { paths: withPrefixes("/privacy"), Page: PrivacyPolicy },
+  { paths: withPrefixes("/terms"), Page: TermsOfService },
+];
+
+const SUPER_ADMIN_PAGES = [
+  { path: "restaurants", Page: RestaurantManagement },
+  { path: "users", Page: UserManagement },
+  { path: "revenue", Page: RevenueTracking },
+  { path: "menus", Page: MenuReview },
+  { path: "inquiries", Page: PlatformInquiries },
+  { path: "settings", Page: SuperAdminSettings },
+];
+
+// Public pages under /:restaurantName/...
+const RESTAURANT_PAGES = [
+  { path: "menu", Page: MenuPage },
+  { path: "reservations", Page: ReservationPage },
+  { path: "contact", Page: ContactPage },
+  { path: "catering", Page: CateringPage },
+  { path: "feedback", Page: FeedbackPage },
+  { path: "gallery", Page: GalleryPage },
+  { path: "testimonials", Page: TestimonialsPage },
+  { path: "sister-restaurants", Page: SisterRestaurantsPage },
+  { path: "events", Page: EventsPage },
+  { path: "privacy", Page: PrivacyPolicy },
+  { path: "terms", Page: TermsOfService },
+];
+
+// Admin pages under /:restaurantName/admin/... with the minimum plan for each
+const ADMIN_PAGES = [
+  { path: "dashboard", Page: AdminDashboard, minTier: "Basic" },
+  { path: "reservations", Page: ReservationManagement, minTier: "Gold" },
+  { path: "orders", Page: AdminOnlineOrders, minTier: "Platinum" },
+  { path: "catering", Page: CateringManagement, minTier: "Platinum" },
+  { path: "menu", Page: MenuManagement, minTier: "Basic" },
+  { path: "menu/add", Page: AddMenuItem, minTier: "Basic" },
+  { path: "menu/edit/:itemId", Page: EditMenuItem, minTier: "Basic" },
+  { path: "feedback", Page: FeedbackManager, minTier: "Premium" },
+  { path: "testimonials", Page: TestimonialsManager, minTier: "Premium" },
+  { path: "gallery", Page: GalleryManager, minTier: "Basic" },
+  { path: "locations", Page: LocationManagement, minTier: "Platinum" },
+  { path: "locations/add", Page: AddLocation, minTier: "Platinum" },
+  { path: "events", Page: EventsManager, minTier: "Premium" },
+  { path: "events/create", Page: CreateEvent, minTier: "Premium" },
+  { path: "events/edit/:eventId", Page: EditEvent, minTier: "Premium" },
+  { path: "team", Page: TeamManagement, minTier: "Gold" },
+  { path: "support", Page: SupportForm, minTier: "Basic" },
+  { path: "settings", Page: AdminSettings, minTier: "Basic" },
+];
+
+const customerPage = (Page) => (
+  <CustomerLayout>
+    <Page />
+  </CustomerLayout>
+);
+
 function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
         <Router>
-        <ScrollToTop />
-        <Routes>
-          {/* Customer Routes */}
-          <Route
-            path="/"
-            element={
-              <CustomerLayout>
-                <LandingPage />
-              </CustomerLayout>
-            }
-          />
+          <ScrollToTop />
+          <Routes>
+            {PLATFORM_PAGES.flatMap(({ paths, Page }) =>
+              paths.map((path) => (
+                <Route key={path} path={path} element={customerPage(Page)} />
+              )),
+            )}
 
-          <Route
-            path="/register"
-            element={
-              <CustomerLayout>
-                <RegistrationPage />
-              </CustomerLayout>
-            }
-          />
-          <Route
-            path="/maedbet/register"
-            element={
-              <CustomerLayout>
-                <RegistrationPage />
-              </CustomerLayout>
-            }
-          />
-          <Route
-            path="/bulebeti/register"
-            element={
-              <CustomerLayout>
-                <RegistrationPage />
-              </CustomerLayout>
-            }
-          />
-
-          <Route
-            path="/activate"
-            element={
-              <CustomerLayout>
-                <ActivatePage />
-              </CustomerLayout>
-            }
-          />
-
-          <Route
-            path="/bulebeti/activate"
-            element={
-              <CustomerLayout>
-                <ActivatePage />
-              </CustomerLayout>
-            }
-          />
-
-          {[
-            "/login",
-            "/maedbet/login",
-            "/bulebeti/login",
-            "/signin",
-            "/maedbet/signin",
-            "/bulebeti/signin",
-            "/sign-in",
-            "/maedbet/sign-in",
-            "/bulebeti/sign-in",
-          ].map((path) => (
-            <Route
-              key={path}
-              path={path}
-              element={
-                <CustomerLayout>
-                  <LoginPage />
-                </CustomerLayout>
-              }
-            />
-          ))}
-
-          <Route
-            path="/forgot-password"
-            element={
-              <CustomerLayout>
-                <ForgotPassword />
-              </CustomerLayout>
-            }
-          />
-          <Route
-            path="/bulebeti/forgot-password"
-            element={
-              <CustomerLayout>
-                <ForgotPassword />
-              </CustomerLayout>
-            }
-          />
-
-          <Route
-            path="/profile"
-            element={
-              <CustomerLayout>
-                <UserProfile />
-              </CustomerLayout>
-            }
-          />
-
-          {/* Platform Static & Public Pages */}
-          {["/contact-us", "/bulebeti/contact-us"].map((p) => (
-            <Route
-              key={p}
-              path={p}
-              element={
-                <CustomerLayout>
-                  <ContactPage />
-                </CustomerLayout>
-              }
-            />
-          ))}
-          {["/gallery", "/bulebeti/gallery"].map((p) => (
-            <Route
-              key={p}
-              path={p}
-              element={
-                <CustomerLayout>
-                  <GalleryPage />
-                </CustomerLayout>
-              }
-            />
-          ))}
-          {["/testimonials", "/bulebeti/testimonials"].map((p) => (
-            <Route
-              key={p}
-              path={p}
-              element={
-                <CustomerLayout>
-                  <TestimonialsPage />
-                </CustomerLayout>
-              }
-            />
-          ))}
-          {["/sister-restaurants", "/bulebeti/sister-restaurants"].map((p) => (
-            <Route
-              key={p}
-              path={p}
-              element={
-                <CustomerLayout>
-                  <SisterRestaurantsPage />
-                </CustomerLayout>
-              }
-            />
-          ))}
-          {["/events", "/bulebeti/events"].map((p) => (
-            <Route
-              key={p}
-              path={p}
-              element={
-                <CustomerLayout>
-                  <EventsPage />
-                </CustomerLayout>
-              }
-            />
-          ))}
-          {[
-            "/events/truffle-festival",
-            "/bulebeti/events/truffle-festival",
-          ].map((p) => (
-            <Route
-              key={p}
-              path={p}
-              element={
-                <CustomerLayout>
-                  <EventLandingPage />
-                </CustomerLayout>
-              }
-            />
-          ))}
-          {["/privacy", "/bulebeti/privacy"].map((p) => (
-            <Route
-              key={p}
-              path={p}
-              element={
-                <CustomerLayout>
-                  <PrivacyPolicy />
-                </CustomerLayout>
-              }
-            />
-          ))}
-          {["/terms", "/bulebeti/terms"].map((p) => (
-            <Route
-              key={p}
-              path={p}
-              element={
-                <CustomerLayout>
-                  <TermsOfService />
-                </CustomerLayout>
-              }
-            />
-          ))}
-
-          {/* Super Admin Routes (Must be before dynamic /:restaurantName catch-all routes) */}
-          {["/super-admin/*", "/maedbet/super-admin/*", "/bulebeti/super-admin/*"].map((pathPattern) => (
-            <Route
-              key={pathPattern}
-              path={pathPattern}
-              element={
-                <SuperAdminLayout>
-                  <Routes>
-                    <Route index element={<SuperAdminDashboard />} />
-                    <Route
-                      path="restaurants"
-                      element={<RestaurantManagement />}
-                    />
-                    <Route path="users" element={<UserManagement />} />
-                    <Route path="revenue" element={<RevenueTracking />} />
-                    <Route path="menus" element={<MenuReview />} />
-                    <Route path="inquiries" element={<PlatformInquiries />} />
-                    <Route path="settings" element={<SuperAdminSettings />} />
-                    <Route
-                      path="*"
-                      element={
-                        <div style={{ textAlign: "center", padding: "40px" }}>
-                          <h2>Super Admin Module Coming Soon</h2>
-                          <p>
-                            This platform-level management module is currently
-                            under development.
-                          </p>
-                        </div>
-                      }
-                    />
-                  </Routes>
-                </SuperAdminLayout>
-              }
-            />
-          ))}
-
-          {/* Public & Admin Restaurant Pages (Supports clean domain URLs like /injera-world and /bulebeti/injera-world) */}
-          {["/:restaurantName", "/maedbet/:restaurantName", "/bulebeti/:restaurantName"].map((pattern) => (
-            <Route key={pattern} path={pattern}>
+            {/* Super Admin (must come before the /:restaurantName catch-all) */}
+            {withPrefixes("/super-admin/*").map((pathPattern) => (
               <Route
-                index
+                key={pathPattern}
+                path={pathPattern}
                 element={
-                  <CustomerLayout>
-                    <RestaurantLandingPage />
-                  </CustomerLayout>
-                }
-              />
-              <Route
-                path="menu"
-                element={
-                  <CustomerLayout>
-                    <MenuPage />
-                  </CustomerLayout>
-                }
-              />
-              <Route
-                path="reservations"
-                element={
-                  <CustomerLayout>
-                    <ReservationPage />
-                  </CustomerLayout>
-                }
-              />
-              <Route
-                path="contact"
-                element={
-                  <CustomerLayout>
-                    <ContactPage />
-                  </CustomerLayout>
-                }
-              />
-              <Route
-                path="catering"
-                element={
-                  <CustomerLayout>
-                    <CateringPage />
-                  </CustomerLayout>
-                }
-              />
-              <Route
-                path="feedback"
-                element={
-                  <CustomerLayout>
-                    <FeedbackPage />
-                  </CustomerLayout>
-                }
-              />
-              <Route
-                path="gallery"
-                element={
-                  <CustomerLayout>
-                    <GalleryPage />
-                  </CustomerLayout>
-                }
-              />
-              <Route
-                path="testimonials"
-                element={
-                  <CustomerLayout>
-                    <TestimonialsPage />
-                  </CustomerLayout>
-                }
-              />
-              <Route
-                path="sister-restaurants"
-                element={
-                  <CustomerLayout>
-                    <SisterRestaurantsPage />
-                  </CustomerLayout>
-                }
-              />
-              <Route
-                path="events"
-                element={
-                  <CustomerLayout>
-                    <EventsPage />
-                  </CustomerLayout>
-                }
-              />
-              <Route
-                path="privacy"
-                element={
-                  <CustomerLayout>
-                    <PrivacyPolicy />
-                  </CustomerLayout>
-                }
-              />
-              <Route
-                path="terms"
-                element={
-                  <CustomerLayout>
-                    <TermsOfService />
-                  </CustomerLayout>
-                }
-              />
-
-              {/* Admin Restaurant Pages */}
-              <Route
-                path="admin/*"
-                element={
-                  <AdminLayout>
+                  <SuperAdminLayout>
                     <Routes>
+                      <Route index element={<SuperAdminDashboard />} />
+                      {SUPER_ADMIN_PAGES.map(({ path, Page }) => (
+                        <Route key={path} path={path} element={<Page />} />
+                      ))}
                       <Route
-                        index
+                        path="*"
                         element={
-                          <AdminPage element={AdminDashboard} minTier="Basic" />
-                        }
-                      />
-                      <Route
-                        path="dashboard"
-                        element={
-                          <AdminPage element={AdminDashboard} minTier="Basic" />
-                        }
-                      />
-                      <Route
-                        path="reservations"
-                        element={
-                          <AdminPage
-                            element={ReservationManagement}
-                            minTier="Gold"
-                          />
-                        }
-                      />
-                      <Route
-                        path="orders"
-                        element={
-                          <AdminPage
-                            element={AdminOnlineOrders}
-                            minTier="Platinum"
-                          />
-                        }
-                      />
-                      <Route
-                        path="catering"
-                        element={
-                          <AdminPage
-                            element={CateringManagement}
-                            minTier="Platinum"
-                          />
-                        }
-                      />
-                      <Route
-                        path="menu"
-                        element={
-                          <AdminPage element={MenuManagement} minTier="Basic" />
-                        }
-                      />
-                      <Route
-                        path="menu/add"
-                        element={
-                          <AdminPage element={AddMenuItem} minTier="Basic" />
-                        }
-                      />
-                      <Route
-                        path="menu/edit/:itemId"
-                        element={
-                          <AdminPage element={EditMenuItem} minTier="Basic" />
-                        }
-                      />
-                      <Route
-                        path="feedback"
-                        element={
-                          <AdminPage
-                            element={FeedbackManager}
-                            minTier="Premium"
-                          />
-                        }
-                      />
-                      <Route
-                        path="testimonials"
-                        element={
-                          <AdminPage
-                            element={TestimonialsManager}
-                            minTier="Premium"
-                          />
-                        }
-                      />
-                      <Route
-                        path="gallery"
-                        element={
-                          <AdminPage element={GalleryManager} minTier="Basic" />
-                        }
-                      />
-                      <Route
-                        path="locations"
-                        element={
-                          <AdminPage
-                            element={LocationManagement}
-                            minTier="Platinum"
-                          />
-                        }
-                      />
-                      <Route
-                        path="locations/add"
-                        element={
-                          <AdminPage element={AddLocation} minTier="Platinum" />
-                        }
-                      />
-                      <Route
-                        path="events"
-                        element={
-                          <AdminPage
-                            element={EventsManager}
-                            minTier="Premium"
-                          />
-                        }
-                      />
-                      <Route
-                        path="events/create"
-                        element={
-                          <AdminPage element={CreateEvent} minTier="Premium" />
-                        }
-                      />
-                      <Route
-                        path="events/edit/:eventId"
-                        element={
-                          <AdminPage element={EditEvent} minTier="Premium" />
-                        }
-                      />
-                      <Route
-                        path="team"
-                        element={
-                          <AdminPage element={TeamManagement} minTier="Gold" />
-                        }
-                      />
-                      <Route
-                        path="support"
-                        element={
-                          <AdminPage element={SupportForm} minTier="Basic" />
-                        }
-                      />
-                      <Route
-                        path="settings"
-                        element={
-                          <AdminPage element={AdminSettings} minTier="Basic" />
+                          <div style={{ textAlign: "center", padding: "40px" }}>
+                            <h2>Super Admin Module Coming Soon</h2>
+                            <p>
+                              This platform-level management module is currently
+                              under development.
+                            </p>
+                          </div>
                         }
                       />
                     </Routes>
-                  </AdminLayout>
+                  </SuperAdminLayout>
                 }
               />
-            </Route>
-          ))}
+            ))}
 
-          {/* Global 404 */}
-          <Route
-            path="*"
-            element={
-              <CustomerLayout>
-                <div
-                  style={{
-                    padding: "var(--spacing-xxl) 0",
-                    textAlign: "center",
-                  }}
-                >
-                  <h2>Page Not Found</h2>
-                  <p>The page you are looking for does not exist.</p>
-                </div>
-              </CustomerLayout>
-            }
-          />
-        </Routes>
-      </Router>
+            {/* Restaurant public and admin pages, e.g. /injera-world and /bulebeti/injera-world */}
+            {withPrefixes("/:restaurantName").map((pattern) => (
+              <Route key={pattern} path={pattern}>
+                <Route index element={customerPage(RestaurantLandingPage)} />
+                {RESTAURANT_PAGES.map(({ path, Page }) => (
+                  <Route key={path} path={path} element={customerPage(Page)} />
+                ))}
+                <Route
+                  path="admin/*"
+                  element={
+                    <AdminLayout>
+                      <Routes>
+                        <Route
+                          index
+                          element={<AdminPage element={AdminDashboard} minTier="Basic" />}
+                        />
+                        {ADMIN_PAGES.map(({ path, Page, minTier }) => (
+                          <Route
+                            key={path}
+                            path={path}
+                            element={<AdminPage element={Page} minTier={minTier} />}
+                          />
+                        ))}
+                      </Routes>
+                    </AdminLayout>
+                  }
+                />
+              </Route>
+            ))}
+
+            {/* Global 404 */}
+            <Route
+              path="*"
+              element={
+                <CustomerLayout>
+                  <div
+                    style={{
+                      padding: "var(--spacing-xxl) 0",
+                      textAlign: "center",
+                    }}
+                  >
+                    <h2>Page Not Found</h2>
+                    <p>The page you are looking for does not exist.</p>
+                  </div>
+                </CustomerLayout>
+              }
+            />
+          </Routes>
+        </Router>
       </AuthProvider>
     </LanguageProvider>
   );

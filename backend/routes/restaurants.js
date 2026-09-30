@@ -6,6 +6,8 @@ const Restaurant = require("../models/Restaurant");
 const Inquiry = require("../models/Inquiry");
 const User = require("../models/User");
 const { sendEmail, sendSMS } = require("../services/notifications");
+const { slugify, isReservedSlug, uniqueSlug } = require("../utils/slug");
+const { escapeHtml } = require("../utils/validate");
 
 const normalizeTier = (t) => {
   if (!t) return "Basic";
@@ -164,19 +166,7 @@ router.post("/admin-create", auth, async (req, res) => {
     }
 
     // 2. Generate Unique Slug
-    let baseSlug = restaurantName
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-
-    if (!baseSlug) baseSlug = "partner";
-
-    let finalSlug = baseSlug;
-    const existingSlug = await Restaurant.findOne({ slug: finalSlug });
-    if (existingSlug) {
-      finalSlug = `${baseSlug}-${Math.floor(1000 + Math.random() * 9000)}`;
-    }
+    const finalSlug = await uniqueSlug(Restaurant, restaurantName, "partner");
 
     // 3. Create Restaurant
     const newRestaurant = new Restaurant({
@@ -247,18 +237,8 @@ router.post("/", auth, async (req, res) => {
   } = req.body;
 
   try {
-    // Check if restaurant with the same slug already exists & append suffix if duplicate
-    let finalSlug = slug;
-    const escapedSlug = (slug || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const existing = await Restaurant.findOne({
-      slug: { $regex: new RegExp(`^${escapedSlug}$`, "i") },
-    });
-    if (existing) {
-      finalSlug = `${slug}-${Math.floor(1000 + Math.random() * 9000)}`;
-      console.log(
-        `[BACKEND] ℹ️ Duplicate slug detected, auto-generated unique slug: ${finalSlug}`,
-      );
-    }
+    // URL-safe, non-reserved slug; a suffix is appended if it is already taken
+    const finalSlug = await uniqueSlug(Restaurant, slug || name);
 
     // Check sister restaurant limits
     const userRestaurants = await Restaurant.find({ ownerId: req.user.id });
@@ -368,18 +348,21 @@ router.put("/:slug/request-upgrade", auth, async (req, res) => {
       ? owner.phone || restaurant.phone
       : restaurant.phone || "";
 
-    const superAdminEmail = "ethizone1@gmail.com";
-    const superAdminPhone = "+12404411075";
+    const superAdmin = await User.findOne({ role: "super-admin" });
+    const superAdminEmail =
+      (superAdmin && superAdmin.email) || process.env.SUPER_ADMIN_EMAIL || "";
+    const superAdminPhone =
+      (superAdmin && superAdmin.phone) || process.env.SUPER_ADMIN_PHONE || "";
 
     // 1. Email & SMS to Super Admin
     const superAdminSubject = `[MaedBet Alert] 🎫 Plan Upgrade Requested: ${restaurant.name} (${formattedTier})`;
     const superAdminHtml = `
       <h2>Plan Upgrade Request Alert!</h2>
-      <p>Restaurant <strong>${restaurant.name}</strong> (${restaurant.slug}) has requested an upgrade to the <strong>${formattedTier} Plan</strong>.</p>
+      <p>Restaurant <strong>${escapeHtml(restaurant.name)}</strong> (${escapeHtml(restaurant.slug)}) has requested an upgrade to the <strong>${formattedTier} Plan</strong>.</p>
       <ul>
-        <li><strong>Owner Name:</strong> ${owner ? owner.name : "N/A"}</li>
-        <li><strong>Owner Email:</strong> ${ownerEmail}</li>
-        <li><strong>Owner Phone:</strong> ${ownerPhone}</li>
+        <li><strong>Owner Name:</strong> ${escapeHtml(owner ? owner.name : "N/A")}</li>
+        <li><strong>Owner Email:</strong> ${escapeHtml(ownerEmail)}</li>
+        <li><strong>Owner Phone:</strong> ${escapeHtml(ownerPhone)}</li>
         <li><strong>Current Tier:</strong> ${restaurant.subscriptionTier || "Basic"}</li>
         <li><strong>Requested Tier:</strong> ${formattedTier}</li>
       </ul>
@@ -387,20 +370,19 @@ router.put("/:slug/request-upgrade", auth, async (req, res) => {
     `;
     const superAdminSms = `[MaedBet Alert]: Restaurant ${restaurant.name} (Owner: ${owner ? owner.name : "Owner"}, Phone: ${ownerPhone}) requested ${formattedTier} plan upgrade. Check Super Admin dashboard.`;
 
-    sendEmail(
-      superAdminEmail,
-      superAdminSubject,
-      superAdminHtml,
-      "MaedBet Platform",
-    );
-    sendSMS(superAdminPhone, superAdminSms, "MaedBet Platform");
+    if (superAdminEmail) {
+      sendEmail(superAdminEmail, superAdminSubject, superAdminHtml, "MaedBet Platform");
+    }
+    if (superAdminPhone) {
+      sendSMS(superAdminPhone, superAdminSms, "MaedBet Platform");
+    }
 
     // 2. Email & SMS to Restaurant Owner
     if (ownerEmail) {
       const ownerSubject = `[MaedBet] Upgrade Request Received: ${formattedTier} Plan for ${restaurant.name}`;
       const ownerHtml = `
-        <h2>Hi ${owner ? owner.name : "Restaurant Owner"},</h2>
-        <p>Your request to upgrade <strong>${restaurant.name}</strong> to the <strong>${formattedTier} Plan</strong> has been received!</p>
+        <h2>Hi ${escapeHtml(owner ? owner.name : "Restaurant Owner")},</h2>
+        <p>Your request to upgrade <strong>${escapeHtml(restaurant.name)}</strong> to the <strong>${formattedTier} Plan</strong> has been received!</p>
         <p>Our Super Admin team has been notified via Email and SMS. Your upgrade will be activated shortly.</p>
       `;
       sendEmail(ownerEmail, ownerSubject, ownerHtml, restaurant.name);
@@ -533,7 +515,17 @@ router.put(
         status,
       } = req.body;
       if (name) restaurant.name = name;
-      if (slug) restaurant.slug = slug;
+      if (slug) {
+        const newSlug = slugify(slug);
+        if (!newSlug || isReservedSlug(newSlug)) {
+          return res.status(400).json({ msg: "That URL name is not allowed." });
+        }
+        const taken = await Restaurant.findOne({ slug: newSlug });
+        if (taken && String(taken._id) !== String(restaurant._id)) {
+          return res.status(400).json({ msg: "That URL name is already in use." });
+        }
+        restaurant.slug = newSlug;
+      }
       if (description !== undefined) restaurant.description = description;
       if (address) restaurant.address = address;
       if (phone) restaurant.phone = phone;

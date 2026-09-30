@@ -5,6 +5,7 @@ const Restaurant = require("../models/Restaurant");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const { sendEmail, sendSMS } = require("../services/notifications");
+const { escapeHtml, isEmail } = require("../utils/validate");
 
 // Middleware to check if user is Owner or Manager
 const verifyOwnerOrManager = async (req, res, next) => {
@@ -76,6 +77,10 @@ router.post("/:slug/team", auth, verifyOwnerOrManager, async (req, res) => {
   const { email, phone, permissions } = req.body;
   const restaurant = req.restaurant;
 
+  if (!isEmail(email)) {
+    return res.status(400).json({ msg: "Please enter a valid email address." });
+  }
+
   try {
     let targetUser = await User.findOne({ email });
     const crypto = require("crypto");
@@ -114,15 +119,15 @@ router.post("/:slug/team", auth, verifyOwnerOrManager, async (req, res) => {
       <div style="font-family: sans-serif; max-width: 500px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; background: #ffffff;">
         <h2 style="color: #D4AF37; margin-top: 0;">You've Been Invited!</h2>
         <p>Hi,</p>
-        <p>You have been added as a <strong>Sub-Admin</strong> for <strong>${restaurant.name}</strong> on MaedBet Hub.</p>
+        <p>You have been added as a <strong>Sub-Admin</strong> for <strong>${escapeHtml(restaurant.name)}</strong> on MaedBet Hub.</p>
         <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin: 20px 0;">
-          <p style="margin: 0 0 8px 0;"><strong>Login Email:</strong> ${email}</p>
-          <p style="margin: 0 0 8px 0;"><strong>Login Phone:</strong> ${phone}</p>
+          <p style="margin: 0 0 8px 0;"><strong>Login Email:</strong> ${escapeHtml(email)}</p>
+          <p style="margin: 0 0 8px 0;"><strong>Login Phone:</strong> ${escapeHtml(phone)}</p>
           <p style="margin: 0;"><strong>Default Temporary Password:</strong> ${isNewUser ? tempPass : "(Use your existing password)"}</p>
         </div>
         <p>Please click the button below to set your password and activate your account:</p>
-        <a href="${inviteUrl}" style="display: inline-block; background: #111827; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; margin: 12px 0;">Activate Account & Set Password</a>
-        <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">Or open this activation link directly:<br/><a href="${inviteUrl}">${inviteUrl}</a></p>
+        <a href="${escapeHtml(inviteUrl)}" style="display: inline-block; background: #111827; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; margin: 12px 0;">Activate Account & Set Password</a>
+        <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">Or open this activation link directly:<br/><a href="${escapeHtml(inviteUrl)}">${escapeHtml(inviteUrl)}</a></p>
       </div>
     `;
 
