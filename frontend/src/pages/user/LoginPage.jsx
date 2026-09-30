@@ -106,48 +106,60 @@ const LoginPage = () => {
   };
 
   const handleRedirectByRole = async () => {
-    try {
-      let jwtToken = null;
-      for (let attempt = 0; attempt < 6; attempt++) {
-        try {
-          jwtToken = await getToken();
-          if (jwtToken) break;
-        } catch (tErr) {
-          console.warn("[TOKEN FETCH RETRY]", tErr);
-        }
-        await new Promise((r) => setTimeout(r, 250));
+    let jwtToken = null;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      try {
+        jwtToken = await getToken();
+        if (jwtToken) break;
+      } catch (tErr) {
+        console.warn("[TOKEN FETCH RETRY]", tErr);
       }
+      await new Promise((r) => setTimeout(r, 250));
+    }
 
-      const API_URL = config.API_URL;
-      const res = await fetch(`${API_URL}/api/auth/me`, {
+    if (!jwtToken) {
+      setError("Sign-in did not complete. Please try again.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${config.API_URL}/api/auth/me`, {
         headers: {
-          Authorization: `Bearer ${jwtToken || ""}`,
-          "x-auth-token": jwtToken || "",
+          Authorization: `Bearer ${jwtToken}`,
+          "x-auth-token": jwtToken,
         },
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        const user = data.user;
-        if (user.role === "super-admin") {
-          navigate("/super-admin");
-          return;
-        }
-        if (user.role === "admin" || user.role === "sub-admin" || user.restaurantId || user.restaurantSlug) {
-          navigate(
-            user.restaurantSlug
-              ? `/maedbet/${user.restaurantSlug}/admin`
-              : "/maedbet/default/admin",
-          );
-          return;
-        }
-        navigate("/profile");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(
+          data.msg ||
+            "You are signed in, but your MaedBet account could not be loaded. Please try again.",
+        );
         return;
+      }
+
+      const { user } = await res.json();
+      if (user.role === "super-admin") {
+        navigate("/super-admin");
+      } else if (
+        user.role === "admin" ||
+        user.role === "sub-admin" ||
+        user.restaurantId ||
+        user.restaurantSlug
+      ) {
+        navigate(
+          user.restaurantSlug
+            ? `/maedbet/${user.restaurantSlug}/admin`
+            : "/maedbet/default/admin",
+        );
+      } else {
+        navigate("/profile");
       }
     } catch (err) {
       console.error("[ROLE REDIRECT ERROR]", err);
+      setError("We couldn't reach the server. Please check your connection and try again.");
     }
-    navigate("/profile");
   };
 
   // Step 2: Verify 6-Digit Code with Clerk Provider
@@ -183,20 +195,19 @@ const LoginPage = () => {
           code: code.trim(),
         });
 
-        console.log("[CLERK SIGNUP VERIFY RESULT]", result);
-
-        const sessionId = result.createdSessionId || signUp.createdSessionId;
-        if (sessionId) {
-          await setSignUpActive({ session: sessionId });
+        if (result.status === "complete" && result.createdSessionId) {
+          await setSignUpActive({ session: result.createdSessionId });
           setTimeout(() => handleRedirectByRole(), 300);
-        } else if (
-          result.status === "complete" ||
-          result.verifications?.emailAddress?.status === "verified"
-        ) {
-          if (signUp.createdSessionId) {
-            await setSignUpActive({ session: signUp.createdSessionId });
-          }
-          setTimeout(() => handleRedirectByRole(), 300);
+        } else if (result.status === "missing_requirements") {
+          // The Clerk instance requires more than an email (e.g. password,
+          // username or phone). Email-code sign-in needs those turned off.
+          const missing = (result.missingFields || []).join(", ");
+          setError(
+            `Your email is verified, but sign-up requires additional fields${
+              missing ? ` (${missing})` : ""
+            }. Please contact support.`,
+          );
+          console.error("[CLERK SIGNUP INCOMPLETE]", result.missingFields);
         } else {
           setError(
             `Verification status: ${result.status || "incomplete"}. Please check your verification code.`,
@@ -291,6 +302,7 @@ const LoginPage = () => {
 
         {!verifying ? (
           <form onSubmit={handleSendOtp}>
+            <div id="clerk-captcha" />
             <div style={{ marginBottom: "20px" }}>
               <label
                 style={{
